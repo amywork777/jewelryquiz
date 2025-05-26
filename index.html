@@ -877,11 +877,6 @@
             }
             
             updateProgress();
-            
-            // Re-setup drag and drop for any new file upload areas
-            setTimeout(() => {
-                setupDragAndDrop();
-            }, 100);
         }
 
         function nextQuestion() {
@@ -1228,66 +1223,62 @@
                 
                 console.log('Setting up drag and drop for:', inputId);
                 
-                // Clear any existing event listeners by cloning and replacing
-                const newContainer = container.cloneNode(true);
-                container.parentNode.replaceChild(newContainer, container);
+                // Skip if already has drag-drop-setup attribute
+                if (container.hasAttribute('data-drag-drop-setup')) {
+                    console.log('Drag and drop already setup for:', inputId);
+                    return;
+                }
                 
-                // Get references to the new elements
-                const newFileInput = newContainer.querySelector('input[type="file"]');
-                const newLabel = newContainer.querySelector('.file-upload-label');
-                
-                // Re-attach the file change handler
-                newFileInput.addEventListener('change', function() {
-                    handleFileUpload(this.id);
-                });
+                // Mark as setup to prevent duplicate setup
+                container.setAttribute('data-drag-drop-setup', 'true');
                 
                 // Drag enter
-                newContainer.addEventListener('dragenter', function(e) {
+                container.addEventListener('dragenter', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log('Drag enter on:', inputId);
                     
-                    if (newLabel) {
-                        newLabel.classList.add('drag-over');
-                        newContainer.classList.add('drag-active');
+                    if (label) {
+                        label.classList.add('drag-over');
+                        container.classList.add('drag-active');
                     }
                 });
                 
                 // Drag over
-                newContainer.addEventListener('dragover', function(e) {
+                container.addEventListener('dragover', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     e.dataTransfer.dropEffect = 'copy';
                 });
                 
                 // Drag leave
-                newContainer.addEventListener('dragleave', function(e) {
+                container.addEventListener('dragleave', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     
                     // Check if we're really leaving the container
-                    const rect = newContainer.getBoundingClientRect();
+                    const rect = container.getBoundingClientRect();
                     const x = e.clientX;
                     const y = e.clientY;
                     
                     if (x <= rect.left || x >= rect.right || y <= rect.top || y >= rect.bottom) {
                         console.log('Drag leave on:', inputId);
-                        if (newLabel) {
-                            newLabel.classList.remove('drag-over');
-                            newContainer.classList.remove('drag-active');
+                        if (label) {
+                            label.classList.remove('drag-over');
+                            container.classList.remove('drag-active');
                         }
                     }
                 });
                 
                 // Drop
-                newContainer.addEventListener('drop', function(e) {
+                container.addEventListener('drop', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log('Drop event triggered on:', inputId);
                     
-                    if (newLabel) {
-                        newLabel.classList.remove('drag-over');
-                        newContainer.classList.remove('drag-active');
+                    if (label) {
+                        label.classList.remove('drag-over');
+                        container.classList.remove('drag-active');
                     }
                     
                     const files = e.dataTransfer.files;
@@ -1315,7 +1306,7 @@
                             });
                             
                             // Set the files on the input
-                            newFileInput.files = dt.files;
+                            fileInput.files = dt.files;
                             
                             // Trigger the upload handler
                             console.log('Triggering handleFileUpload for:', inputId);
@@ -2480,8 +2471,8 @@ Based on the feedback above, create an improved ${designType} design that addres
             previewContainer.className = 'image-preview-container';
             previewContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; justify-content: center;';
             
-            let loadedCount = 0;
-            const totalFiles = files.filter(file => file.type.startsWith('image/')).length;
+            // Append container immediately to avoid timing issues
+            container.appendChild(previewContainer);
             
             files.forEach((file, index) => {
                 if (file.type.startsWith('image/')) {
@@ -2497,13 +2488,6 @@ Based on the feedback above, create an improved ${designType} design that addres
                             <p style="font-size: 11px; color: #666; margin: 5px 0 0 0; max-width: 120px; word-break: break-word;">${file.name}</p>
                         `;
                         previewContainer.appendChild(previewDiv);
-                        
-                        loadedCount++;
-                        // Only append the container after all images are loaded
-                        if (loadedCount === totalFiles) {
-                            console.log('All images loaded, appending preview container');
-                            container.appendChild(previewContainer);
-                        }
                     };
                     reader.onerror = function(error) {
                         console.error('Error reading file:', file.name, error);
@@ -2511,31 +2495,26 @@ Based on the feedback above, create an improved ${designType} design that addres
                     reader.readAsDataURL(file);
                 }
             });
-            
-            // If no image files, still append empty container
-            if (totalFiles === 0) {
-                container.appendChild(previewContainer);
-            }
         }
 
         // Initialize
         showQuestion('Q1');
         addArrowToButtons();
         
+        // Setup drag and drop once when page loads
+        let dragDropInitialized = false;
+        
+        function initializeDragDrop() {
+            if (!dragDropInitialized) {
+                setupDragAndDrop();
+                dragDropInitialized = true;
+                console.log('Drag and drop setup complete');
+            }
+        }
+        
         // Setup drag and drop after DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                setupDragAndDrop();
-                console.log('Drag and drop setup complete');
-            }, 200);
-        });
-        
-        // Also setup on page load as fallback
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                setupDragAndDrop();
-                console.log('Drag and drop setup complete (fallback)');
-            }, 300);
+            setTimeout(initializeDragDrop, 200);
         });
     </script>
 </body>
