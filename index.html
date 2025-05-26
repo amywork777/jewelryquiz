@@ -1578,18 +1578,22 @@ Both designs must have significant dimensional depth and sculptural relief - NOT
                         });
             } else {
                         // Path A or B: Combine text preferences with image inspiration
-                        // Build detailed user preferences from survey responses
+                        // Build detailed user preferences from ALL survey responses
                         let detailedPreferences = `
 USER SURVEY RESPONSES TO INCORPORATE:
 - Material: ${promptData.material}
 - Style: ${promptData.style}
 - Subject/Theme: ${promptData.subject}`;
 
+                        // Add all text responses
                         if (responses.inspiration) {
                             detailedPreferences += `\n- Story/Inspiration: ${responses.inspiration}`;
                         }
-                        if (responses.symbols) {
-                            detailedPreferences += `\n- Requested Symbols/Elements: ${responses.symbols}`;
+                        if (responses.all_text_responses.Q6_symbols) {
+                            detailedPreferences += `\n- Meaningful Symbols/Elements: ${responses.all_text_responses.Q6_symbols}`;
+                        }
+                        if (responses.all_text_responses.Q8_idea_description) {
+                            detailedPreferences += `\n- User's Idea Description: ${responses.all_text_responses.Q8_idea_description}`;
                         }
                         if (responses.style_vibes && responses.style_vibes.length > 0) {
                             detailedPreferences += `\n- Style Vibes: ${responses.style_vibes.join(', ')}`;
@@ -1597,8 +1601,11 @@ USER SURVEY RESPONSES TO INCORPORATE:
                         if (responses.size_presence) {
                             detailedPreferences += `\n- Size Preference: ${responses.size_presence}`;
                         }
-                        if (responses.special_details) {
-                            detailedPreferences += `\n- Special Details: ${responses.special_details}`;
+                        if (responses.all_text_responses.Q13_special_details) {
+                            detailedPreferences += `\n- Special Details/Requests: ${responses.all_text_responses.Q13_special_details}`;
+                        }
+                        if (responses.recipient) {
+                            detailedPreferences += `\n- Recipient: ${responses.recipient}`;
                         }
 
                         promptText = `Create a single ${promptData.subject} charm with a jump ring, combining the user's specific survey responses with inspiration from the reference image(s). Generate 2 distinct style variations with full 3D sculptural relief:
@@ -1808,18 +1815,33 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
         }
 
         function captureAllResponses() {
+            // Capture current text inputs from active forms before finalizing
+            document.querySelectorAll('textarea, input[type="text"]').forEach(input => {
+                const questionContainer = input.closest('.question-container');
+                if (questionContainer && input.value.trim()) {
+                    const questionId = questionContainer.dataset.question;
+                    formData[questionId] = input.value.trim();
+                }
+            });
+
             const responses = {
                 journey_type: formData.Q1,
-                inspiration: formData.Q3 || formData.Q8,
+                inspiration: formData.Q3 || formData.Q8, // Q3 for Path A, Q8 for Path B
                 recipient: formData.Q4,
                 style_vibes: formData.Q5 || formData.Q10 || [],
-                symbols: formData.Q6,
+                symbols: formData.Q6, // Path A: meaningful symbols/elements
                 size_presence: formData.Q11,
                 material: formData.Q12,
-                special_details: formData.Q13,
+                special_details: formData.Q13, // Final special requests
                 email: formData.email,
                 phone: formData.phone,
                 community_share: formData.community,
+                // Include ALL text responses for comprehensive prompt building
+                all_text_responses: {
+                    Q6_symbols: formData.Q6 || '', // Path A: What feels meaningful
+                    Q8_idea_description: formData.Q8 || '', // Path B: Tell me about your idea
+                    Q13_special_details: formData.Q13 || '' // Final special requests
+                },
                 // Include uploaded images
                 uploaded_images: {
                     Q2_images: formData.Q2_base64 || [], // Path C: exact design images
@@ -1904,18 +1926,22 @@ DESIGN 2 - Simple Cartoonish Style: Transform the subjects from the image into a
 
 Both designs must have significant dimensional depth and sculptural relief - NOT flat engravings. Create medal-like, coin-like dimensional quality with varying heights across the surface. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     } else {
-                        // Build detailed user preferences from survey responses
+                        // Build detailed user preferences from ALL survey responses
                         let detailedPreferences = `
 USER SURVEY RESPONSES TO INCORPORATE:
 - Material: ${promptData.material}
 - Style: ${promptData.style}
 - Subject/Theme: ${promptData.subject}`;
 
+                        // Add all text responses
                         if (responses.inspiration) {
                             detailedPreferences += `\n- Story/Inspiration: ${responses.inspiration}`;
                         }
-                        if (responses.symbols) {
-                            detailedPreferences += `\n- Requested Symbols/Elements: ${responses.symbols}`;
+                        if (responses.all_text_responses.Q6_symbols) {
+                            detailedPreferences += `\n- Meaningful Symbols/Elements: ${responses.all_text_responses.Q6_symbols}`;
+                        }
+                        if (responses.all_text_responses.Q8_idea_description) {
+                            detailedPreferences += `\n- User's Idea Description: ${responses.all_text_responses.Q8_idea_description}`;
                         }
                         if (responses.style_vibes && responses.style_vibes.length > 0) {
                             detailedPreferences += `\n- Style Vibes: ${responses.style_vibes.join(', ')}`;
@@ -1923,8 +1949,11 @@ USER SURVEY RESPONSES TO INCORPORATE:
                         if (responses.size_presence) {
                             detailedPreferences += `\n- Size Preference: ${responses.size_presence}`;
                         }
-                        if (responses.special_details) {
-                            detailedPreferences += `\n- Special Details: ${responses.special_details}`;
+                        if (responses.all_text_responses.Q13_special_details) {
+                            detailedPreferences += `\n- Special Details/Requests: ${responses.all_text_responses.Q13_special_details}`;
+                        }
+                        if (responses.recipient) {
+                            detailedPreferences += `\n- Recipient: ${responses.recipient}`;
                         }
 
                         promptText = `Create a single ${promptData.subject} charm with a jump ring, combining the user's specific survey responses with inspiration from the reference image(s). Generate 2 distinct style variations with full 3D sculptural relief:
@@ -1938,11 +1967,28 @@ DESIGN 2 - Cartoonish/Cute Style: Transform the same concept into a playful, ado
 Both designs must incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. Create full 3D sculptural relief with significant dimensional depth - NOT flat designs. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     }
                 } else {
-                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}. Generate 2 different design variations.`;
+                    // No uploaded images - use comprehensive text-only prompt
+                    let textOnlyDetails = '';
+                    if (responses.all_text_responses.Q6_symbols) {
+                        textOnlyDetails += ` Incorporate meaningful symbols/elements: ${responses.all_text_responses.Q6_symbols}.`;
+                    }
+                    if (responses.all_text_responses.Q8_idea_description) {
+                        textOnlyDetails += ` User's idea: ${responses.all_text_responses.Q8_idea_description}.`;
+                    }
+                    if (responses.all_text_responses.Q13_special_details) {
+                        textOnlyDetails += ` Special requests: ${responses.all_text_responses.Q13_special_details}.`;
+                    }
+                    if (responses.style_vibes && responses.style_vibes.length > 0) {
+                        textOnlyDetails += ` Style vibes: ${responses.style_vibes.join(', ')}.`;
+                    }
+                    
+                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.${textOnlyDetails} ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}. Generate 2 different design variations.`;
                 }
                 
                 console.log('Generated prompt:', promptText);
                 console.log('Has uploaded images:', hasUploadedImages);
+                console.log('All captured responses:', responses);
+                console.log('Text responses captured:', responses.all_text_responses);
                 
                 // Add loading indicator
                 const resultsDiv = document.querySelector('.results');
