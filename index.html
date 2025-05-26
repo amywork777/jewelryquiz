@@ -223,7 +223,7 @@
         }
 
         button {
-            padding: 15px 30px;
+            padding: 20px 30px;
             border: 1px solid #000000;
             font-size: 16px;
             font-weight: 400;
@@ -237,11 +237,12 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            min-height: 60px;
         }
 
         button svg {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             transition: transform 0.3s ease;
         }
 
@@ -387,7 +388,6 @@
             </div>
             <div class="button-group">
                 <button class="btn-primary" onclick="handleQ1Branch()" disabled>
-                    Continue
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
@@ -414,10 +414,8 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
-                    Back
                 </button>
                 <button class="btn-primary" onclick="nextQuestion()">
-                    Continue
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
@@ -652,7 +650,6 @@
             <div class="button-group">
                 <button class="btn-secondary" onclick="previousQuestion()">Back</button>
                 <button class="btn-primary" onclick="nextQuestion()">
-                    Almost done
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
@@ -733,10 +730,15 @@
         }
 
         function addArrowToButtons() {
-            // Add arrows to all buttons that don't have them
+            // Replace all button text with just arrows
             document.querySelectorAll('.btn-primary').forEach(btn => {
-                if (!btn.querySelector('svg') && btn.textContent.trim() !== 'Submit') {
-                    btn.innerHTML = btn.textContent + `
+                if (btn.textContent.includes('Submit') || btn.innerHTML.includes('20 6 9 17 4 12')) {
+                    btn.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>`;
+                } else {
+                    btn.innerHTML = `
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="9 18 15 12 9 6"></polyline>
                         </svg>`;
@@ -744,12 +746,10 @@
             });
             
             document.querySelectorAll('.btn-secondary').forEach(btn => {
-                if (!btn.querySelector('svg')) {
-                    btn.innerHTML = `
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="15 18 9 12 15 6"></polyline>
-                        </svg>` + btn.textContent;
-                }
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>`;
             });
         }
 
