@@ -933,26 +933,202 @@
             const fileInfo = document.getElementById(inputId + '-info');
             
             if (fileInput.files.length > 0) {
-                const files = Array.from(fileInput.files);
-                const fileNames = files.map(f => f.name).join(', ');
-                fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">:) Selected: ${fileNames}</div>`;
-                
+                const newFiles = Array.from(fileInput.files);
                 const questionId = fileInput.closest('.question-container').dataset.question;
-                formData[questionId + '_files'] = files;
                 
-                // Convert images to base64 for API usage and show preview
-                convertFilesToBase64(files, questionId);
-                showImagePreviews(files, fileInfo);
+                // Get existing files if any
+                const existingFiles = formData[questionId + '_files'] || [];
+                const existingBase64 = formData[questionId + '_base64'] || [];
                 
-                // Update the upload label to show success
+                // Combine existing and new files
+                const allFiles = [...existingFiles, ...newFiles];
+                const allFileNames = allFiles.map(f => f.name).join(', ');
+                
+                // Update form data
+                formData[questionId + '_files'] = allFiles;
+                
+                // Update file info display
+                const fileCount = allFiles.length;
+                fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">:) ${fileCount} file${fileCount > 1 ? 's' : ''} selected: ${allFileNames}</div>`;
+                
+                // Convert new images to base64 and combine with existing
+                convertFilesToBase64(newFiles, questionId, existingBase64);
+                showImagePreviews(allFiles, fileInfo);
+                
+                // Update the upload label to show success and ability to add more
                 const label = fileInput.nextElementSibling;
                 label.style.background = '#d4edda';
                 label.style.borderColor = '#28a745';
                 label.innerHTML = `
-                    <strong>:) Files uploaded successfully!</strong>
-                    <span class="file-upload-instructions">Click to change or add more files</span>
+                    <strong>:) ${fileCount} file${fileCount > 1 ? 's' : ''} uploaded!</strong>
+                    <span class="file-upload-instructions">Click to add more files or replace all</span>
                 `;
+                
+                // Add "Add More" button
+                addMoreFilesButton(fileInput, questionId);
             }
+        }
+
+        function addMoreFilesButton(originalInput, questionId) {
+            const container = originalInput.closest('.file-upload');
+            
+            // Remove existing buttons if they exist
+            const existingButton = container.querySelector('.add-more-button');
+            const existingClearButton = container.querySelector('.clear-all-button');
+            const existingAdditionalInput = container.querySelector('input[type="file"][style*="display: none"]');
+            
+            if (existingButton) existingButton.remove();
+            if (existingClearButton) existingClearButton.remove();
+            if (existingAdditionalInput) existingAdditionalInput.remove();
+            
+            // Remove button container if it exists
+            const existingButtonContainer = container.querySelector('div[style*="display: flex"]');
+            if (existingButtonContainer) existingButtonContainer.remove();
+            
+            // Create "Add More" button
+            const addMoreButton = document.createElement('button');
+            addMoreButton.className = 'add-more-button';
+            addMoreButton.type = 'button';
+            addMoreButton.style.cssText = `
+                margin-top: 10px;
+                padding: 8px 16px;
+                background: #f8f8f8;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            `;
+            addMoreButton.innerHTML = '+ Add More Images';
+            
+            // Add hover effects
+            addMoreButton.onmouseover = function() {
+                this.style.background = '#DAE0FF';
+                this.style.borderColor = '#000';
+            };
+            addMoreButton.onmouseout = function() {
+                this.style.background = '#f8f8f8';
+                this.style.borderColor = '#ddd';
+            };
+            
+            // Create hidden file input for additional files
+            const additionalInput = document.createElement('input');
+            additionalInput.type = 'file';
+            additionalInput.accept = 'image/*';
+            additionalInput.multiple = true;
+            additionalInput.style.display = 'none';
+            
+            // Handle additional file selection
+            additionalInput.onchange = function() {
+                if (this.files.length > 0) {
+                    const newFiles = Array.from(this.files);
+                    const existingFiles = formData[questionId + '_files'] || [];
+                    const existingBase64 = formData[questionId + '_base64'] || [];
+                    
+                    // Combine files
+                    const allFiles = [...existingFiles, ...newFiles];
+                    formData[questionId + '_files'] = allFiles;
+                    
+                    // Update display
+                    const fileInfo = document.getElementById(originalInput.id + '-info');
+                    const allFileNames = allFiles.map(f => f.name).join(', ');
+                    const fileCount = allFiles.length;
+                    fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">:) ${fileCount} file${fileCount > 1 ? 's' : ''} selected: ${allFileNames}</div>`;
+                    
+                    // Convert new images and update previews
+                    convertFilesToBase64(newFiles, questionId, existingBase64);
+                    showImagePreviews(allFiles, fileInfo);
+                    
+                    // Update main label
+                    const label = originalInput.nextElementSibling;
+                    label.innerHTML = `
+                        <strong>:) ${fileCount} file${fileCount > 1 ? 's' : ''} uploaded!</strong>
+                        <span class="file-upload-instructions">Click to add more files or replace all</span>
+                    `;
+                    
+                    // Reset the additional input for next use
+                    this.value = '';
+                }
+            };
+            
+            // Click handler for the button
+            addMoreButton.onclick = function() {
+                additionalInput.click();
+            };
+            
+            // Create "Clear All" button
+            const clearButton = document.createElement('button');
+            clearButton.className = 'clear-all-button';
+            clearButton.type = 'button';
+            clearButton.style.cssText = `
+                margin-top: 10px;
+                margin-left: 10px;
+                padding: 8px 16px;
+                background: #fff;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                color: #666;
+            `;
+            clearButton.innerHTML = 'Clear All';
+            
+            // Add hover effects for clear button
+            clearButton.onmouseover = function() {
+                this.style.background = '#ffebee';
+                this.style.borderColor = '#f44336';
+                this.style.color = '#f44336';
+            };
+            clearButton.onmouseout = function() {
+                this.style.background = '#fff';
+                this.style.borderColor = '#ddd';
+                this.style.color = '#666';
+            };
+            
+            // Clear all files handler
+            clearButton.onclick = function() {
+                if (confirm('Are you sure you want to remove all uploaded images?')) {
+                    // Clear form data
+                    formData[questionId + '_files'] = [];
+                    formData[questionId + '_base64'] = [];
+                    
+                    // Reset original input
+                    originalInput.value = '';
+                    
+                    // Reset label
+                    const label = originalInput.nextElementSibling;
+                    label.style.background = '#ffffff';
+                    label.style.borderColor = '#000000';
+                    label.innerHTML = `
+                        <strong>Drag & drop your images here</strong>
+                        <span class="file-upload-instructions">or click to browse your files</span>
+                    `;
+                    
+                    // Clear file info
+                    const fileInfo = document.getElementById(originalInput.id + '-info');
+                    fileInfo.innerHTML = '';
+                    
+                    // Remove preview containers
+                    const existingContainers = container.querySelectorAll('.image-preview-container');
+                    existingContainers.forEach(cont => cont.remove());
+                    
+                    // Remove buttons
+                    addMoreButton.remove();
+                    clearButton.remove();
+                    additionalInput.remove();
+                }
+            };
+            
+            // Create button container
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = 'display: flex; align-items: center;';
+            buttonContainer.appendChild(addMoreButton);
+            buttonContainer.appendChild(clearButton);
+            
+            // Add elements to container
+            container.appendChild(additionalInput);
+            container.appendChild(buttonContainer);
         }
 
         // Drag and drop functionality
@@ -995,19 +1171,40 @@
             const files = event.dataTransfer.files;
             if (files && files.length > 0) {
                 const fileInput = document.getElementById(inputId);
+                const questionId = fileInput.closest('.question-container').dataset.question;
                 
                 // Filter for image files only
                 const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
                 
                 if (imageFiles.length > 0) {
-                    // Create a new DataTransfer object to set the files
-                    const dt = new DataTransfer();
-                    imageFiles.forEach(file => {
-                        dt.items.add(file);
-                    });
+                    // Get existing files
+                    const existingFiles = formData[questionId + '_files'] || [];
+                    const existingBase64 = formData[questionId + '_base64'] || [];
                     
-                    fileInput.files = dt.files;
-                    handleFileUpload(inputId);
+                    // Combine existing and new files
+                    const allFiles = [...existingFiles, ...imageFiles];
+                    formData[questionId + '_files'] = allFiles;
+                    
+                    // Update display
+                    const fileInfo = document.getElementById(inputId + '-info');
+                    const allFileNames = allFiles.map(f => f.name).join(', ');
+                    const fileCount = allFiles.length;
+                    fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">:) ${fileCount} file${fileCount > 1 ? 's' : ''} selected: ${allFileNames}</div>`;
+                    
+                    // Convert new images and update previews
+                    convertFilesToBase64(imageFiles, questionId, existingBase64);
+                    showImagePreviews(allFiles, fileInfo);
+                    
+                    // Update label
+                    label.style.background = '#d4edda';
+                    label.style.borderColor = '#28a745';
+                    label.innerHTML = `
+                        <strong>:) ${fileCount} file${fileCount > 1 ? 's' : ''} uploaded!</strong>
+                        <span class="file-upload-instructions">Click to add more files or replace all</span>
+                    `;
+                    
+                    // Add "Add More" button
+                    addMoreFilesButton(fileInput, questionId);
                 } else {
                     alert('Please drop only image files (JPG, PNG, GIF, etc.)');
                 }
@@ -1055,22 +1252,24 @@
             fileInfo.parentElement.appendChild(previewContainer);
         }
 
-        async function convertFilesToBase64(files, questionId) {
-            const base64Images = [];
+        async function convertFilesToBase64(files, questionId, existingBase64 = []) {
+            const newBase64Images = [];
             
             for (const file of files) {
                 if (file.type.startsWith('image/')) {
                     try {
                         const base64 = await fileToBase64(file);
-                        base64Images.push(base64);
+                        newBase64Images.push(base64);
                     } catch (error) {
                         console.error('Error converting file to base64:', error);
                     }
                 }
             }
             
-            if (base64Images.length > 0) {
-                formData[questionId + '_base64'] = base64Images;
+            if (newBase64Images.length > 0) {
+                // Combine existing and new base64 images
+                const allBase64Images = [...existingBase64, ...newBase64Images];
+                formData[questionId + '_base64'] = allBase64Images;
             }
         }
 
