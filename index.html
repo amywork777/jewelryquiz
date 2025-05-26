@@ -113,6 +113,25 @@
             position: relative;
         }
 
+        .option-with-image {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+        }
+
+        .option-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .option-text {
+            flex: 1;
+        }
+
         .option::after {
             content: '';
             position: absolute;
@@ -692,17 +711,29 @@
         <div class="question-container" data-question="Q11">
             <h2>What size and presence do you prefer?</h2>
             <div class="options">
-                <div class="option" onclick="selectOption(this, 'subtle')">
-                    Small & delicate
+                <div class="option option-with-image" onclick="selectOption(this, 'subtle')">
+                    <img src="images/questions/size/subtle.jpg" alt="Small & delicate" class="option-image">
+                    <div class="option-text">
+                        Small & delicate
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'bold-sculptural')">
-                    Bold & statement-making
+                <div class="option option-with-image" onclick="selectOption(this, 'classic')">
+                    <img src="images/questions/size/classic.jpg" alt="Medium & versatile" class="option-image">
+                    <div class="option-text">
+                        Medium & versatile
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'classic')">
-                    Medium & versatile
+                <div class="option option-with-image" onclick="selectOption(this, 'bold-sculptural')">
+                    <img src="images/questions/size/bold-sculptural.jpg" alt="Bold & statement-making" class="option-image">
+                    <div class="option-text">
+                        Bold & statement-making
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'not-sure')">
-                    I'm not sure yet
+                <div class="option option-with-image" onclick="selectOption(this, 'not-sure')">
+                    <img src="images/questions/size/not-sure.jpg" alt="I'm not sure yet" class="option-image">
+                    <div class="option-text">
+                        I'm not sure yet
+                    </div>
                 </div>
             </div>
             <div class="button-group">
@@ -716,20 +747,32 @@
             <h2>What material would you prefer?</h2>
             <p>Each option has different qualities and pricing</p>
             <div class="options">
-                <div class="option" onclick="selectOption(this, '14k-gold')">
-                    14K Solid Gold
-                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Luxurious & lasting</span>
+                <div class="option option-with-image" onclick="selectOption(this, '14k-gold')">
+                    <img src="images/questions/materials/14k-gold.jpg" alt="14K Gold" class="option-image">
+                    <div class="option-text">
+                        14K Solid Gold
+                        <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Luxurious & lasting</span>
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'sterling-silver')">
-                    Sterling Silver
-                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Classic & affordable</span>
+                <div class="option option-with-image" onclick="selectOption(this, 'sterling-silver')">
+                    <img src="images/questions/materials/sterling-silver.jpg" alt="Sterling Silver" class="option-image">
+                    <div class="option-text">
+                        Sterling Silver
+                        <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Classic & affordable</span>
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'gold-plated')">
-                    Gold-Plated Silver
-                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Golden look, silver price</span>
+                <div class="option option-with-image" onclick="selectOption(this, 'gold-plated')">
+                    <img src="images/questions/materials/gold-plated.jpg" alt="Gold Plated" class="option-image">
+                    <div class="option-text">
+                        Gold-Plated Silver
+                        <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Golden look, silver price</span>
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'help-decide')">
-                    Help me choose
+                <div class="option option-with-image" onclick="selectOption(this, 'help-decide')">
+                    <img src="images/questions/materials/help-decide.jpg" alt="Help Decide" class="option-image">
+                    <div class="option-text">
+                        Help me choose
+                    </div>
                 </div>
             </div>
             <div class="button-group">
