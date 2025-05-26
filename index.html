@@ -704,22 +704,17 @@
         <!-- Q13 -->
         <div class="question-container" data-question="Q13">
             <h2>Any special details or requests?</h2>
+            <p style="color: #666; font-size: 16px; margin-bottom: 20px;">Amazing! Your custom design is taking shape. Any final touches?</p>
             <textarea placeholder="For example: specific dates, sizing preferences, engraving ideas, or any other notes..."></textarea>
             <div class="skip-link">
                 <a href="#" onclick="skipTextInput(); return false;">No special requests</a>
             </div>
             <div class="button-group">
-                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
-                <button class="btn-primary" onclick="nextQuestion()">Continue</button>
-            </div>
-        </div>
-
-        <!-- Q14 -->
-        <div class="question-container" data-question="Q14">
-            <h2>Amazing! Your custom design is taking shape</h2>
-            <p>We'll create something beautiful based on everything you've shared</p>
-            <div class="button-group">
-                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-secondary" onclick="previousQuestion()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
                 <button class="btn-primary" onclick="nextQuestion()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
@@ -729,26 +724,32 @@
         </div>
 
         <!-- Contact Info -->
-        <div class="question-container" data-question="email">
-            <h2>What's your email address?</h2>
-            <p>We'll send your custom design mockup here</p>
-            <input type="email" placeholder="your@email.com" required>
-            <div class="button-group">
-                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
-                <button class="btn-primary" onclick="validateEmail()" disabled>Continue</button>
+        <div class="question-container" data-question="contact">
+            <h2>How can we reach you?</h2>
+            <p>We'll send your custom design mockup and updates</p>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 400; color: #000;">Email address *</label>
+                <input type="email" id="contact-email" placeholder="your@email.com" required style="margin-bottom: 15px;">
             </div>
-        </div>
-
-        <div class="question-container" data-question="phone">
-            <h2>Phone number for updates? (optional)</h2>
-            <p>We can text you when your design is ready</p>
-            <input type="tel" placeholder="+1 (555) 123-4567">
-            <div class="skip-link">
-                <a href="#" onclick="skipPhone(); return false;">Email only is fine</a>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 400; color: #000;">Phone number (optional)</label>
+                <input type="tel" id="contact-phone" placeholder="+1 (555) 123-4567">
+                <div style="font-size: 14px; color: #666; margin-top: 5px;">For text updates when your design is ready</div>
             </div>
+            
             <div class="button-group">
-                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
-                <button class="btn-primary" onclick="validatePhone()">Continue</button>
+                <button class="btn-secondary" onclick="previousQuestion()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <button class="btn-primary" onclick="validateContact()" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -942,13 +943,13 @@
             // Build the appropriate flow based on the answer
             if (answer === 'A') {
                 // Path A: Need help
-                questionFlow = ['Q1', 'Q3', 'Q4', 'Q6', 'Q7', 'Q11', 'Q12', 'Q13', 'Q14', 'email', 'phone', 'community', 'complete'];
+                questionFlow = ['Q1', 'Q3', 'Q4', 'Q6', 'Q7', 'Q11', 'Q12', 'Q13', 'contact', 'community', 'complete'];
             } else if (answer === 'B') {
                 // Path B: Have ideas
-                questionFlow = ['Q1', 'Q8', 'Q9', 'Q10', 'Q11', 'Q12', 'Q13', 'Q14', 'email', 'phone', 'community', 'complete'];
+                questionFlow = ['Q1', 'Q8', 'Q9', 'Q10', 'Q11', 'Q12', 'Q13', 'contact', 'community', 'complete'];
             } else if (answer === 'C') {
                 // Path C: Know exactly
-                questionFlow = ['Q1', 'Q2', 'Q5', 'Q11', 'Q12', 'Q13', 'Q14', 'email', 'phone', 'community', 'complete'];
+                questionFlow = ['Q1', 'Q2', 'Q5', 'Q11', 'Q12', 'Q13', 'contact', 'community', 'complete'];
             }
             
             nextQuestion();
@@ -1357,7 +1358,7 @@
             
             if (currentQuestion === 'Q2') {
                 // Path C: Skip upload and go to describe idea (Q8), then size (Q11)
-                questionFlow = ['Q1', 'Q2', 'Q8', 'Q11', 'Q12', 'Q13', 'Q14', 'email', 'phone', 'community', 'complete'];
+                questionFlow = ['Q1', 'Q2', 'Q8', 'Q11', 'Q12', 'Q13', 'contact', 'community', 'complete'];
                 // Jump to Q8 (Tell me about your idea)
                 currentQuestionIndex = 2; // Q8 is at index 2 in the new flow
                 showQuestion('Q8');
@@ -1380,13 +1381,15 @@
             nextQuestion();
         }
 
-        function validateEmail() {
-            const emailInput = document.querySelector('.question-container.active input[type="email"]');
+        function validateContact() {
+            const emailInput = document.querySelector('#contact-email');
+            const phoneInput = document.querySelector('#contact-phone');
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
             if (emailInput && emailRegex.test(emailInput.value)) {
-                // Save email and start generating image early
+                // Save email and phone
                 formData.email = emailInput.value;
+                formData.phone = phoneInput.value.trim() || '';
                 
                 // Start image generation in background
                 startBackgroundImageGeneration();
@@ -1637,15 +1640,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
             }, 3000);
         }
 
-        function validatePhone() {
-            const phoneInput = document.querySelector('.question-container.active input[type="tel"]');
-            
-            if (phoneInput && phoneInput.value.trim()) {
-                nextQuestion();
-            } else {
-                nextQuestion(); // Allow skipping
-            }
-        }
+
 
         function submitForm() {
             // Save final answer
@@ -1996,7 +1991,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     // Display header
                     const headerDiv = document.createElement('div');
                     headerDiv.innerHTML = `
-                        <h4 style="margin: 20px 0 10px 0; color: #000;">Your Custom Charm Designs:</h4>
+                        <h4 style="margin: 20px 0 10px 0; color: #000;">Your Design Picks:</h4>
                         <p style="font-size: 14px; color: #666; margin-bottom: 15px;"><strong>${imageTypeText}</strong></p>
                     `;
                     resultsDiv.appendChild(headerDiv);
@@ -2388,11 +2383,11 @@ Based on the feedback above, create an improved ${designType} design that addres
                 clearTimeout(window.textInputTimer);
                 
                 // Auto-advance for required fields after user stops typing
-                if (this.type === 'email' && this.value.trim() !== '') {
+                if (this.id === 'contact-email' && this.value.trim() !== '') {
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (emailRegex.test(this.value)) {
                         window.textInputTimer = setTimeout(() => {
-                            validateEmail();
+                            validateContact();
                         }, 1500);
                     }
                 } else if (this.closest('[data-question="Q8"]') && this.value.trim() !== '') {
