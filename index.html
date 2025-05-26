@@ -190,6 +190,7 @@
             display: inline-block;
             cursor: pointer;
             width: 100%;
+            margin-bottom: 20px;
         }
 
         .file-upload input[type="file"] {
@@ -199,16 +200,50 @@
 
         .file-upload-label {
             display: block;
-            padding: 15px;
-            border: 2px dashed #000000;
+            padding: 40px 20px;
+            border: 3px dashed #000000;
             text-align: center;
             color: #000000;
             transition: all 0.3s ease;
             background: #ffffff;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 400;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .file-upload-label::before {
+            content: "( ^ _ ^ )";
+            font-size: 24px;
+            display: block;
+            margin-bottom: 8px;
+            font-family: monospace;
         }
 
         .file-upload:hover .file-upload-label {
             background: #DAE0FF;
+            border-color: #000000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .file-upload-label.drag-over {
+            background: #DAE0FF;
+            border-color: #000000;
+            transform: scale(1.02);
+        }
+
+        .file-upload-instructions {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+            font-weight: 300;
         }
 
         .file-info {
@@ -410,10 +445,11 @@
         <div class="question-container" data-question="Q2">
             <h2>Perfect! Show me your inspiration</h2>
             <p>Upload any photo, sketch, or reference image</p>
-            <div class="file-upload">
+            <div class="file-upload" ondrop="handleDrop(event, 'q2-file')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondragenter="handleDragOver(event)">
                 <input type="file" id="q2-file" accept="image/*" onchange="handleFileUpload('q2-file')">
                 <label for="q2-file" class="file-upload-label">
-                    Drop your image here or click to browse
+                    <strong>Drag & drop your image here</strong>
+                    <span class="file-upload-instructions">or click to browse your files</span>
                 </label>
                 <div class="file-info" id="q2-file-info"></div>
             </div>
@@ -520,10 +556,11 @@
         <!-- Path A: Q7 -->
         <div class="question-container" data-question="Q7">
             <h2>Do you have any inspiration photos? (optional)</h2>
-            <div class="file-upload">
+            <div class="file-upload" ondrop="handleDrop(event, 'q7-file')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondragenter="handleDragOver(event)">
                 <input type="file" id="q7-file" accept="image/*" onchange="handleFileUpload('q7-file')">
                 <label for="q7-file" class="file-upload-label">
-                    Click to upload or drag and drop
+                    <strong>Drag & drop inspiration photos here</strong>
+                    <span class="file-upload-instructions">or click to browse your files</span>
                 </label>
                 <div class="file-info" id="q7-file-info"></div>
             </div>
@@ -549,10 +586,11 @@
         <!-- Path B: Q9 -->
         <div class="question-container" data-question="Q9">
             <h2>Upload any reference images (optional).</h2>
-            <div class="file-upload">
+            <div class="file-upload" ondrop="handleDrop(event, 'q9-file')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondragenter="handleDragOver(event)">
                 <input type="file" id="q9-file" accept="image/*" multiple onchange="handleFileUpload('q9-file')">
                 <label for="q9-file" class="file-upload-label">
-                    Click to upload or drag and drop
+                    <strong>Drag & drop reference images here</strong>
+                    <span class="file-upload-instructions">or click to browse your files (multiple files OK)</span>
                 </label>
                 <div class="file-info" id="q9-file-info"></div>
             </div>
@@ -897,7 +935,7 @@
             if (fileInput.files.length > 0) {
                 const files = Array.from(fileInput.files);
                 const fileNames = files.map(f => f.name).join(', ');
-                fileInfo.textContent = `Selected: ${fileNames}`;
+                fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">:) Selected: ${fileNames}</div>`;
                 
                 const questionId = fileInput.closest('.question-container').dataset.question;
                 formData[questionId + '_files'] = files;
@@ -905,13 +943,97 @@
                 // Convert images to base64 for API usage and show preview
                 convertFilesToBase64(files, questionId);
                 showImagePreviews(files, fileInfo);
+                
+                // Update the upload label to show success
+                const label = fileInput.nextElementSibling;
+                label.style.background = '#d4edda';
+                label.style.borderColor = '#28a745';
+                label.innerHTML = `
+                    <strong>:) Files uploaded successfully!</strong>
+                    <span class="file-upload-instructions">Click to change or add more files</span>
+                `;
             }
         }
 
+        // Drag and drop functionality
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.dataTransfer.dropEffect = 'copy';
+            const label = event.currentTarget.querySelector('.file-upload-label');
+            if (label) {
+                label.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Only remove drag-over if we're actually leaving the drop zone
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = event.clientX;
+            const y = event.clientY;
+            
+            if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+                const label = event.currentTarget.querySelector('.file-upload-label');
+                if (label) {
+                    label.classList.remove('drag-over');
+                }
+            }
+        }
+
+        function handleDrop(event, inputId) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const label = event.currentTarget.querySelector('.file-upload-label');
+            if (label) {
+                label.classList.remove('drag-over');
+            }
+            
+            const files = event.dataTransfer.files;
+            if (files && files.length > 0) {
+                const fileInput = document.getElementById(inputId);
+                
+                // Filter for image files only
+                const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+                
+                if (imageFiles.length > 0) {
+                    // Create a new DataTransfer object to set the files
+                    const dt = new DataTransfer();
+                    imageFiles.forEach(file => {
+                        dt.items.add(file);
+                    });
+                    
+                    fileInput.files = dt.files;
+                    handleFileUpload(inputId);
+                } else {
+                    alert('Please drop only image files (JPG, PNG, GIF, etc.)');
+                }
+            }
+        }
+
+        // Prevent default drag behaviors on the document
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+        });
+
         function showImagePreviews(files, fileInfo) {
-            // Clear existing previews
+            // Clear existing previews and containers
             const existingPreviews = fileInfo.parentElement.querySelectorAll('.image-preview');
+            const existingContainers = fileInfo.parentElement.querySelectorAll('.image-preview-container');
             existingPreviews.forEach(preview => preview.remove());
+            existingContainers.forEach(container => container.remove());
+            
+            // Create a container for all previews
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'image-preview-container';
+            previewContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; justify-content: center;';
             
             files.forEach(file => {
                 if (file.type.startsWith('image/')) {
@@ -919,16 +1041,18 @@
                     reader.onload = function(e) {
                         const previewDiv = document.createElement('div');
                         previewDiv.className = 'image-preview';
-                        previewDiv.style.cssText = 'margin-top: 10px; text-align: center;';
+                        previewDiv.style.cssText = 'text-align: center; flex: 0 0 auto;';
                         previewDiv.innerHTML = `
-                            <img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px;">
-                            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">Preview: ${file.name}</p>
+                            <img src="${e.target.result}" alt="Preview" style="max-width: 120px; max-height: 120px; border: 2px solid #000; border-radius: 8px; object-fit: cover;">
+                            <p style="font-size: 11px; color: #666; margin: 5px 0 0 0; max-width: 120px; word-break: break-word;">${file.name}</p>
                         `;
-                        fileInfo.parentElement.appendChild(previewDiv);
+                        previewContainer.appendChild(previewDiv);
                     };
                     reader.readAsDataURL(file);
                 }
             });
+            
+            fileInfo.parentElement.appendChild(previewContainer);
         }
 
         async function convertFilesToBase64(files, questionId) {
@@ -1209,7 +1333,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 border: 1px solid #000;
                 animation: fadeInOut 3s ease-in-out;
             `;
-            indicator.textContent = '✨ Generating your charm design...';
+            indicator.textContent = ':) Generating your charm design...';
             
             // Add fade animation
             const style = document.createElement('style');
@@ -1659,7 +1783,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                                         onmouseover="this.style.background='#DAE0FF'; this.style.color='#000000'; this.style.borderColor='#000000';"
                                         onmouseout="this.style.background='#f8f8f8'; this.style.color='#333333'; this.style.borderColor='#dddddd';"
                                     >
-                                        ✨ Refine Design ${index + 1}
+                                        :D Refine Design ${index + 1}
                                     </button>
                                 </div>
                             `;
@@ -1946,7 +2070,7 @@ Based on the feedback above, create an improved ${designType} design that addres
                      // Show success message
                      const successMsg = document.createElement('div');
                      successMsg.style.cssText = 'background: #d4edda; color: #155724; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 12px; text-align: center;';
-                     successMsg.textContent = `✓ Design ${designNumber} refined successfully! (Version ${newVersion})`;
+                     successMsg.textContent = `:) Design ${designNumber} refined successfully! (Version ${newVersion})`;
                      feedbackTextarea.parentElement.appendChild(successMsg);
                      
                      // Remove success message after 3 seconds
