@@ -1839,20 +1839,28 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 resultsDiv.appendChild(loadingDiv);
                 
                 let data;
+                let useBackgroundImages = false;
                 
                 // Try to use background-generated image first
                 if (backgroundImagePromise) {
                     try {
                         data = await backgroundImagePromise;
                         console.log('Background image ready!');
+                        
+                        // Check if we got valid background data
+                        if (data && data.output && data.output.length > 0) {
+                            console.log('Using background-generated images, skipping fresh generation');
+                            useBackgroundImages = true;
+                        } else {
+                            console.log('Background data empty, will generate fresh');
+                        }
                     } catch (error) {
                         console.log('Background generation failed, starting fresh:', error);
-                        backgroundImagePromise = null;
                     }
                 }
                 
-                // If no background image available, generate fresh
-                if (!backgroundImagePromise) {
+                // If no background image available or failed, generate fresh
+                if (!useBackgroundImages) {
                     // Get API key from config or prompt for it
                     let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
                     if (!apiKey) {
