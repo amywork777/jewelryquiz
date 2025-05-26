@@ -901,7 +901,62 @@
                 
                 const questionId = fileInput.closest('.question-container').dataset.question;
                 formData[questionId + '_files'] = files;
+                
+                // Convert images to base64 for API usage and show preview
+                convertFilesToBase64(files, questionId);
+                showImagePreviews(files, fileInfo);
             }
+        }
+
+        function showImagePreviews(files, fileInfo) {
+            // Clear existing previews
+            const existingPreviews = fileInfo.parentElement.querySelectorAll('.image-preview');
+            existingPreviews.forEach(preview => preview.remove());
+            
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'image-preview';
+                        previewDiv.style.cssText = 'margin-top: 10px; text-align: center;';
+                        previewDiv.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px;">
+                            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">Preview: ${file.name}</p>
+                        `;
+                        fileInfo.parentElement.appendChild(previewDiv);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        async function convertFilesToBase64(files, questionId) {
+            const base64Images = [];
+            
+            for (const file of files) {
+                if (file.type.startsWith('image/')) {
+                    try {
+                        const base64 = await fileToBase64(file);
+                        base64Images.push(base64);
+                    } catch (error) {
+                        console.error('Error converting file to base64:', error);
+                    }
+                }
+            }
+            
+            if (base64Images.length > 0) {
+                formData[questionId + '_base64'] = base64Images;
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
         }
 
         function skipUpload() {
@@ -997,7 +1052,13 @@
                 special_details: formData.Q13,
                 email: formData.email,
                 phone: formData.phone,
-                community_share: formData.community
+                community_share: formData.community,
+                // Include uploaded images
+                uploaded_images: {
+                    Q2_images: formData.Q2_base64 || [], // Path C: exact design images
+                    Q7_images: formData.Q7_base64 || [], // Path A: inspiration images
+                    Q9_images: formData.Q9_base64 || []  // Path B: reference images
+                }
             };
             return responses;
         }
@@ -1070,10 +1131,61 @@
                 const responses = captureAllResponses();
                 const promptData = generatePromptFromResponses(responses);
                 
-                // Convert prompt object to descriptive text
-                const promptText = `Create ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                // Check if we have uploaded images to incorporate
+                const hasUploadedImages = responses.uploaded_images.Q2_images.length > 0 || 
+                                        responses.uploaded_images.Q7_images.length > 0 || 
+                                        responses.uploaded_images.Q9_images.length > 0;
+                
+                let promptText;
+                let inputContent = [];
+                
+                if (hasUploadedImages) {
+                    // Create prompt that incorporates the uploaded images
+                    if (responses.uploaded_images.Q2_images.length > 0) {
+                        // Path C: Exact design - make this image into a charm
+                        promptText = `Transform this image into a ${promptData.material} charm. Create a ${promptData.style} version that captures the essence of the uploaded image. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                        
+                        // Add the uploaded image(s) to input
+                        inputContent.push({
+                            "type": "input_text",
+                            "text": promptText
+                        });
+                        
+                        responses.uploaded_images.Q2_images.forEach(imageBase64 => {
+                            inputContent.push({
+                                "type": "input_image",
+                                "image_url": imageBase64
+                            });
+                        });
+                    } else {
+                        // Path A or B: Use as inspiration/reference
+                        promptText = `Create ${promptData.subject} with ${promptData.style} styling, inspired by the reference image(s). Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                        
+                        inputContent.push({
+                            "type": "input_text", 
+                            "text": promptText
+                        });
+                        
+                        // Add inspiration/reference images
+                        const allImages = [...responses.uploaded_images.Q7_images, ...responses.uploaded_images.Q9_images];
+                        allImages.forEach(imageBase64 => {
+                            inputContent.push({
+                                "type": "input_image",
+                                "image_url": imageBase64
+                            });
+                        });
+                    }
+                } else {
+                    // No uploaded images - use text-only prompt
+                    promptText = `Create ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                    inputContent.push({
+                        "type": "input_text",
+                        "text": promptText
+                    });
+                }
                 
                 console.log('Generated prompt:', promptText);
+                console.log('Has uploaded images:', hasUploadedImages);
                 
                 // Add loading indicator
                 const resultsDiv = document.querySelector('.results');
@@ -1091,7 +1203,10 @@
                     },
                     body: JSON.stringify({
                         model: "gpt-4.1-mini",
-                        input: promptText,
+                        input: hasUploadedImages ? [{
+                            "role": "user",
+                            "content": inputContent
+                        }] : promptText,
                         tools: [{
                             type: "image_generation",
                             quality: "high",
@@ -1124,9 +1239,16 @@
                     
                     // Display the generated image
                     const imageDiv = document.createElement('div');
+                    const imageTypeText = hasUploadedImages ? 
+                        (responses.uploaded_images.Q2_images.length > 0 ? 
+                            'Based on your uploaded design' : 
+                            'Inspired by your reference images') : 
+                        'Generated from your preferences';
+                    
                     imageDiv.innerHTML = `
                         <h4 style="margin: 20px 0 10px 0; color: #000;">Your Custom Charm Design:</h4>
                         <img src="${imageUrl}" alt="Generated charm design" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="font-size: 14px; color: #666; margin-bottom: 10px;"><strong>${imageTypeText}</strong></p>
                         <p style="font-size: 14px; color: #666; margin-bottom: 20px;"><strong>Prompt used:</strong> ${promptText}</p>
                         <p style="font-size: 12px; color: #999;">Generated using GPT Image 1 (latest model)</p>
                     `;
