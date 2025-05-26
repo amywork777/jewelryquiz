@@ -416,8 +416,45 @@
                 padding: 15px;
                 font-size: 15px;
             }
+        }
 
+        /* Design layout styles */
+        .design-container {
+            display: flex !important;
+            gap: 15px !important;
+            margin-bottom: 20px !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+        }
 
+        .design-item {
+            flex: 1 1 45% !important;
+            min-width: 300px !important;
+            max-width: 500px !important;
+            padding: 15px !important;
+            border: 1px solid #eee !important;
+            border-radius: 8px !important;
+            text-align: center !important;
+        }
+
+        @media (max-width: 768px) {
+            .design-item {
+                min-width: 280px !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .design-container {
+                flex-direction: column !important;
+                overflow-x: visible !important;
+            }
+            
+            .design-item {
+                flex: none !important;
+                min-width: auto !important;
+                max-width: none !important;
+                width: 100% !important;
+            }
         }
     </style>
 </head>
@@ -2006,7 +2043,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     
                     // Create container for side-by-side layout
                     const imagesContainer = document.createElement('div');
-                    imagesContainer.style.cssText = 'display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;';
+                    imagesContainer.className = 'design-container';
                     
                     // Display each generated image
                     imageGenerationCalls.forEach((call, index) => {
@@ -2023,7 +2060,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                             const imageUrl = URL.createObjectURL(blob);
                             
                             const imageDiv = document.createElement('div');
-                            imageDiv.style.cssText = 'flex: 1; min-width: 250px; padding: 15px; border: 1px solid #eee; border-radius: 8px; text-align: center;';
+                            imageDiv.className = 'design-item';
                             
                             // Determine design type based on path and index
                             let designType;
