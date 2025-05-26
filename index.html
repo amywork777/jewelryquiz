@@ -2412,21 +2412,22 @@ Based on the feedback above, create an improved ${designType} design that addres
             input.addEventListener('input', function() {
                 const continueBtn = this.closest('.question-container').querySelector('.btn-primary');
                 if (continueBtn) {
-                    continueBtn.disabled = this.value.trim() === '';
+                    // For contact form, only enable button when email is valid
+                    if (this.closest('[data-question="contact"]')) {
+                        const emailInput = this.closest('.question-container').querySelector('#contact-email');
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        continueBtn.disabled = !emailInput || !emailRegex.test(emailInput.value);
+                    } else {
+                        continueBtn.disabled = this.value.trim() === '';
+                    }
                 }
                 
                 // Clear any existing timer
                 clearTimeout(window.textInputTimer);
                 
                 // Auto-advance for required fields after user stops typing
-                if (this.id === 'contact-email' && this.value.trim() !== '') {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (emailRegex.test(this.value)) {
-                        window.textInputTimer = setTimeout(() => {
-                            validateContact();
-                        }, 1500);
-                    }
-                } else if (this.closest('[data-question="Q8"]') && this.value.trim() !== '') {
+                // Note: Removed auto-advance for contact-email to give users time to fill in phone number
+                if (this.closest('[data-question="Q8"]') && this.value.trim() !== '') {
                     // Auto-advance for Q8 (required text field)
                     window.textInputTimer = setTimeout(() => {
                         nextQuestion();
