@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Charm Design Questionnaire</title>
+    <script src="config.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -1056,12 +1057,14 @@
 
         async function generateCharmImage() {
             try {
-                // Check if API key is set, if not prompt for it
-                if (!window.OPENAI_API_KEY) {
-                    window.OPENAI_API_KEY = prompt('Please enter your OpenAI API key to generate the charm image:');
-                    if (!window.OPENAI_API_KEY) {
+                // Get API key from config or prompt for it
+                let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
+                if (!apiKey) {
+                    apiKey = prompt('Please enter your OpenAI API key to generate the charm image:');
+                    if (!apiKey) {
                         throw new Error('API key required for image generation');
                     }
+                    window.OPENAI_API_KEY = apiKey;
                 }
                 
                 const responses = captureAllResponses();
@@ -1084,7 +1087,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + window.OPENAI_API_KEY
+                        'Authorization': 'Bearer ' + apiKey
                     },
                     body: JSON.stringify({
                         model: "gpt-4.1-mini",
