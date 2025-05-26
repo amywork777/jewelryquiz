@@ -1319,37 +1319,7 @@
             });
         }
 
-        function showImagePreviews(files, fileInfo) {
-            // Clear existing previews and containers
-            const existingPreviews = fileInfo.parentElement.querySelectorAll('.image-preview');
-            const existingContainers = fileInfo.parentElement.querySelectorAll('.image-preview-container');
-            existingPreviews.forEach(preview => preview.remove());
-            existingContainers.forEach(container => container.remove());
-            
-            // Create a container for all previews
-            const previewContainer = document.createElement('div');
-            previewContainer.className = 'image-preview-container';
-            previewContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; justify-content: center;';
-            
-            files.forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const previewDiv = document.createElement('div');
-                        previewDiv.className = 'image-preview';
-                        previewDiv.style.cssText = 'text-align: center; flex: 0 0 auto;';
-                        previewDiv.innerHTML = `
-                            <img src="${e.target.result}" alt="Preview" style="max-width: 120px; max-height: 120px; border: 2px solid #000; border-radius: 8px; object-fit: cover;">
-                            <p style="font-size: 11px; color: #666; margin: 5px 0 0 0; max-width: 120px; word-break: break-word;">${file.name}</p>
-                        `;
-                        previewContainer.appendChild(previewDiv);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            fileInfo.parentElement.appendChild(previewContainer);
-        }
+
 
         async function convertFilesToBase64(files, questionId, existingBase64 = []) {
             const newBase64Images = [];
