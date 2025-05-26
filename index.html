@@ -218,31 +218,33 @@
 
         .button-group {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             margin-top: 30px;
+            justify-content: flex-end;
         }
 
         button {
-            padding: 20px 30px;
-            border: 1px solid #000000;
+            padding: 12px 20px;
+            border: 1px solid #cccccc;
             font-size: 16px;
             font-weight: 400;
             cursor: pointer;
             transition: all 0.3s ease;
-            flex: 1;
+            flex: 0 0 auto;
             background: #ffffff;
-            color: #000000;
+            color: #666666;
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            min-height: 60px;
+            min-height: 44px;
+            max-width: 60px;
         }
 
         button svg {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             transition: transform 0.3s ease;
         }
 
@@ -255,27 +257,35 @@
         }
 
         .btn-primary {
-            background: #000000;
-            color: #ffffff;
+            background: #f8f8f8;
+            color: #333333;
+            border: 1px solid #dddddd;
         }
 
         .btn-primary:hover {
             background: #DAE0FF;
             color: #000000;
+            border: 1px solid #000000;
         }
 
         .btn-primary:disabled {
-            opacity: 0.3;
+            opacity: 0.4;
             cursor: not-allowed;
+            background: #f5f5f5;
+            color: #cccccc;
+            border: 1px solid #eeeeee;
         }
 
         .btn-secondary {
             background: #ffffff;
-            color: #000000;
+            color: #666666;
+            border: 1px solid #dddddd;
         }
 
         .btn-secondary:hover {
-            background: #DAE0FF;
+            background: #f0f0f0;
+            color: #333333;
+            border: 1px solid #999999;
         }
 
         .skip-link {
@@ -373,14 +383,14 @@
 
         <!-- Question 1 -->
         <div class="question-container active" data-question="Q1">
-            <h2>Let's create something special together</h2>
-            <p>First, tell me where you're at with your idea:</p>
+            <h2>Let's create your custom charm</h2>
+            <p>How much do you already know about what you want?</p>
             <div class="options">
                 <div class="option" onclick="selectOption(this, 'A')">
-                    I'd love help exploring ideas
+                    I need help with ideas
                 </div>
                 <div class="option" onclick="selectOption(this, 'B')">
-                    I have a rough concept in mind
+                    I have some ideas
                 </div>
                 <div class="option" onclick="selectOption(this, 'C')">
                     I know exactly what I want
@@ -425,16 +435,16 @@
 
         <!-- Path A: Q3 -->
         <div class="question-container" data-question="Q3">
-            <h2>What inspired you to create a custom charm?</h2>
+            <h2>What's the story behind your charm?</h2>
             <div class="options">
                 <div class="option" onclick="selectOption(this, 'curious')">
-                    Just exploring what's possible
+                    Just browsing for something beautiful
                 </div>
                 <div class="option" onclick="selectOption(this, 'moment')">
                     Celebrating a special moment
                 </div>
                 <div class="option" onclick="selectOption(this, 'person')">
-                    Honoring someone important
+                    Honoring someone special
                 </div>
                 <div class="option" onclick="selectOption(this, 'place')">
                     Remembering a meaningful place
@@ -468,8 +478,8 @@
 
         <!-- Paths C & B: Q5 & Q10 (same content, different IDs) -->
         <div class="question-container" data-question="Q5">
-            <h2>Choose your vibe</h2>
-            <p>Select all that resonate with you</p>
+            <h2>What style appeals to you?</h2>
+            <p>Choose all that feel right (you can select multiple)</p>
             <div class="options multi-select">
                 <div class="option" onclick="toggleMultiSelect(this, 'elegant')">
                     Elegant & Timeless
@@ -495,10 +505,10 @@
 
         <!-- Path A: Q6 -->
         <div class="question-container" data-question="Q6">
-            <h2>Any symbols or themes speaking to you?</h2>
-            <textarea placeholder="Hearts, stars, initials, nature elements... anything that feels right"></textarea>
+            <h2>What symbols or elements would you like?</h2>
+            <textarea placeholder="For example: hearts, stars, initials, flowers, animals, geometric shapes..."></textarea>
             <div class="skip-link">
-                <a href="#" onclick="skipTextInput(); return false;">I'll figure this out later</a>
+                <a href="#" onclick="skipTextInput(); return false;">Skip - I'll decide later</a>
             </div>
             <div class="button-group">
                 <button class="btn-secondary" onclick="previousQuestion()">Back</button>
@@ -508,7 +518,7 @@
 
         <!-- Path A: Q7 -->
         <div class="question-container" data-question="Q7">
-            <h2>Want to share a photo, sketch, or anything else that might help? (optional)</h2>
+            <h2>Do you have any inspiration photos? (optional)</h2>
             <div class="file-upload">
                 <input type="file" id="q7-file" accept="image/*" onchange="handleFileUpload('q7-file')">
                 <label for="q7-file" class="file-upload-label">
@@ -556,7 +566,8 @@
 
         <!-- Path B: Q10 (duplicate of Q5) -->
         <div class="question-container" data-question="Q10">
-            <h2>What vibe are you going for?</h2>
+            <h2>What style appeals to you?</h2>
+            <p>Choose all that feel right (you can select multiple)</p>
             <div class="options multi-select">
                 <div class="option" onclick="toggleMultiSelect(this, 'elegant')">
                     Elegant & Timeless
@@ -582,19 +593,19 @@
 
         <!-- Convergence: Q11 -->
         <div class="question-container" data-question="Q11">
-            <h2>How do you want it to feel when worn?</h2>
+            <h2>What size and presence do you prefer?</h2>
             <div class="options">
                 <div class="option" onclick="selectOption(this, 'subtle')">
-                    Subtle & understated
+                    Small & delicate
                 </div>
                 <div class="option" onclick="selectOption(this, 'bold-sculptural')">
-                    Bold & eye-catching
+                    Bold & statement-making
                 </div>
                 <div class="option" onclick="selectOption(this, 'classic')">
-                    Classic & versatile
+                    Medium & versatile
                 </div>
                 <div class="option" onclick="selectOption(this, 'not-sure')">
-                    Show me options
+                    I'm not sure yet
                 </div>
             </div>
             <div class="button-group">
@@ -605,8 +616,8 @@
 
         <!-- Q12 -->
         <div class="question-container" data-question="Q12">
-            <h2>Let's talk materials</h2>
-            <p>Each has its own character and price point</p>
+            <h2>What material would you prefer?</h2>
+            <p>Each option has different qualities and pricing</p>
             <div class="options">
                 <div class="option" onclick="selectOption(this, '14k-gold')">
                     14K Solid Gold
@@ -632,10 +643,10 @@
 
         <!-- Q13 -->
         <div class="question-container" data-question="Q13">
-            <h2>Anything else we should know?</h2>
-            <textarea placeholder="Special dates, sizing, engravings, or just say hi!"></textarea>
+            <h2>Any special details or requests?</h2>
+            <textarea placeholder="For example: specific dates, sizing preferences, engraving ideas, or any other notes..."></textarea>
             <div class="skip-link">
-                <a href="#" onclick="skipTextInput(); return false;">All good for now</a>
+                <a href="#" onclick="skipTextInput(); return false;">No special requests</a>
             </div>
             <div class="button-group">
                 <button class="btn-secondary" onclick="previousQuestion()">Back</button>
@@ -659,7 +670,8 @@
 
         <!-- Contact Info -->
         <div class="question-container" data-question="email">
-            <h2>Where should we send your design?</h2>
+            <h2>What's your email address?</h2>
+            <p>We'll send your custom design mockup here</p>
             <input type="email" placeholder="your@email.com" required>
             <div class="button-group">
                 <button class="btn-secondary" onclick="previousQuestion()">Back</button>
@@ -668,10 +680,11 @@
         </div>
 
         <div class="question-container" data-question="phone">
-            <h2>Want a text when it's ready?</h2>
+            <h2>Phone number for updates? (optional)</h2>
+            <p>We can text you when your design is ready</p>
             <input type="tel" placeholder="+1 (555) 123-4567">
             <div class="skip-link">
-                <a href="#" onclick="skipPhone(); return false;">Email is fine</a>
+                <a href="#" onclick="skipPhone(); return false;">Email only is fine</a>
             </div>
             <div class="button-group">
                 <button class="btn-secondary" onclick="previousQuestion()">Back</button>
@@ -680,14 +693,14 @@
         </div>
 
         <div class="question-container" data-question="community">
-            <h2>Can we share your design to the Taiyaki Community?</h2>
-            <p>We love showcasing unique designs to inspire others</p>
+            <h2>Can we feature your design in our gallery?</h2>
+            <p>We love showcasing beautiful custom pieces to inspire other customers</p>
             <div class="options">
                 <div class="option" onclick="selectOption(this, 'yes')">
-                    Yes
+                    Yes, that sounds great!
                 </div>
                 <div class="option" onclick="selectOption(this, 'no')">
-                    No
+                    No, keep it private
                 </div>
             </div>
             <div class="button-group">
