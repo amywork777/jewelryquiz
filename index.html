@@ -981,10 +981,165 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
             if (emailInput && emailRegex.test(emailInput.value)) {
+                // Save email and start generating image early
+                formData.email = emailInput.value;
+                
+                // Start image generation in background
+                startBackgroundImageGeneration();
+                
+                // Show a subtle indicator that generation has started
+                showGenerationStartedIndicator();
+                
                 nextQuestion();
             } else {
                 alert('Please enter a valid email address');
             }
+        }
+
+        let backgroundImagePromise = null;
+
+        async function startBackgroundImageGeneration() {
+            try {
+                console.log('Starting background image generation...');
+                
+                // Get API key from config or prompt for it
+                let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
+                if (!apiKey) {
+                    apiKey = prompt('Please enter your OpenAI API key to generate the charm image:');
+                    if (!apiKey) {
+                        console.log('No API key provided, skipping background generation');
+                        return;
+                    }
+                    window.OPENAI_API_KEY = apiKey;
+                }
+                
+                const responses = captureAllResponses();
+                const promptData = generatePromptFromResponses(responses);
+                
+                // Check if we have uploaded images to incorporate
+                const hasUploadedImages = responses.uploaded_images.Q2_images.length > 0 || 
+                                        responses.uploaded_images.Q7_images.length > 0 || 
+                                        responses.uploaded_images.Q9_images.length > 0;
+                
+                let promptText;
+                let inputContent = [];
+                
+                if (hasUploadedImages) {
+                    // Create prompt that incorporates the uploaded images
+                    if (responses.uploaded_images.Q2_images.length > 0) {
+                        // Path C: Exact design - make this image into a charm
+                        promptText = `Transform this image into a ${promptData.material} charm. Create a ${promptData.style} version that captures the essence of the uploaded image. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                        
+                        // Add the uploaded image(s) to input
+                        inputContent.push({
+                            "type": "input_text",
+                            "text": promptText
+                        });
+                        
+                        responses.uploaded_images.Q2_images.forEach(imageBase64 => {
+                            inputContent.push({
+                                "type": "input_image",
+                                "image_url": imageBase64
+                            });
+                        });
+                    } else {
+                        // Path A or B: Use as inspiration/reference
+                        promptText = `Create ${promptData.subject} with ${promptData.style} styling, inspired by the reference image(s). Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                        
+                        inputContent.push({
+                            "type": "input_text", 
+                            "text": promptText
+                        });
+                        
+                        // Add inspiration/reference images
+                        const allImages = [...responses.uploaded_images.Q7_images, ...responses.uploaded_images.Q9_images];
+                        allImages.forEach(imageBase64 => {
+                            inputContent.push({
+                                "type": "input_image",
+                                "image_url": imageBase64
+                            });
+                        });
+                    }
+                } else {
+                    // No uploaded images - use text-only prompt
+                    promptText = `Create ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                    inputContent.push({
+                        "type": "input_text",
+                        "text": promptText
+                    });
+                }
+                
+                console.log('Background generation prompt:', promptText);
+                
+                // Make API call to OpenAI using Responses API with gpt-image-1
+                backgroundImagePromise = fetch('https://api.openai.com/v1/responses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4.1-mini",
+                        input: hasUploadedImages ? [{
+                            "role": "user",
+                            "content": inputContent
+                        }] : promptText,
+                        tools: [{
+                            type: "image_generation",
+                            quality: "high",
+                            size: "1024x1024",
+                            background: "opaque"
+                        }]
+                    })
+                }).then(response => response.json());
+                
+                console.log('Background image generation started');
+                
+            } catch (error) {
+                console.error('Error starting background image generation:', error);
+                backgroundImagePromise = null;
+            }
+        }
+
+        function showGenerationStartedIndicator() {
+            // Add a subtle indicator to the page that generation has started
+            const indicator = document.createElement('div');
+            indicator.id = 'generation-indicator';
+            indicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #DAE0FF;
+                color: #000;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-size: 12px;
+                z-index: 1000;
+                border: 1px solid #000;
+                animation: fadeInOut 3s ease-in-out;
+            `;
+            indicator.textContent = '✨ Generating your charm design...';
+            
+            // Add fade animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; transform: translateY(-10px); }
+                    20% { opacity: 1; transform: translateY(0); }
+                    80% { opacity: 1; transform: translateY(0); }
+                    100% { opacity: 0; transform: translateY(-10px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(indicator);
+            
+            // Remove after animation
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.parentNode.removeChild(indicator);
+                }
+            }, 3000);
         }
 
         function validatePhone() {
@@ -1118,16 +1273,6 @@
 
         async function generateCharmImage() {
             try {
-                // Get API key from config or prompt for it
-                let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
-                if (!apiKey) {
-                    apiKey = prompt('Please enter your OpenAI API key to generate the charm image:');
-                    if (!apiKey) {
-                        throw new Error('API key required for image generation');
-                    }
-                    window.OPENAI_API_KEY = apiKey;
-                }
-                
                 const responses = captureAllResponses();
                 const promptData = generatePromptFromResponses(responses);
                 
@@ -1137,51 +1282,14 @@
                                         responses.uploaded_images.Q9_images.length > 0;
                 
                 let promptText;
-                let inputContent = [];
-                
                 if (hasUploadedImages) {
-                    // Create prompt that incorporates the uploaded images
                     if (responses.uploaded_images.Q2_images.length > 0) {
-                        // Path C: Exact design - make this image into a charm
                         promptText = `Transform this image into a ${promptData.material} charm. Create a ${promptData.style} version that captures the essence of the uploaded image. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
-                        
-                        // Add the uploaded image(s) to input
-                        inputContent.push({
-                            "type": "input_text",
-                            "text": promptText
-                        });
-                        
-                        responses.uploaded_images.Q2_images.forEach(imageBase64 => {
-                            inputContent.push({
-                                "type": "input_image",
-                                "image_url": imageBase64
-                            });
-                        });
                     } else {
-                        // Path A or B: Use as inspiration/reference
                         promptText = `Create ${promptData.subject} with ${promptData.style} styling, inspired by the reference image(s). Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
-                        
-                        inputContent.push({
-                            "type": "input_text", 
-                            "text": promptText
-                        });
-                        
-                        // Add inspiration/reference images
-                        const allImages = [...responses.uploaded_images.Q7_images, ...responses.uploaded_images.Q9_images];
-                        allImages.forEach(imageBase64 => {
-                            inputContent.push({
-                                "type": "input_image",
-                                "image_url": imageBase64
-                            });
-                        });
                     }
                 } else {
-                    // No uploaded images - use text-only prompt
                     promptText = `Create ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
-                    inputContent.push({
-                        "type": "input_text",
-                        "text": promptText
-                    });
                 }
                 
                 console.log('Generated prompt:', promptText);
@@ -1190,33 +1298,99 @@
                 // Add loading indicator
                 const resultsDiv = document.querySelector('.results');
                 const loadingDiv = document.createElement('div');
-                loadingDiv.innerHTML = '<p style="text-align: center; margin: 20px 0;"><em>Generating your custom charm design...</em></p>';
+                
+                // Check if background generation is available
+                if (backgroundImagePromise) {
+                    loadingDiv.innerHTML = '<p style="text-align: center; margin: 20px 0;"><em>Finalizing your custom charm design...</em></p>';
+                    console.log('Using background-generated image');
+                } else {
+                    loadingDiv.innerHTML = '<p style="text-align: center; margin: 20px 0;"><em>Generating your custom charm design...</em></p>';
+                    console.log('Starting fresh image generation');
+                }
+                
                 loadingDiv.id = 'image-loading';
                 resultsDiv.appendChild(loadingDiv);
                 
-                // Make API call to OpenAI using Responses API with gpt-image-1
-                const response = await fetch('https://api.openai.com/v1/responses', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + apiKey
-                    },
-                    body: JSON.stringify({
-                        model: "gpt-4.1-mini",
-                        input: hasUploadedImages ? [{
-                            "role": "user",
-                            "content": inputContent
-                        }] : promptText,
-                        tools: [{
-                            type: "image_generation",
-                            quality: "high",
-                            size: "1024x1024",
-                            background: "opaque"
-                        }]
-                    })
-                });
+                let data;
                 
-                const data = await response.json();
+                // Try to use background-generated image first
+                if (backgroundImagePromise) {
+                    try {
+                        data = await backgroundImagePromise;
+                        console.log('Background image ready!');
+                    } catch (error) {
+                        console.log('Background generation failed, starting fresh:', error);
+                        backgroundImagePromise = null;
+                    }
+                }
+                
+                // If no background image available, generate fresh
+                if (!backgroundImagePromise) {
+                    // Get API key from config or prompt for it
+                    let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
+                    if (!apiKey) {
+                        apiKey = prompt('Please enter your OpenAI API key to generate the charm image:');
+                        if (!apiKey) {
+                            throw new Error('API key required for image generation');
+                        }
+                        window.OPENAI_API_KEY = apiKey;
+                    }
+                    
+                    let inputContent = [];
+                    
+                    if (hasUploadedImages) {
+                        inputContent.push({
+                            "type": "input_text",
+                            "text": promptText
+                        });
+                        
+                        if (responses.uploaded_images.Q2_images.length > 0) {
+                            responses.uploaded_images.Q2_images.forEach(imageBase64 => {
+                                inputContent.push({
+                                    "type": "input_image",
+                                    "image_url": imageBase64
+                                });
+                            });
+                        } else {
+                            const allImages = [...responses.uploaded_images.Q7_images, ...responses.uploaded_images.Q9_images];
+                            allImages.forEach(imageBase64 => {
+                                inputContent.push({
+                                    "type": "input_image",
+                                    "image_url": imageBase64
+                                });
+                            });
+                        }
+                    } else {
+                        inputContent.push({
+                            "type": "input_text",
+                            "text": promptText
+                        });
+                    }
+                    
+                    // Make fresh API call
+                    const response = await fetch('https://api.openai.com/v1/responses', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + apiKey
+                        },
+                        body: JSON.stringify({
+                            model: "gpt-4.1-mini",
+                            input: hasUploadedImages ? [{
+                                "role": "user",
+                                "content": inputContent
+                            }] : promptText,
+                            tools: [{
+                                type: "image_generation",
+                                quality: "high",
+                                size: "1024x1024",
+                                background: "opaque"
+                            }]
+                        })
+                    });
+                    
+                    data = await response.json();
+                }
                 
                 // Remove loading indicator
                 const loading = document.getElementById('image-loading');
@@ -1245,12 +1419,17 @@
                             'Inspired by your reference images') : 
                         'Generated from your preferences';
                     
+                    const generationMethod = backgroundImagePromise ? 
+                        'Pre-generated while you completed the questionnaire' : 
+                        'Generated fresh for your design';
+                    
                     imageDiv.innerHTML = `
                         <h4 style="margin: 20px 0 10px 0; color: #000;">Your Custom Charm Design:</h4>
                         <img src="${imageUrl}" alt="Generated charm design" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px;">
                         <p style="font-size: 14px; color: #666; margin-bottom: 10px;"><strong>${imageTypeText}</strong></p>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 20px;"><strong>Prompt used:</strong> ${promptText}</p>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 10px;"><strong>Prompt used:</strong> ${promptText}</p>
                         <p style="font-size: 12px; color: #999;">Generated using GPT Image 1 (latest model)</p>
+                        <p style="font-size: 11px; color: #aaa; margin-top: 5px;">${generationMethod}</p>
                     `;
                     resultsDiv.appendChild(imageDiv);
                 } else {
