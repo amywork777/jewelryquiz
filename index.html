@@ -32,6 +32,11 @@
             padding: 40px;
             position: relative;
             overflow: hidden;
+            transition: max-width 0.5s ease;
+        }
+
+        .container.results-mode {
+            max-width: 1000px;
         }
 
         .progress-bar {
@@ -450,17 +455,39 @@
 
         .design-item {
             flex: 1 1 45% !important;
-            min-width: 300px !important;
-            max-width: 500px !important;
-            padding: 15px !important;
-            border: 1px solid #eee !important;
-            border-radius: 8px !important;
+            min-width: 350px !important;
+            max-width: 450px !important;
+            padding: 20px !important;
+            border: 1px solid #000000 !important;
+            border-radius: 0px !important;
             text-align: center !important;
+            background: #ffffff !important;
         }
 
         /* Ensure exactly 2 designs are shown side by side */
         .design-container .design-item:nth-child(n+3) {
             display: none !important;
+        }
+
+        /* Purchase section styles */
+        .material-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #000 !important;
+        }
+
+        .material-option.premium:hover {
+            border-color: #f39c12 !important;
+            box-shadow: 0 4px 12px rgba(244, 208, 63, 0.3);
+        }
+
+        .material-option button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .material-option.premium button:hover {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
         }
 
         @media (max-width: 768px) {
@@ -480,6 +507,13 @@
                 min-width: auto !important;
                 max-width: none !important;
                 width: 100% !important;
+            }
+
+            /* Mobile purchase section */
+            .material-option {
+                min-width: auto !important;
+                max-width: none !important;
+                margin-bottom: 15px;
             }
         }
 
@@ -633,8 +667,8 @@
                 <div class="option option-with-image" onclick="selectOption(this, 'moment')">
                     <img src="images/questions/story/moment.jpg" alt="Special moment" class="option-image">
                     <div class="option-text">
-                        Celebrating a special moment
-                    </div>
+                    Celebrating a special moment
+                </div>
                 </div>
                 <div class="option option-with-image" onclick="selectOption(this, 'person')">
                     <img src="images/questions/story/person.jpg" alt="Someone special" class="option-image">
@@ -645,7 +679,7 @@
                 <div class="option option-with-image" onclick="selectOption(this, 'place')">
                     <img src="images/questions/story/place.jpg" alt="Meaningful place" class="option-image">
                     <div class="option-text">
-                        Remembering a meaningful place
+                    Remembering a meaningful place
                     </div>
                 </div>
                 <div class="option option-with-image" onclick="selectOption(this, 'curious')">
@@ -1540,7 +1574,7 @@
                 formData.email = emailInput.value;
                 formData.phone = phoneInput.value.trim() || '';
                 
-                // Start image generation in background
+                // Start image generation in background immediately
                 startBackgroundImageGeneration();
                 
                 // Show a subtle indicator that generation has started
@@ -1550,6 +1584,23 @@
             }
             // Removed alert popup - just don't advance if email is invalid
         }
+
+        // Start background generation even earlier when user starts typing email
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const emailInput = document.querySelector('#contact-email');
+                if (emailInput) {
+                    emailInput.addEventListener('input', function() {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (emailRegex.test(this.value) && !backgroundImagePromise) {
+                            console.log('Starting early background generation...');
+                            formData.email = this.value;
+                            startBackgroundImageGeneration();
+                        }
+                    });
+                }
+            }, 1000);
+        });
 
         let backgroundImagePromise = null;
 
@@ -1670,81 +1721,76 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 
                 console.log('Background generation prompt:', promptText);
                 
-                // Make separate API calls for each design to ensure we get 2 images
-                const design1Prompt = promptText.replace('Generate 2 distinct style variations', 'Generate DESIGN 1 only');
-                const design2Prompt = promptText.replace('Generate 2 distinct style variations', 'Generate DESIGN 2 only');
-                
+                // Generate two separate images for better results
                 const promises = [];
                 
-                // Generate Design 1
-                promises.push(fetch('https://api.openai.com/v1/responses', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + apiKey
-                    },
-                    body: JSON.stringify({
-                        model: "gpt-4.1-mini",
-                        input: hasUploadedImages ? [{
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "input_text",
-                                    "text": design1Prompt
-                                },
-                                ...inputContent.filter(item => item.type === "input_image")
-                            ]
-                        }] : design1Prompt,
-                        tools: [{
-                            type: "image_generation",
-                            quality: "high",
-                            size: "1024x1024",
-                            background: "opaque"
-                        }]
-                    })
-                }).then(response => response.json()));
+                // Design 1: Simple Style
+                const design1Prompt = hasUploadedImages ? 
+                    promptText.replace('Generate 2 distinct style variations', 'Create Design 1 - Simple Style only') :
+                    promptText.replace('Generate 2 different design variations', 'Create a simple, elegant design');
                 
-                // Generate Design 2
-                promises.push(fetch('https://api.openai.com/v1/responses', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + apiKey
-                    },
-                    body: JSON.stringify({
-                        model: "gpt-4.1-mini",
-                        input: hasUploadedImages ? [{
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "input_text",
-                                    "text": design2Prompt
-                                },
-                                ...inputContent.filter(item => item.type === "input_image")
-                            ]
-                        }] : design2Prompt,
-                        tools: [{
-                            type: "image_generation",
-                            quality: "high",
-                            size: "1024x1024",
-                            background: "opaque"
-                        }]
-                    })
-                }).then(response => response.json()));
+                // Design 2: Cartoonish Style  
+                const design2Prompt = hasUploadedImages ?
+                    promptText.replace('Generate 2 distinct style variations', 'Create Design 2 - Cartoonish/Cute Style only') :
+                    promptText.replace('Generate 2 different design variations', 'Create a playful, cute design');
+                
+                // Two separate API calls for better quality
+                [design1Prompt, design2Prompt].forEach(prompt => {
+                    promises.push(fetch('https://api.openai.com/v1/responses', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + apiKey
+                        },
+                        body: JSON.stringify({
+                            model: "gpt-4.1-mini",
+                            input: hasUploadedImages ? [{
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "input_text",
+                                        "text": prompt
+                                    },
+                                    ...inputContent.filter(item => item.type === "input_image")
+                                ]
+                            }] : prompt,
+                            tools: [{
+                                type: "image_generation",
+                                quality: "standard",
+                                size: "1024x1024",
+                                background: "opaque"
+                            }]
+                        })
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    }));
+                });
                 
                 backgroundImagePromise = Promise.all(promises).then(results => {
-                    // Combine results into expected format
+                    console.log('Background generation results:', results);
+                    
                     const combinedData = {
                         output: []
                     };
                     
-                    results.forEach(result => {
-                        if (result.output) {
-                            combinedData.output.push(...result.output.filter(output => output.type === "image_generation_call"));
+                    results.forEach((result, index) => {
+                        console.log(`Result ${index + 1}:`, result);
+                        if (result.output && Array.isArray(result.output)) {
+                            const imageCall = result.output.find(output => output.type === "image_generation_call");
+                            if (imageCall) {
+                                combinedData.output.push(imageCall);
+                            }
                         }
                     });
                     
+                    console.log('Combined background data:', combinedData);
                     return combinedData;
+                }).catch(error => {
+                    console.error('Background generation failed:', error);
+                    return null;
                 });
                 
                 console.log('Background image generation started');
@@ -1808,6 +1854,10 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
         }
 
         function generateResults() {
+            // Expand container for results page
+            const container = document.querySelector('.container');
+            container.classList.add('results-mode');
+            
             const resultsList = document.getElementById('resultsList');
             const displayData = {
                 'Journey Type': formData.Q1 === 'A' ? 'Exploratory Design' : formData.Q1 === 'B' ? 'Idea Refinement' : 'Direct Creation',
@@ -2062,14 +2112,24 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 if (backgroundImagePromise) {
                     try {
                         data = await backgroundImagePromise;
-                        console.log('Background image ready!');
+                        console.log('Background image ready!', data);
                         
                         // Check if we got valid background data
-                        if (data && data.output && data.output.length > 0) {
-                            console.log('Using background-generated images, skipping fresh generation');
-                            useBackgroundImages = true;
+                        if (data && data.output && Array.isArray(data.output) && data.output.length > 0) {
+                            // Verify that the images actually have result data
+                            const validImages = data.output.filter(item => 
+                                item && item.type === "image_generation_call" && item.result
+                            );
+                            
+                            if (validImages.length > 0) {
+                                console.log(`Using ${validImages.length} background-generated images, skipping fresh generation`);
+                                data.output = validImages; // Use only valid images
+                                useBackgroundImages = true;
+                            } else {
+                                console.log('Background images have no result data, will generate fresh');
+                            }
                         } else {
-                            console.log('Background data empty, will generate fresh');
+                            console.log('Background data empty or invalid, will generate fresh');
                         }
                     } catch (error) {
                         console.log('Background generation failed, starting fresh:', error);
@@ -2119,80 +2179,71 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                         });
                     }
                     
-                    // Make separate API calls for each design to ensure we get 2 images
-                    const design1Prompt = promptText.replace('Generate 2 distinct style variations', 'Generate DESIGN 1 only');
-                    const design2Prompt = promptText.replace('Generate 2 distinct style variations', 'Generate DESIGN 2 only');
+                    // Generate two separate images for better results
+                    const design1Prompt = hasUploadedImages ? 
+                        promptText.replace('Generate 2 distinct style variations', 'Create Design 1 - Simple Style only') :
+                        promptText.replace('Generate 2 different design variations', 'Create a simple, elegant design');
+                    
+                    const design2Prompt = hasUploadedImages ?
+                        promptText.replace('Generate 2 distinct style variations', 'Create Design 2 - Cartoonish/Cute Style only') :
+                        promptText.replace('Generate 2 different design variations', 'Create a playful, cute design');
                     
                     const promises = [];
                     
-                    // Generate Design 1
-                    promises.push(fetch('https://api.openai.com/v1/responses', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + apiKey
-                        },
-                        body: JSON.stringify({
-                            model: "gpt-4.1-mini",
-                            input: hasUploadedImages ? [{
-                                "role": "user",
-                                "content": [
-                                    {
-                                        "type": "input_text",
-                                        "text": design1Prompt
-                                    },
-                                    ...inputContent.filter(item => item.type === "input_image")
-                                ]
-                            }] : design1Prompt,
-                            tools: [{
-                                type: "image_generation",
-                                quality: "high",
-                                size: "1024x1024",
-                                background: "opaque"
-                            }]
-                        })
-                    }).then(response => response.json()));
-                    
-                    // Generate Design 2
-                    promises.push(fetch('https://api.openai.com/v1/responses', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + apiKey
-                        },
-                        body: JSON.stringify({
-                            model: "gpt-4.1-mini",
-                            input: hasUploadedImages ? [{
-                                "role": "user",
-                                "content": [
-                                    {
-                                        "type": "input_text",
-                                        "text": design2Prompt
-                                    },
-                                    ...inputContent.filter(item => item.type === "input_image")
-                                ]
-                            }] : design2Prompt,
-                            tools: [{
-                                type: "image_generation",
-                                quality: "high",
-                                size: "1024x1024",
-                                background: "opaque"
-                            }]
-                        })
-                    }).then(response => response.json()));
+                    // Two separate API calls for better quality
+                    [design1Prompt, design2Prompt].forEach(prompt => {
+                        promises.push(fetch('https://api.openai.com/v1/responses', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + apiKey
+                            },
+                            body: JSON.stringify({
+                                model: "gpt-4.1-mini",
+                                input: hasUploadedImages ? [{
+                                    "role": "user",
+                                    "content": [
+                                        {
+                                            "type": "input_text",
+                                            "text": prompt
+                                        },
+                                        ...inputContent.filter(item => item.type === "input_image")
+                                    ]
+                                }] : prompt,
+                                tools: [{
+                                    type: "image_generation",
+                                    quality: "high", // Use high quality for final generation
+                                    size: "1024x1024",
+                                    background: "opaque"
+                                }]
+                            })
+                        }).then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        }));
+                    });
                     
                     const results = await Promise.all(promises);
+                    console.log('Fresh generation results:', results);
                     
-                    // Combine results into expected format
+                    // Process results into expected format
                     data = {
                         output: []
                     };
                     
-                    results.forEach(result => {
-                        if (result.output) {
-                            data.output.push(...result.output.filter(output => output.type === "image_generation_call"));
+                    results.forEach((result, index) => {
+                        console.log(`Fresh result ${index + 1}:`, result);
+                        if (result.output && Array.isArray(result.output)) {
+                            const imageCall = result.output.find(output => output.type === "image_generation_call");
+                            if (imageCall) {
+                                data.output.push(imageCall);
+                            }
                         }
                     });
+                    
+                    console.log('Fresh generation combined data:', data);
                 }
                 
                 // Remove loading indicator
@@ -2207,6 +2258,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 console.log('Image generation calls:', imageGenerationCalls);
                 
                 if (imageGenerationCalls.length > 0) {
+                    console.log(`Successfully generated ${imageGenerationCalls.length} images`);
                     const imageTypeText = hasUploadedImages ? 
                         (responses.uploaded_images.Q2_images.length > 0 ? 
                             'Based on your uploaded design' : 
@@ -2275,30 +2327,90 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                                     </div>
                                 </div>
                                 
-                                <div class="feedback-section" style="margin-top: 20px; padding: 20px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 0px; opacity: 0.85;">
-                                    <p style="margin: 0 0 15px 0; color: #666; font-size: 14px; font-weight: 300; text-align: center;">Want to refine this design?</p>
+                                <div class="story-section" id="story-${index + 1}" style="margin: 15px 0; padding: 20px; background: #DAE0FF; border: 1px solid #000000; border-radius: 0px;">
+                                    <div class="story-loading" style="text-align: center; color: #000000; font-style: italic; font-size: 14px; font-weight: 300;">
+                                        Crafting the story behind this design...
+                                    </div>
+                                </div>
+                                
+                                <div class="purchase-section" style="margin-top: 20px; padding: 20px; background: #DAE0FF; border: 1px solid #000000;">
+                                    <h5 style="margin: 0 0 15px 0; color: #000000; font-size: 16px; font-weight: 400; text-align: center;">Order Design ${index + 1}</h5>
+                                    
+                                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                                        <button 
+                                            onclick="purchaseSpecificDesign(${index + 1}, 'sterling-silver')" 
+                                            style="flex: 1; min-width: 100px; padding: 15px 10px; background: #ffffff; color: #000000; border: 1px solid #000000; font-size: 13px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; text-align: center;"
+                                            onmouseover="this.style.background='#000000'; this.style.color='#ffffff';"
+                                            onmouseout="this.style.background='#ffffff'; this.style.color='#000000';"
+                                        >
+                                            Sterling Silver<br><strong>$50</strong>
+                                        </button>
+                                        <button 
+                                            onclick="purchaseSpecificDesign(${index + 1}, 'gold-plated')" 
+                                            style="flex: 1; min-width: 100px; padding: 15px 10px; background: #ffffff; color: #000000; border: 1px solid #000000; font-size: 13px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; text-align: center;"
+                                            onmouseover="this.style.background='#000000'; this.style.color='#ffffff';"
+                                            onmouseout="this.style.background='#ffffff'; this.style.color='#000000';"
+                                        >
+                                            Gold-Plated<br><strong>$50</strong>
+                                        </button>
+                                        <button 
+                                            onclick="purchaseSpecificDesign(${index + 1}, '14k-gold')" 
+                                            style="flex: 1; min-width: 100px; padding: 15px 10px; background: #ffffff; color: #000000; border: 1px solid #000000; font-size: 13px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; text-align: center;"
+                                            onmouseover="this.style.background='#000000'; this.style.color='#ffffff';"
+                                            onmouseout="this.style.background='#ffffff'; this.style.color='#000000';"
+                                        >
+                                            14K Gold<br><strong>$200</strong>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="feedback-section" style="margin-top: 15px; padding: 20px; background: #ffffff; border: 1px solid #000000;">
+                                    <p style="margin: 0 0 15px 0; color: #000000; font-size: 16px; font-weight: 300; text-align: center;">Want to refine this design?</p>
                                     <textarea 
                                         id="feedback-${index + 1}" 
                                         placeholder="Share your thoughts... (e.g., make it more delicate, add sparkle, change proportions)"
-                                        style="width: 100%; height: 70px; padding: 15px; border: 1px solid #000000; font-size: 14px; font-family: inherit; font-weight: 300; resize: vertical; margin-bottom: 15px; background: #ffffff; transition: all 0.3s ease;"
+                                        style="width: 100%; height: 80px; padding: 15px; border: 1px solid #000000; font-size: 14px; font-family: inherit; font-weight: 300; resize: vertical; margin-bottom: 20px; background: #ffffff; transition: all 0.3s ease;"
                                         onfocus="this.style.background='#DAE0FF'; this.style.borderColor='#000000';"
                                         onblur="this.style.background='#ffffff'; this.style.borderColor='#000000';"
                                     ></textarea>
                                     <button 
                                         onclick="regenerateDesign(${index + 1})" 
-                                        style="width: 100%; padding: 12px 20px; background: #f8f8f8; color: #333333; border: 1px solid #dddddd; font-size: 14px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; letter-spacing: 0.5px;"
+                                        style="width: 100%; padding: 18px 20px; background: #f8f8f8; color: #333333; border: 1px solid #000000; font-size: 16px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; letter-spacing: 0.5px;"
                                         onmouseover="this.style.background='#DAE0FF'; this.style.color='#000000'; this.style.borderColor='#000000';"
-                                        onmouseout="this.style.background='#f8f8f8'; this.style.color='#333333'; this.style.borderColor='#dddddd';"
+                                        onmouseout="this.style.background='#f8f8f8'; this.style.color='#333333'; this.style.borderColor='#000000';"
                                     >
                                         :D Refine Design ${index + 1}
                                     </button>
                                 </div>
                             `;
                             imagesContainer.appendChild(imageDiv);
+                            
+                            // Generate story for this design (start immediately for speed)
+                            setTimeout(() => generateDesignStory(index + 1, responses, designType), 100);
                         }
                     });
                     
                     resultsDiv.appendChild(imagesContainer);
+                    
+                    // Add purchasing section after all designs
+                    const purchaseDiv = document.createElement('div');
+                    purchaseDiv.innerHTML = `
+                        <div style="margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #000000; text-align: center;">
+                            <h4 style="margin: 0 0 15px 0; color: #000; font-size: 20px; font-weight: 400;">Ready to bring your design to life?</h4>
+                            <p style="margin: 0 0 20px 0; color: #000000; font-size: 16px; line-height: 1.5; font-weight: 300;">Choose your preferred design and material - we'll craft your custom charm with expert precision.</p>
+                            
+                            <div style="margin-top: 20px; padding: 15px; background: #DAE0FF; border: 1px solid #000000;">
+                                <p style="margin: 0; color: #000000; font-size: 14px; line-height: 1.4; font-weight: 300;">
+                                    <strong>What's included:</strong> Custom charm crafted to your exact design • Jump ring for easy attachment • Gift-ready packaging • 30-day satisfaction guarantee
+                                </p>
+                            </div>
+                            
+                            <p style="margin: 15px 0 0 0; color: #000000; font-size: 12px; font-weight: 300;">
+                                Secure checkout powered by Stripe • Ships within 5-7 business days
+                            </p>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(purchaseDiv);
                     
                     // Add footer info
                     const footerDiv = document.createElement('div');
@@ -2309,7 +2421,30 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     `;
                     resultsDiv.appendChild(footerDiv);
                 } else {
-                    throw new Error('No images generated');
+                    console.error('No valid images generated. Data received:', data);
+                    
+                    // Show detailed error information
+                    const resultsDiv = document.querySelector('.results');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.innerHTML = `
+                        <div style="margin: 20px 0; padding: 20px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;">
+                            <h4 style="margin: 0 0 10px 0; color: #856404;">Image Generation Issue</h4>
+                            <p style="margin: 0 0 10px 0; color: #856404; font-size: 14px;">
+                                We're experiencing a temporary issue with image generation. This can happen due to:
+                            </p>
+                            <ul style="margin: 0 0 15px 20px; color: #856404; font-size: 14px;">
+                                <li>API rate limits or temporary service issues</li>
+                                <li>Complex prompts that need adjustment</li>
+                                <li>Network connectivity problems</li>
+                            </ul>
+                            <p style="margin: 0; color: #856404; font-size: 14px;">
+                                <strong>Don't worry!</strong> We've saved all your design preferences and will create your custom charm manually. 
+                                You'll receive your design mockup within 24-48 hours via email.
+                            </p>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(errorDiv);
+                    return; // Exit gracefully instead of throwing
                 }
                 
             } catch (error) {
@@ -2393,6 +2528,263 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 controls.style.display = 'flex';
             } else {
                 controls.style.display = 'none';
+            }
+        }
+
+        function purchaseSpecificDesign(designNumber, material) {
+            // Capture all form data for the purchase
+            const responses = captureAllResponses();
+            
+            // Store design data in localStorage for the Stripe success page
+            const purchaseData = {
+                designNumber: designNumber,
+                material: material,
+                email: responses.email,
+                phone: responses.phone,
+                designResponses: responses,
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('jewelryPurchaseData', JSON.stringify(purchaseData));
+            
+            // Stripe checkout URLs
+            const stripeUrls = {
+                'sterling-silver': 'https://buy.stripe.com/14AbJ05fH2R3ffwadNbEA01',
+                'gold-plated': 'https://buy.stripe.com/fZueVc23vdvH2sK85FbEA02',
+                '14k-gold': 'https://buy.stripe.com/bJe8wObE5crD8R84TtbEA03'
+            };
+            
+            // Add purchase tracking
+            console.log('Purchase initiated:', {
+                designNumber: designNumber,
+                material: material,
+                email: responses.email,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Show confirmation before redirect
+            const materialNames = {
+                'sterling-silver': 'Sterling Silver ($50)',
+                'gold-plated': 'Gold-Plated Silver ($50)',
+                '14k-gold': '14K Gold ($200)'
+            };
+            
+            const confirmed = confirm(`Ready to order Design ${designNumber} in ${materialNames[material]}?\n\nYou'll be redirected to secure checkout where you can complete your purchase.`);
+            
+            if (confirmed) {
+                // Open Stripe checkout in new tab
+                window.open(stripeUrls[material], '_blank');
+                
+                // Show success message on current page
+                showPurchaseInitiatedMessage(material, designNumber);
+            }
+        }
+
+        // Legacy function for backward compatibility
+        function purchaseDesign(material) {
+            purchaseSpecificDesign(1, material);
+        }
+
+        function showPurchaseInitiatedMessage(material, designNumber = null) {
+            const materialNames = {
+                'sterling-silver': 'Sterling Silver',
+                'gold-plated': 'Gold-Plated Silver', 
+                '14k-gold': '14K Gold'
+            };
+            
+            const designText = designNumber ? ` Design ${designNumber}` : '';
+            
+            // Create success overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="background: white; padding: 40px; border: 1px solid #000000; text-align: center; max-width: 500px; margin: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+                    <div style="font-size: 48px; margin-bottom: 20px;">:)</div>
+                    <h3 style="margin: 0 0 15px 0; color: #000; font-size: 24px; font-weight: 400;">Order Initiated!</h3>
+                    <p style="margin: 0 0 20px 0; color: #000000; font-size: 16px; line-height: 1.5; font-weight: 300;">
+                        Your custom charm${designText} in <strong>${materialNames[material]}</strong> is ready to order.<br>
+                        Complete your purchase in the checkout window that just opened.
+                    </p>
+                    <div style="background: #DAE0FF; padding: 15px; border: 1px solid #000000; margin-bottom: 20px;">
+                        <p style="margin: 0; color: #000000; font-size: 14px; font-weight: 300;">
+                            <strong>Next steps:</strong><br>
+                            1. Complete payment in the Stripe checkout<br>
+                            2. We'll email you order confirmation<br>
+                            3. Your charm ships within 5-7 business days
+                        </p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="padding: 15px 25px; background: #f8f8f8; color: #000000; border: 1px solid #000000; font-size: 16px; cursor: pointer; transition: all 0.3s ease; font-weight: 400;" onmouseover="this.style.background='#DAE0FF';" onmouseout="this.style.background='#f8f8f8';">
+                        Continue Browsing
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (overlay.parentElement) {
+                    overlay.remove();
+                }
+            }, 10000);
+        }
+
+        async function generateDesignStory(designNumber, responses, designType) {
+            try {
+                // Get API key
+                let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
+                if (!apiKey) {
+                    console.log('No API key available for story generation');
+                    const storySection = document.getElementById(`story-${designNumber}`);
+                    if (storySection) {
+                        storySection.innerHTML = `
+                            <p style="color: #000000; font-style: italic; font-size: 14px; text-align: center; font-weight: 300;">
+                                Story generation unavailable - API key required
+                            </p>
+                        `;
+                    }
+                    return;
+                }
+                
+                // Build detailed, contextual story prompt
+                let storyContext = '';
+                let designDetails = '';
+                
+                // Determine the story context based on user's journey and responses
+                if (responses.journey_type === 'A') {
+                    // Path A: Need help with ideas
+                    if (responses.inspiration?.includes('moment')) {
+                        storyContext = 'commemorates a milestone or special moment in life';
+                    } else if (responses.inspiration?.includes('person')) {
+                        storyContext = 'celebrates the bond with someone who means everything';
+                    } else if (responses.inspiration?.includes('place')) {
+                        storyContext = 'captures the essence of a place that holds deep meaning';
+                    } else {
+                        storyContext = 'represents the beauty found in life\'s journey';
+                    }
+                } else if (responses.journey_type === 'B') {
+                    // Path B: Have some ideas
+                    if (responses.all_text_responses.Q8_idea_description) {
+                        const ideaSnippet = responses.all_text_responses.Q8_idea_description.substring(0, 50);
+                        storyContext = `brings to life the vision: "${ideaSnippet}${ideaSnippet.length >= 50 ? '...' : ''}"`;
+                    } else {
+                        storyContext = 'transforms personal inspiration into wearable art';
+                    }
+                } else if (responses.journey_type === 'C') {
+                    // Path C: Know exactly what they want
+                    storyContext = 'transforms a cherished image into a lasting keepsake';
+                }
+                
+                // Add meaningful symbols/elements if provided
+                if (responses.all_text_responses.Q6_symbols) {
+                    designDetails += ` The design incorporates meaningful elements: ${responses.all_text_responses.Q6_symbols}.`;
+                }
+                
+                // Add style vibes
+                if (responses.style_vibes && responses.style_vibes.length > 0) {
+                    const vibeText = responses.style_vibes.join(' and ');
+                    designDetails += ` Created with a ${vibeText} aesthetic.`;
+                }
+                
+                // Add recipient context
+                let recipientContext = '';
+                if (responses.recipient === 'for-me') {
+                    recipientContext = 'This personal piece serves as a daily reminder of what matters most.';
+                } else if (responses.recipient === 'for-someone') {
+                    recipientContext = 'This thoughtful gift carries deep meaning from heart to heart.';
+                } else {
+                    recipientContext = 'This meaningful piece tells a story worth sharing.';
+                }
+                
+                const material = responses.material === '14k-gold' ? '14K gold' : 
+                               responses.material === 'sterling-silver' ? 'sterling silver' : 'gold-plated silver';
+                
+                const storyPrompt = `Write exactly 2 sentences about this custom ${material} charm that ${storyContext}.${designDetails} ${recipientContext} Make it heartfelt and specific to the context provided.`;
+                
+                console.log('Generating story with prompt:', storyPrompt);
+                
+                // Make API call to GPT-4o-mini for faster response
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4o-mini",
+                        messages: [{
+                            role: "user",
+                            content: storyPrompt
+                        }],
+                        max_tokens: 120, // Increased for more detailed stories
+                        temperature: 0.8 // Higher for more creative stories
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    const story = data.choices[0].message.content.trim();
+                    
+                    // Update the story section
+                    const storySection = document.getElementById(`story-${designNumber}`);
+                    if (storySection) {
+                        storySection.innerHTML = `
+                            <h6 style="margin: 0 0 15px 0; color: #000000; font-size: 14px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">The Story</h6>
+                            <p style="margin: 0; color: #000000; font-size: 16px; line-height: 1.6; font-style: italic; font-weight: 300;">
+                                ${story}
+                            </p>
+                        `;
+                    }
+                } else {
+                    throw new Error('Invalid response from story generation API');
+                }
+                
+            } catch (error) {
+                console.error('Error generating design story:', error);
+                
+                // Show contextual fallback message
+                const storySection = document.getElementById(`story-${designNumber}`);
+                if (storySection) {
+                    let fallbackStory = '';
+                    
+                    // Create contextual fallback based on user responses
+                    if (responses.journey_type === 'A') {
+                        if (responses.inspiration?.includes('moment')) {
+                            fallbackStory = 'This charm captures a special moment in time, designed to hold memories close to your heart. Every curve and detail reflects the significance of the milestone it represents.';
+                        } else if (responses.inspiration?.includes('person')) {
+                            fallbackStory = 'Created to honor someone special, this charm embodies the love and connection you share. It serves as a beautiful reminder of the bond that means everything to you.';
+                        } else if (responses.inspiration?.includes('place')) {
+                            fallbackStory = 'This piece captures the essence of a meaningful place, bringing its spirit with you wherever you go. Each element tells the story of somewhere that holds deep significance in your heart.';
+                        } else {
+                            fallbackStory = 'Born from exploration and discovery, this charm represents the beauty found in life\'s journey. It embodies the joy of finding something truly special and uniquely yours.';
+                        }
+                    } else if (responses.journey_type === 'B') {
+                        fallbackStory = 'This charm brings your personal vision to life, transforming inspiration into wearable art. Every detail has been carefully considered to reflect your unique style and story.';
+                    } else {
+                        fallbackStory = 'Crafted from your exact vision, this charm transforms a cherished image into a lasting keepsake. It preserves what matters most in a form you can carry with you always.';
+                    }
+                    
+                    storySection.innerHTML = `
+                        <h6 style="margin: 0 0 15px 0; color: #000000; font-size: 14px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">The Story</h6>
+                        <p style="margin: 0; color: #000000; font-size: 16px; line-height: 1.6; font-style: italic; font-weight: 300;">
+                            ${fallbackStory}
+                        </p>
+                    `;
+                }
             }
         }
 
@@ -2726,4 +3118,5 @@ Based on the feedback above, create an improved ${designType} design that addres
         });
     </script>
 </body>
+</html>
 </html>
