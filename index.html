@@ -2500,36 +2500,54 @@
             
             console.log('Config not loaded, attempting to fetch from server...');
             
-            // Try to fetch from the server endpoint first
-            try {
-                const response = await fetch('/config.js', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/javascript, text/javascript, */*'
-                    }
-                });
-                
-                if (response.ok) {
-                    const configScript = await response.text();
-                    console.log('Config script fetched from server:', configScript.substring(0, 100) + '...');
+            // List of endpoints to try
+            const endpoints = [
+                '/config.js',      // Rewritten to /api/config
+                '/api/config',     // Direct API endpoint
+                '/api/config.js'   // Alternative API endpoint
+            ];
+            
+            // Try each endpoint
+            for (const endpoint of endpoints) {
+                try {
+                    console.log(`Trying endpoint: ${endpoint}`);
+                    const response = await fetch(endpoint, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/javascript, text/javascript, */*',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
                     
-                    // Execute the script
-                    eval(configScript);
+                    console.log(`Response from ${endpoint}:`, response.status, response.statusText);
                     
-                    console.log('After eval - window.CONFIG:', window.CONFIG);
-                    if (window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY) {
-                        console.log('Config loaded successfully from server');
-                        return true;
+                    if (response.ok) {
+                        const configScript = await response.text();
+                        console.log(`Config script fetched from ${endpoint}:`, configScript.substring(0, 100) + '...');
+                        
+                        // Execute the script
+                        try {
+                            eval(configScript);
+                            console.log('After eval - window.CONFIG:', !!window.CONFIG);
+                            console.log('After eval - window.OPENAI_API_KEY:', !!window.OPENAI_API_KEY);
+                            
+                            if (window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY) {
+                                console.log(`Config loaded successfully from ${endpoint}`);
+                                return true;
+                            }
+                        } catch (evalError) {
+                            console.error(`Error executing config script from ${endpoint}:`, evalError);
+                        }
+                    } else {
+                        console.error(`Failed to fetch config from ${endpoint}:`, response.status, response.statusText);
                     }
-                } else {
-                    console.error('Failed to fetch config from server:', response.status, response.statusText);
+                } catch (error) {
+                    console.error(`Error loading config from ${endpoint}:`, error);
                 }
-            } catch (error) {
-                console.error('Error loading config from server:', error);
             }
             
-            // If server config failed, try to prompt user for API key
-            console.log('Server config failed, prompting user for API key...');
+            // If all server endpoints failed, try to prompt user for API key
+            console.log('All server endpoints failed, prompting user for API key...');
             
             // Check if we're in a development environment or if user wants to provide key
             const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -2538,6 +2556,7 @@
                 const apiKey = prompt('Please enter your OpenAI API key (starts with sk-):');
                 if (apiKey && apiKey.startsWith('sk-')) {
                     window.CONFIG = { OPENAI_API_KEY: apiKey };
+                    window.OPENAI_API_KEY = apiKey;
                     console.log('API key provided by user');
                     return true;
                 } else if (apiKey) {
