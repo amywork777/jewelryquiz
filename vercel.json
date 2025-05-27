@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/config.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/config.js",
