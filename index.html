@@ -1725,12 +1725,8 @@
                 // Get API key from config or prompt for it
                 let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
                 if (!apiKey) {
-                    apiKey = prompt('Please enter your OpenAI API key to generate the charm image:');
-                    if (!apiKey) {
-                        console.log('No API key provided, skipping background generation');
-                        return;
-                    }
-                    window.OPENAI_API_KEY = apiKey;
+                    console.log('No API key available, skipping background generation');
+                    return;
                 }
                 
                 const responses = captureAllResponses();
@@ -2294,11 +2290,7 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                     // Get API key from config or prompt for it
                     let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
                     if (!apiKey) {
-                        apiKey = prompt('Please enter your OpenAI API key to generate the charm image:');
-                        if (!apiKey) {
-                            throw new Error('API key required for image generation');
-                        }
-                        window.OPENAI_API_KEY = apiKey;
+                        throw new Error('API key not available');
                     }
                     
                     let inputContent = [];
@@ -3272,11 +3264,10 @@ Focus on feelings, memories, and personal connection. Use warm, simple language.
                 // Get API key
                 let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
                 if (!apiKey) {
-                    apiKey = prompt('Please enter your OpenAI API key to regenerate the design:');
+                    
                     if (!apiKey) {
-                        throw new Error('API key required for regeneration');
+                        throw new Error("API key not available");
                     }
-                    window.OPENAI_API_KEY = apiKey;
                 }
                 
                 // Show loading state
