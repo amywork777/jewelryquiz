@@ -517,6 +517,24 @@
             }
         }
 
+        /* Mobile responsive for 3-column layout */
+        @media (max-width: 768px) {
+            .three-column-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+            
+            .three-column-grid > div {
+                border-right: none !important;
+                border-bottom: 1px solid #e0e0e0;
+                padding-bottom: 20px !important;
+            }
+            
+            .three-column-grid > div:last-child {
+                border-bottom: none !important;
+            }
+        }
+
         /* Swimming Fish Animation for Loading */
         .swimming-logo-container {
             position: relative;
@@ -1193,7 +1211,7 @@
                 
                 // Update file info display
                 const fileCount = allFiles.length;
-                fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">:) ${fileCount} file${fileCount > 1 ? 's' : ''} selected: ${allFileNames}</div>`;
+                fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">${fileCount} file${fileCount > 1 ? 's' : ''} selected: ${allFileNames}</div>`;
                 
                 // Convert new images to base64 and combine with existing
                 convertFilesToBase64(newFiles, questionId, existingBase64);
@@ -1204,7 +1222,7 @@
                 label.style.background = '#d4edda';
                 label.style.borderColor = '#28a745';
                 label.innerHTML = `
-                    <strong>:) ${fileCount} file${fileCount > 1 ? 's' : ''} uploaded!</strong>
+                    <strong>${fileCount} file${fileCount > 1 ? 's' : ''} uploaded!</strong>
                     <span class="file-upload-instructions">Click to add more files or replace all</span>
                 `;
                 
@@ -1277,7 +1295,7 @@
                     const fileInfo = document.getElementById(originalInput.id + '-info');
                     const allFileNames = allFiles.map(f => f.name).join(', ');
                     const fileCount = allFiles.length;
-                    fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">:) ${fileCount} file${fileCount > 1 ? 's' : ''} selected: ${allFileNames}</div>`;
+                    fileInfo.innerHTML = `<div style="color: #000; font-weight: 400; margin: 10px 0;">${fileCount} file${fileCount > 1 ? 's' : ''} selected: ${allFileNames}</div>`;
                     
                     // Convert new images and update previews
                     convertFilesToBase64(newFiles, questionId, existingBase64);
@@ -1286,7 +1304,7 @@
                     // Update main label
                     const label = originalInput.nextElementSibling;
                     label.innerHTML = `
-                        <strong>:) ${fileCount} file${fileCount > 1 ? 's' : ''} uploaded!</strong>
+                        <strong>${fileCount} file${fileCount > 1 ? 's' : ''} uploaded!</strong>
                         <span class="file-upload-instructions">Click to add more files or replace all</span>
                     `;
                     
@@ -1818,7 +1836,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 border: 1px solid #000;
                 animation: fadeInOut 3s ease-in-out;
             `;
-            indicator.textContent = ':) Generating your charm design...';
+            indicator.textContent = 'Generating your charm design...';
             
             // Add fade animation
             const style = document.createElement('style');
@@ -2333,54 +2351,35 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                                     </div>
                                 </div>
                                 
-                                <div class="purchase-section" style="margin-top: 20px; padding: 20px; background: #DAE0FF; border: 1px solid #000000;">
-                                    <h5 style="margin: 0 0 15px 0; color: #000000; font-size: 16px; font-weight: 400; text-align: center;">Order Design ${index + 1}</h5>
-                                    
-                                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+
+                                
+                                <div class="feedback-section" style="margin-top: 15px; background: #ffffff; border: 1px solid #000000;">
+                                    <button 
+                                        onclick="toggleRefineSection(${index + 1})" 
+                                        style="width: 100%; padding: 15px 20px; background: #f8f8f8; color: #333333; border: none; border-bottom: 1px solid #000000; font-size: 16px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; letter-spacing: 0.5px; text-align: left; display: flex; justify-content: space-between; align-items: center;"
+                                        onmouseover="this.style.background='#DAE0FF'; this.style.color='#000000';"
+                                        onmouseout="this.style.background='#f8f8f8'; this.style.color='#333333';"
+                                    >
+                                        <span>Want to refine this design?</span>
+                                        <span id="refine-arrow-${index + 1}" style="transition: transform 0.3s ease;">▼</span>
+                                    </button>
+                                    <div id="refine-content-${index + 1}" style="display: none; padding: 20px;">
+                                        <textarea 
+                                            id="feedback-${index + 1}" 
+                                            placeholder="Share your thoughts... (e.g., make it more delicate, add sparkle, change proportions)"
+                                            style="width: 100%; height: 80px; padding: 15px; border: 1px solid #000000; font-size: 14px; font-family: inherit; font-weight: 300; resize: vertical; margin-bottom: 20px; background: #ffffff; transition: all 0.3s ease;"
+                                            onfocus="this.style.background='#DAE0FF'; this.style.borderColor='#000000';"
+                                            onblur="this.style.background='#ffffff'; this.style.borderColor='#000000';"
+                                        ></textarea>
                                         <button 
-                                            onclick="purchaseSpecificDesign(${index + 1}, 'sterling-silver')" 
-                                            style="flex: 1; min-width: 100px; padding: 15px 10px; background: #ffffff; color: #000000; border: 1px solid #000000; font-size: 13px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; text-align: center;"
-                                            onmouseover="this.style.background='#000000'; this.style.color='#ffffff';"
-                                            onmouseout="this.style.background='#ffffff'; this.style.color='#000000';"
+                                            onclick="regenerateDesign(${index + 1})" 
+                                            style="width: 100%; padding: 18px 20px; background: #f8f8f8; color: #333333; border: 1px solid #000000; font-size: 16px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; letter-spacing: 0.5px;"
+                                            onmouseover="this.style.background='#DAE0FF'; this.style.color='#000000'; this.style.borderColor='#000000';"
+                                            onmouseout="this.style.background='#f8f8f8'; this.style.color='#333333'; this.style.borderColor='#000000';"
                                         >
-                                            Sterling Silver<br><strong>$50</strong>
-                                        </button>
-                                        <button 
-                                            onclick="purchaseSpecificDesign(${index + 1}, 'gold-plated')" 
-                                            style="flex: 1; min-width: 100px; padding: 15px 10px; background: #ffffff; color: #000000; border: 1px solid #000000; font-size: 13px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; text-align: center;"
-                                            onmouseover="this.style.background='#000000'; this.style.color='#ffffff';"
-                                            onmouseout="this.style.background='#ffffff'; this.style.color='#000000';"
-                                        >
-                                            Gold-Plated<br><strong>$50</strong>
-                                        </button>
-                                        <button 
-                                            onclick="purchaseSpecificDesign(${index + 1}, '14k-gold')" 
-                                            style="flex: 1; min-width: 100px; padding: 15px 10px; background: #ffffff; color: #000000; border: 1px solid #000000; font-size: 13px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; text-align: center;"
-                                            onmouseover="this.style.background='#000000'; this.style.color='#ffffff';"
-                                            onmouseout="this.style.background='#ffffff'; this.style.color='#000000';"
-                                        >
-                                            14K Gold<br><strong>$200</strong>
+                                            Refine Design ${index + 1}
                                         </button>
                                     </div>
-                                </div>
-                                
-                                <div class="feedback-section" style="margin-top: 15px; padding: 20px; background: #ffffff; border: 1px solid #000000;">
-                                    <p style="margin: 0 0 15px 0; color: #000000; font-size: 16px; font-weight: 300; text-align: center;">Want to refine this design?</p>
-                                    <textarea 
-                                        id="feedback-${index + 1}" 
-                                        placeholder="Share your thoughts... (e.g., make it more delicate, add sparkle, change proportions)"
-                                        style="width: 100%; height: 80px; padding: 15px; border: 1px solid #000000; font-size: 14px; font-family: inherit; font-weight: 300; resize: vertical; margin-bottom: 20px; background: #ffffff; transition: all 0.3s ease;"
-                                        onfocus="this.style.background='#DAE0FF'; this.style.borderColor='#000000';"
-                                        onblur="this.style.background='#ffffff'; this.style.borderColor='#000000';"
-                                    ></textarea>
-                                    <button 
-                                        onclick="regenerateDesign(${index + 1})" 
-                                        style="width: 100%; padding: 18px 20px; background: #f8f8f8; color: #333333; border: 1px solid #000000; font-size: 16px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; letter-spacing: 0.5px;"
-                                        onmouseover="this.style.background='#DAE0FF'; this.style.color='#000000'; this.style.borderColor='#000000';"
-                                        onmouseout="this.style.background='#f8f8f8'; this.style.color='#333333'; this.style.borderColor='#000000';"
-                                    >
-                                        :D Refine Design ${index + 1}
-                                    </button>
                                 </div>
                             `;
                             imagesContainer.appendChild(imageDiv);
@@ -2392,25 +2391,98 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     
                     resultsDiv.appendChild(imagesContainer);
                     
-                    // Add purchasing section after all designs
+                    // Add single purchase section immediately after designs
                     const purchaseDiv = document.createElement('div');
                     purchaseDiv.innerHTML = `
-                        <div style="margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #000000; text-align: center;">
-                            <h4 style="margin: 0 0 15px 0; color: #000; font-size: 20px; font-weight: 400;">Ready to bring your design to life?</h4>
-                            <p style="margin: 0 0 20px 0; color: #000000; font-size: 16px; line-height: 1.5; font-weight: 300;">Choose your preferred design and material - we'll craft your custom charm with expert precision.</p>
+                        <div style="margin: 40px 0 20px 0; padding: 30px; background: #ffffff; border: 2px solid #000000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 25px 0; color: #000; font-size: 24px; font-weight: 500; text-align: center;">Purchase Your Custom Charm</h4>
                             
-                            <div style="margin-top: 20px; padding: 15px; background: #DAE0FF; border: 1px solid #000000;">
-                                <p style="margin: 0; color: #000000; font-size: 14px; line-height: 1.4; font-weight: 300;">
-                                    <strong>What's included:</strong> Custom charm crafted to your exact design • Jump ring for easy attachment • Gift-ready packaging • 30-day satisfaction guarantee
-                                </p>
+                            <div style="margin-bottom: 25px;">
+                                <label style="display: block; margin-bottom: 12px; color: #000000; font-size: 16px; font-weight: 500;">Select Design:</label>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #e9ecef; cursor: pointer; transition: all 0.3s ease; background: #ffffff;" onclick="selectDesign(1)">
+                                        <input type="radio" name="design-selection" value="1" style="margin-right: 10px; transform: scale(1.2);">
+                                        <span style="font-size: 16px; color: #000;">Design 1: ${responses.uploaded_images.Q2_images.length > 0 ? 'Simple Realistic' : 'Simple Style'}</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #e9ecef; cursor: pointer; transition: all 0.3s ease; background: #ffffff;" onclick="selectDesign(2)">
+                                        <input type="radio" name="design-selection" value="2" style="margin-right: 10px; transform: scale(1.2);">
+                                        <span style="font-size: 16px; color: #000;">Design 2: ${responses.uploaded_images.Q2_images.length > 0 ? 'Simple Cartoonish' : 'Cartoonish/Cute Style'}</span>
+                                    </label>
+                                </div>
                             </div>
                             
-                            <p style="margin: 15px 0 0 0; color: #000000; font-size: 12px; font-weight: 300;">
-                                Secure checkout powered by Stripe • Ships within 5-7 business days
-                            </p>
+                            <div style="margin-bottom: 25px;">
+                                <label style="display: block; margin-bottom: 12px; color: #000000; font-size: 16px; font-weight: 500;">Material:</label>
+                                <select id="material-select" style="width: 100%; padding: 15px 20px; border: 2px solid #e9ecef; background: #ffffff; font-size: 16px; font-family: inherit; color: #000000; cursor: pointer; transition: all 0.3s ease;" onchange="updateMainPrice()" onfocus="this.style.borderColor='#000000';" onblur="this.style.borderColor='#e9ecef';">
+                                    <option value="sterling-silver">Sterling Silver - $50</option>
+                                    <option value="gold-plated">Gold-Plated Silver - $50</option>
+                                    <option value="14k-gold">14K Solid Gold - $200</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border: 1px solid #e9ecef;">
+                                <div>
+                                    <div style="font-size: 16px; color: #666; margin-bottom: 6px;">Total Price:</div>
+                                    <div id="main-price-display" style="font-size: 28px; font-weight: 600; color: #000000;">$50</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 14px; color: #666;">Free shipping</div>
+                                    <div style="font-size: 14px; color: #666;">5-7 business days</div>
+                                </div>
+                            </div>
+                            
+                            <button 
+                                id="main-buy-button"
+                                onclick="purchaseSelectedDesign()" 
+                                style="width: 100%; padding: 20px 30px; background: #cccccc; color: #666666; border: none; font-size: 18px; font-weight: 600; cursor: not-allowed; transition: all 0.3s ease; font-family: inherit; text-transform: uppercase; letter-spacing: 1px;"
+                                disabled
+                            >
+                                Select a Design to Buy
+                            </button>
+                            
+                            <div style="margin-top: 20px; text-align: center;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; font-size: 14px; color: #666;">
+                                    <span>30-day guarantee</span>
+                                    <span>Secure checkout</span>
+                                    <span>Gift ready</span>
+                                </div>
+                            </div>
                         </div>
                     `;
                     resultsDiv.appendChild(purchaseDiv);
+                    
+                    // Add shopping info section after purchase
+                    const shoppingInfoDiv = document.createElement('div');
+                    shoppingInfoDiv.innerHTML = `
+                        <div style="margin: 40px 0 20px 0; padding: 30px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #000000; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 30px 0; color: #000; font-size: 24px; font-weight: 500;">Your Custom Jewelry Experience</h4>
+                            
+                            <div class="three-column-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin: 25px 0;">
+                                <div style="text-align: center; padding: 20px; border-right: 1px solid #e0e0e0;">
+                                    <h5 style="margin: 0 0 12px 0; color: #000; font-size: 18px; font-weight: 500;">Fast Turnaround</h5>
+                                    <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.5;">Ships within 5-7 business days</p>
+                                </div>
+                                <div style="text-align: center; padding: 20px; border-right: 1px solid #e0e0e0;">
+                                    <h5 style="margin: 0 0 12px 0; color: #000; font-size: 18px; font-weight: 500;">Quality Guarantee</h5>
+                                    <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.5;">30-day satisfaction guarantee</p>
+                                </div>
+                                <div style="text-align: center; padding: 20px;">
+                                    <h5 style="margin: 0 0 12px 0; color: #000; font-size: 18px; font-weight: 500;">Gift Ready</h5>
+                                    <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.5;">Beautiful packaging included</p>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 30px; padding: 25px; background: #e8f5e8; border: 1px solid #28a745; border-radius: 8px;">
+                                <div style="margin-bottom: 12px;">
+                                    <strong style="color: #28a745; font-size: 18px;">Secure Checkout</strong>
+                                </div>
+                                <p style="margin: 0; color: #155724; font-size: 15px; line-height: 1.4;">
+                                    Powered by Stripe • SSL encrypted • Your payment info is safe
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(shoppingInfoDiv);
                     
                     // Add footer info
                     const footerDiv = document.createElement('div');
@@ -2531,6 +2603,85 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
             }
         }
 
+        let selectedDesignNumber = null;
+
+        function selectDesign(designNumber) {
+            selectedDesignNumber = designNumber;
+            
+            // Update radio button selection
+            const radios = document.querySelectorAll('input[name="design-selection"]');
+            radios.forEach(radio => {
+                radio.checked = radio.value == designNumber;
+                const label = radio.closest('label');
+                if (radio.checked) {
+                    label.style.borderColor = '#000000';
+                    label.style.background = '#DAE0FF';
+                } else {
+                    label.style.borderColor = '#e9ecef';
+                    label.style.background = '#ffffff';
+                }
+            });
+            
+            // Enable buy button
+            const buyButton = document.getElementById('main-buy-button');
+            buyButton.disabled = false;
+            buyButton.style.background = '#000000';
+            buyButton.style.color = '#ffffff';
+            buyButton.style.cursor = 'pointer';
+            buyButton.textContent = 'Buy Now';
+            
+            // Add hover effects
+            buyButton.onmouseover = function() {
+                this.style.background = '#333333';
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
+            };
+            buyButton.onmouseout = function() {
+                this.style.background = '#000000';
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            };
+        }
+
+        function updateMainPrice() {
+            const select = document.getElementById('material-select');
+            const priceDisplay = document.getElementById('main-price-display');
+            
+            const prices = {
+                'sterling-silver': '$50',
+                'gold-plated': '$50',
+                '14k-gold': '$200'
+            };
+            
+            priceDisplay.textContent = prices[select.value];
+        }
+
+        function purchaseSelectedDesign() {
+            if (!selectedDesignNumber) {
+                alert('Please select a design first.');
+                return;
+            }
+            
+            const select = document.getElementById('material-select');
+            const selectedMaterial = select.value;
+            purchaseSpecificDesign(selectedDesignNumber, selectedMaterial);
+        }
+
+        function toggleRefineSection(designNumber) {
+            const content = document.getElementById(`refine-content-${designNumber}`);
+            const arrow = document.getElementById(`refine-arrow-${designNumber}`);
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(180deg)';
+                arrow.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+                arrow.textContent = '▼';
+            }
+        }
+
         function purchaseSpecificDesign(designNumber, material) {
             // Capture all form data for the purchase
             const responses = captureAllResponses();
@@ -2569,7 +2720,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 '14k-gold': '14K Gold ($200)'
             };
             
-            const confirmed = confirm(`Ready to order Design ${designNumber} in ${materialNames[material]}?\n\nYou'll be redirected to secure checkout where you can complete your purchase.`);
+            const confirmed = confirm(`Purchase: Design ${designNumber} in ${materialNames[material]}\n\nFree shipping included\n30-day guarantee\nSecure Stripe checkout\n\nProceed to checkout?`);
             
             if (confirmed) {
                 // Open Stripe checkout in new tab
@@ -2611,23 +2762,31 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
             `;
             
             overlay.innerHTML = `
-                <div style="background: white; padding: 40px; border: 1px solid #000000; text-align: center; max-width: 500px; margin: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
-                    <div style="font-size: 48px; margin-bottom: 20px;">:)</div>
-                    <h3 style="margin: 0 0 15px 0; color: #000; font-size: 24px; font-weight: 400;">Order Initiated!</h3>
-                    <p style="margin: 0 0 20px 0; color: #000000; font-size: 16px; line-height: 1.5; font-weight: 300;">
-                        Your custom charm${designText} in <strong>${materialNames[material]}</strong> is ready to order.<br>
-                        Complete your purchase in the checkout window that just opened.
-                    </p>
-                    <div style="background: #DAE0FF; padding: 15px; border: 1px solid #000000; margin-bottom: 20px;">
-                        <p style="margin: 0; color: #000000; font-size: 14px; font-weight: 300;">
-                            <strong>Next steps:</strong><br>
-                            1. Complete payment in the Stripe checkout<br>
-                            2. We'll email you order confirmation<br>
-                            3. Your charm ships within 5-7 business days
+                <div style="background: white; padding: 40px; border: 2px solid #000000; text-align: center; max-width: 550px; margin: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+                    <h3 style="margin: 0 0 15px 0; color: #000; font-size: 26px; font-weight: 500;">Purchase Initiated!</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border: 1px solid #dee2e6; margin-bottom: 20px;">
+                        <p style="margin: 0; color: #000000; font-size: 16px; font-weight: 500;">
+                            Custom Charm${designText}<br>
+                            <span style="color: #666; font-weight: 400;">${materialNames[material]}</span>
                         </p>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" style="padding: 15px 25px; background: #f8f8f8; color: #000000; border: 1px solid #000000; font-size: 16px; cursor: pointer; transition: all 0.3s ease; font-weight: 400;" onmouseover="this.style.background='#DAE0FF';" onmouseout="this.style.background='#f8f8f8';">
-                        Continue Browsing
+                    <p style="margin: 0 0 25px 0; color: #000000; font-size: 16px; line-height: 1.5; font-weight: 300;">
+                        Complete your secure checkout in the window that just opened.
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; text-align: left;">
+                        <div style="background: #e8f5e8; padding: 12px; border: 1px solid #28a745;">
+                            <div style="font-size: 14px; font-weight: 500; color: #155724; margin-bottom: 4px;">Free Shipping</div>
+                            <div style="font-size: 12px; color: #155724;">No additional costs</div>
+                        </div>
+                        <div style="background: #e8f5e8; padding: 12px; border: 1px solid #28a745;">
+                            <div style="font-size: 14px; font-weight: 500; color: #155724; margin-bottom: 4px;">Fast Delivery</div>
+                            <div style="font-size: 12px; color: #155724;">5-7 business days</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="this.parentElement.parentElement.remove()" style="width: 100%; padding: 15px 25px; background: #000000; color: #ffffff; border: none; font-size: 16px; cursor: pointer; transition: all 0.3s ease; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;" onmouseover="this.style.background='#333333';" onmouseout="this.style.background='#000000';">
+                        Continue Shopping
                     </button>
                 </div>
             `;
@@ -2659,60 +2818,86 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     return;
                 }
                 
-                // Build detailed, contextual story prompt
-                let storyContext = '';
-                let designDetails = '';
+                // Build comprehensive context from ALL user responses
+                let userContext = '';
+                let designContext = '';
+                let emotionalContext = '';
                 
-                // Determine the story context based on user's journey and responses
+                // Journey-specific context
                 if (responses.journey_type === 'A') {
                     // Path A: Need help with ideas
                     if (responses.inspiration?.includes('moment')) {
-                        storyContext = 'commemorates a milestone or special moment in life';
+                        userContext = 'celebrating a significant milestone or achievement';
+                        emotionalContext = 'pride, accomplishment, and the desire to remember this pivotal time';
                     } else if (responses.inspiration?.includes('person')) {
-                        storyContext = 'celebrates the bond with someone who means everything';
+                        userContext = 'honoring a meaningful relationship or connection';
+                        emotionalContext = 'love, gratitude, and the deep bonds that shape us';
                     } else if (responses.inspiration?.includes('place')) {
-                        storyContext = 'captures the essence of a place that holds deep meaning';
-                    } else {
-                        storyContext = 'represents the beauty found in life\'s journey';
+                        userContext = 'commemorating a location that holds special significance';
+                        emotionalContext = 'nostalgia, adventure, and the memories tied to meaningful places';
+                    } else if (responses.inspiration?.includes('curious')) {
+                        userContext = 'exploring personal style and self-expression';
+                        emotionalContext = 'curiosity, creativity, and the joy of discovering something beautiful';
                     }
                 } else if (responses.journey_type === 'B') {
                     // Path B: Have some ideas
                     if (responses.all_text_responses.Q8_idea_description) {
-                        const ideaSnippet = responses.all_text_responses.Q8_idea_description.substring(0, 50);
-                        storyContext = `brings to life the vision: "${ideaSnippet}${ideaSnippet.length >= 50 ? '...' : ''}"`;
+                        const idea = responses.all_text_responses.Q8_idea_description;
+                        userContext = `bringing a personal vision to life: "${idea}"`;
+                        emotionalContext = 'creativity, intention, and the satisfaction of seeing ideas become reality';
                     } else {
-                        storyContext = 'transforms personal inspiration into wearable art';
+                        userContext = 'translating personal inspiration into tangible form';
+                        emotionalContext = 'artistic expression and individual creativity';
                     }
                 } else if (responses.journey_type === 'C') {
                     // Path C: Know exactly what they want
-                    storyContext = 'transforms a cherished image into a lasting keepsake';
+                    userContext = 'preserving a specific image or memory in permanent form';
+                    emotionalContext = 'attachment, preservation, and the desire to keep precious moments close';
                 }
                 
-                // Add meaningful symbols/elements if provided
+                // Add meaningful symbols/elements
                 if (responses.all_text_responses.Q6_symbols) {
-                    designDetails += ` The design incorporates meaningful elements: ${responses.all_text_responses.Q6_symbols}.`;
+                    designContext += ` The design incorporates deeply personal elements: ${responses.all_text_responses.Q6_symbols}.`;
                 }
                 
-                // Add style vibes
+                // Add special details/requests
+                if (responses.all_text_responses.Q13_special_details) {
+                    designContext += ` Special attention was given to: ${responses.all_text_responses.Q13_special_details}.`;
+                }
+                
+                // Style vibes context
+                let styleContext = '';
                 if (responses.style_vibes && responses.style_vibes.length > 0) {
-                    const vibeText = responses.style_vibes.join(' and ');
-                    designDetails += ` Created with a ${vibeText} aesthetic.`;
+                    const vibes = responses.style_vibes;
+                    if (vibes.includes('elegant')) styleContext += ' sophisticated and timeless,';
+                    if (vibes.includes('bold')) styleContext += ' confident and striking,';
+                    if (vibes.includes('playful')) styleContext += ' joyful and whimsical,';
+                    if (vibes.includes('spiritual')) styleContext += ' meaningful and symbolic,';
+                    if (vibes.includes('sweet')) styleContext += ' tender and sentimental,';
+                    styleContext = styleContext.replace(/,$/, ''); // Remove trailing comma
                 }
                 
-                // Add recipient context
+                // Recipient context
                 let recipientContext = '';
                 if (responses.recipient === 'for-me') {
-                    recipientContext = 'This personal piece serves as a daily reminder of what matters most.';
+                    recipientContext = 'This personal talisman will serve as a daily touchstone, connecting the wearer to what matters most.';
                 } else if (responses.recipient === 'for-someone') {
-                    recipientContext = 'This thoughtful gift carries deep meaning from heart to heart.';
+                    recipientContext = 'This thoughtful gift will carry the giver\'s love and intention, creating a lasting connection between hearts.';
                 } else {
-                    recipientContext = 'This meaningful piece tells a story worth sharing.';
+                    recipientContext = 'This piece will hold meaning for whoever wears it, telling a story that resonates beyond words.';
                 }
                 
                 const material = responses.material === '14k-gold' ? '14K gold' : 
                                responses.material === 'sterling-silver' ? 'sterling silver' : 'gold-plated silver';
                 
-                const storyPrompt = `Write exactly 2 sentences about this custom ${material} charm that ${storyContext}.${designDetails} ${recipientContext} Make it heartfelt and specific to the context provided.`;
+                // Create a rich, specific prompt
+                const storyPrompt = `Write exactly 2 compelling sentences about this custom ${material} charm. 
+
+CONTEXT: The wearer is ${userContext}, driven by ${emotionalContext}.${designContext} The aesthetic is${styleContext}. ${recipientContext}
+
+DESIGN TYPE: ${designType}
+
+Create a story that feels personal and specific to this context. Avoid generic language about grandmothers, family heirlooms, or clichés. Focus on the unique emotional journey and specific meaning this piece holds. Make it feel authentic and contemporary.`;
                 
                 console.log('Generating story with prompt:', storyPrompt);
                 
@@ -2729,8 +2914,8 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                             role: "user",
                             content: storyPrompt
                         }],
-                        max_tokens: 120, // Increased for more detailed stories
-                        temperature: 0.8 // Higher for more creative stories
+                        max_tokens: 150,
+                        temperature: 0.9 // Higher creativity for more unique stories
                     })
                 });
                 
@@ -2756,26 +2941,30 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
             } catch (error) {
                 console.error('Error generating design story:', error);
                 
-                // Show contextual fallback message
+                // Show improved contextual fallback messages
                 const storySection = document.getElementById(`story-${designNumber}`);
                 if (storySection) {
                     let fallbackStory = '';
                     
-                    // Create contextual fallback based on user responses
+                    // Create diverse, specific fallback stories based on user responses
                     if (responses.journey_type === 'A') {
                         if (responses.inspiration?.includes('moment')) {
-                            fallbackStory = 'This charm captures a special moment in time, designed to hold memories close to your heart. Every curve and detail reflects the significance of the milestone it represents.';
+                            fallbackStory = 'This charm crystallizes a pivotal moment, transforming fleeting time into something tangible you can carry forward. Each detail serves as a reminder of your strength and the significance of this chapter in your story.';
                         } else if (responses.inspiration?.includes('person')) {
-                            fallbackStory = 'Created to honor someone special, this charm embodies the love and connection you share. It serves as a beautiful reminder of the bond that means everything to you.';
+                            fallbackStory = 'Designed to honor a meaningful connection, this piece captures the essence of someone who has shaped your journey. It becomes a bridge between hearts, carrying their influence with you wherever life leads.';
                         } else if (responses.inspiration?.includes('place')) {
-                            fallbackStory = 'This piece captures the essence of a meaningful place, bringing its spirit with you wherever you go. Each element tells the story of somewhere that holds deep significance in your heart.';
+                            fallbackStory = 'This charm holds the spirit of a place that changed you, distilling its energy into wearable form. Whether it represents adventure, peace, or discovery, it keeps that transformative location close to your heart.';
                         } else {
-                            fallbackStory = 'Born from exploration and discovery, this charm represents the beauty found in life\'s journey. It embodies the joy of finding something truly special and uniquely yours.';
+                            fallbackStory = 'Born from curiosity and the desire for something uniquely beautiful, this charm represents your personal aesthetic journey. It embodies the confidence to choose pieces that speak to your individual style and story.';
                         }
                     } else if (responses.journey_type === 'B') {
-                        fallbackStory = 'This charm brings your personal vision to life, transforming inspiration into wearable art. Every detail has been carefully considered to reflect your unique style and story.';
+                        if (responses.all_text_responses.Q8_idea_description) {
+                            fallbackStory = 'This charm brings your creative vision into reality, translating abstract ideas into tangible beauty. It represents the power of imagination and the satisfaction of seeing personal inspiration take physical form.';
+                        } else {
+                            fallbackStory = 'Crafted from your personal inspiration, this piece bridges the gap between concept and creation. It embodies your unique perspective and serves as a testament to the beauty of individual expression.';
+                        }
                     } else {
-                        fallbackStory = 'Crafted from your exact vision, this charm transforms a cherished image into a lasting keepsake. It preserves what matters most in a form you can carry with you always.';
+                        fallbackStory = 'This charm preserves a specific moment or image that holds deep personal significance. It transforms something precious into a lasting keepsake, ensuring that what matters most remains close at hand.';
                     }
                     
                     storySection.innerHTML = `
@@ -2980,7 +3169,7 @@ Based on the feedback above, create an improved ${designType} design that addres
                      // Show success message
                      const successMsg = document.createElement('div');
                      successMsg.style.cssText = 'background: #d4edda; color: #155724; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 12px; text-align: center;';
-                     successMsg.textContent = `:) Design ${designNumber} refined successfully! (Version ${newVersion})`;
+                     successMsg.textContent = `Design ${designNumber} refined successfully! (Version ${newVersion})`;
                      feedbackTextarea.parentElement.appendChild(successMsg);
                      
                      // Remove success message after 3 seconds
@@ -3000,7 +3189,7 @@ Based on the feedback above, create an improved ${designType} design that addres
             } finally {
                 // Reset button state
                 const button = document.querySelector(`#feedback-${designNumber}`).nextElementSibling;
-                button.textContent = `:D Refine Design ${designNumber}`;
+                button.textContent = `Refine Design ${designNumber}`;
                 button.disabled = false;
                 button.style.background = '#f8f8f8';
             }
