@@ -445,7 +445,7 @@
         /* Design layout styles */
         .design-container {
             display: flex !important;
-            gap: 15px !important;
+            gap: 20px !important;
             margin-bottom: 20px !important;
             flex-wrap: nowrap !important;
             overflow-x: auto !important;
@@ -455,18 +455,38 @@
 
         .design-item {
             flex: 1 1 45% !important;
-            min-width: 350px !important;
-            max-width: 450px !important;
-            padding: 20px !important;
-            border: 1px solid #000000 !important;
-            border-radius: 0px !important;
+            min-width: 300px !important;
+            max-width: 400px !important;
+            padding: 15px !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 8px !important;
             text-align: center !important;
             background: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        }
+
+        .design-item h5 {
+            margin: 0 0 15px 0 !important;
+            color: #000 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            padding-bottom: 10px !important;
+            border-bottom: 1px solid #f0f0f0 !important;
         }
 
         /* Ensure exactly 2 designs are shown side by side */
         .design-container .design-item:nth-child(n+3) {
             display: none !important;
+        }
+
+        /* Design image styling */
+        .design-item img {
+            width: 100% !important;
+            max-width: 280px !important;
+            height: auto !important;
+            border-radius: 6px !important;
+            margin-bottom: 15px !important;
+            border: 1px solid #f0f0f0 !important;
         }
 
         /* Purchase section styles */
@@ -492,7 +512,13 @@
 
         @media (max-width: 768px) {
             .design-item {
-                min-width: 280px !important;
+                min-width: 250px !important;
+                padding: 12px !important;
+            }
+            
+            .design-item h5 {
+                font-size: 15px !important;
+                margin-bottom: 12px !important;
             }
         }
 
@@ -500,6 +526,7 @@
             .design-container {
                 flex-direction: column !important;
                 overflow-x: visible !important;
+                gap: 15px !important;
             }
             
             .design-item {
@@ -507,6 +534,11 @@
                 min-width: auto !important;
                 max-width: none !important;
                 width: 100% !important;
+                margin: 0 auto !important;
+            }
+
+            .design-item img {
+                max-width: 220px !important;
             }
 
             /* Mobile purchase section */
@@ -534,6 +566,70 @@
                 border-bottom: none !important;
             }
         }
+
+        /* Mobile optimization for purchase section */
+        @media (max-width: 640px) {
+            .container.results-mode {
+                max-width: 100% !important;
+                padding: 15px !important;
+            }
+            
+            .design-container {
+                gap: 20px !important;
+            }
+            
+            .design-item {
+                padding: 15px !important;
+                min-width: auto !important;
+            }
+            
+            /* Mobile purchase section optimization */
+            .mobile-purchase-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+            
+            .mobile-purchase-grid label {
+                padding: 10px !important;
+                font-size: 13px !important;
+            }
+            
+            /* Adjust main purchase section on mobile */
+            #main-buy-button {
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+            }
+            
+            /* Mobile spacing adjustments */
+            .container.results-mode h4 {
+                text-align: center !important;
+            }
+            
+                         /* Smaller text and spacing on mobile */
+             h4 {
+                 font-size: 18px !important;
+                 margin: 20px 0 12px 0 !important;
+             }
+             
+             .story-section {
+                 padding: 12px !important;
+                 margin: 10px 0 !important;
+             }
+             
+             .feedback-section {
+                 margin-top: 8px !important;
+             }
+             
+             .feedback-section button {
+                 padding: 10px 12px !important;
+                 font-size: 13px !important;
+             }
+             
+             /* Hide story section on mobile to reduce clutter */
+             .story-section {
+                 display: none !important;
+             }
+         }
 
         /* Swimming Fish Animation for Loading */
         .swimming-logo-container {
@@ -1652,13 +1748,15 @@
                     // Create prompt that incorporates the uploaded images
                     if (responses.uploaded_images.Q2_images.length > 0) {
                         // Path C: Exact design - make this image into a charm
-                        promptText = `Transform this image into a single ${promptData.material} charm with a jump ring. Create two distinct design variations with dimensional, sculptural 2.5D relief: 
+                        promptText = `Transform this image into a single ${promptData.material} charm with a jump ring. Create two distinct design variations: 
 
-DESIGN 1 - Simple Realistic Style: Recreate the main subjects and elements from the image as a raised, dimensional relief design with varying depths and levels. Use realistic proportions and forms with clear depth gradations - foreground elements should be higher relief, background elements in lower relief. Create a sculptural, coin-like appearance with smooth transitions between different height levels. Focus on clear, recognizable 3D forms that capture the essence of the photo.
+DESIGN 1 - Classic Elegant: Create the main subject/object from the image as a refined relief design with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty that would appeal to traditional jewelry lovers.
 
-DESIGN 2 - Simple Cartoonish Style: Transform the subjects from the image into a cute, stylized cartoon version with pronounced 2.5D sculptural relief. Use simplified shapes with exaggerated dimensional features - rounded, puffy forms that pop out from the surface. Create playful depth with cartoon-like bulges, curves, and raised elements. Make it dimensionally charming with clear height variations between different parts of the design.
+DESIGN 2 - Modern Sculptural: Transform the subject/object from the image into a bold, contemporary 3D sculptural charm with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation that would appeal to fashion-forward individuals.
 
-Both designs must have significant dimensional depth and sculptural relief - NOT flat engravings. Create medal-like, coin-like dimensional quality with varying heights across the surface. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+${promptData.manufacturing_rules}
+
+DESIGN 1 should have a classic, refined jewelry aesthetic with elegant details. DESIGN 2 should be bold, modern, and sculptural with strong 3D presence. Both must have a jump ring for attachment. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                         
                         // Add the uploaded image(s) to input
                         inputContent.push({
@@ -1704,15 +1802,17 @@ USER SURVEY RESPONSES TO INCORPORATE:
                             detailedPreferences += `\n- Recipient: ${responses.recipient}`;
                         }
 
-                        promptText = `Create a single ${promptData.subject} charm with a jump ring, combining the user's specific survey responses with inspiration from the reference image(s). Generate 2 distinct style variations with full 3D sculptural relief:
+                        promptText = `Create a single ${promptData.subject} charm with a jump ring, combining the user's specific survey responses with inspiration from the reference image(s). Generate 2 distinct style variations:
 
 ${detailedPreferences}
 
-DESIGN 1 - Simple Style: Create a clean, elegant interpretation that blends the reference images with ALL the user's survey responses above. Use sophisticated, refined forms with smooth sculptural relief and varying depths. Incorporate the requested symbols, story elements, and style preferences while drawing inspiration from the reference images. Full 3D dimensional quality with subtle height variations.
+DESIGN 1 - Classic Elegant: Create a refined interpretation that incorporates ALL the user's survey responses above with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty while incorporating the requested symbols, story elements, and style preferences.
 
-DESIGN 2 - Cartoonish/Cute Style: Transform the same concept into a playful, adorable version with exaggerated cute features. Use rounded, puffy forms that pop out dramatically from the surface. Make it whimsical and charming with pronounced 3D sculptural elements, cartoon-like proportions, and endearing details. Incorporate ALL the user's survey responses (symbols, story, style vibes) while being inspired by the reference images.
+DESIGN 2 - Modern Sculptural: Transform the concept into a bold, contemporary 3D sculptural charm with dramatic dimensional presence, incorporating ALL the user's survey responses. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation of the user's requests.
 
-Both designs must incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. Create full 3D sculptural relief with significant dimensional depth - NOT flat designs. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+${promptData.manufacturing_rules}
+
+Both designs must incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. DESIGN 1 = classic, refined jewelry aesthetic, DESIGN 2 = bold, modern sculptural style. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                         
                         inputContent.push({
                             "type": "input_text", 
@@ -1730,7 +1830,15 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     }
             } else {
                     // No uploaded images - use text-only prompt
-                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}. Generate 2 different design variations.`;
+                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. Generate 2 different design variations:
+
+DESIGN 1 - Classic Elegant: Create a refined, sophisticated design with elegant details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty.
+
+DESIGN 2 - Modern Sculptural: Create a bold, contemporary 3D sculptural design with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation.
+
+${promptData.manufacturing_rules}
+
+DESIGN 1 should have a classic, refined jewelry aesthetic. DESIGN 2 should be bold, modern, and sculptural. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
                     inputContent.push({
                         "type": "input_text",
                         "text": promptText
@@ -1742,15 +1850,15 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 // Generate two separate images for better results
                 const promises = [];
                 
-                // Design 1: Simple Style
+                // Design 1: Classic Elegant
                 const design1Prompt = hasUploadedImages ? 
-                    promptText.replace('Generate 2 distinct style variations', 'Create Design 1 - Simple Style only') :
-                    promptText.replace('Generate 2 different design variations', 'Create a simple, elegant design');
+                    promptText.replace('Generate 2 distinct style variations', 'Create Design 1 - Classic Elegant only') :
+                    promptText.replace('Generate 2 different design variations', 'Create a classic, elegant design');
                 
-                // Design 2: Cartoonish Style  
+                // Design 2: Modern Sculptural  
                 const design2Prompt = hasUploadedImages ?
-                    promptText.replace('Generate 2 distinct style variations', 'Create Design 2 - Cartoonish/Cute Style only') :
-                    promptText.replace('Generate 2 different design variations', 'Create a playful, cute design');
+                    promptText.replace('Generate 2 distinct style variations', 'Create Design 2 - Modern Sculptural only') :
+                    promptText.replace('Generate 2 different design variations', 'Create a modern, sculptural design');
                 
                 // Two separate API calls for better quality
                 [design1Prompt, design2Prompt].forEach(prompt => {
@@ -1994,7 +2102,26 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 "background": "clean off-white or cream gradient",
                 "presentation": "floating product shot, single charm with jump ring attached, angled to show volume and shine",
                 "detail": "smooth, rounded surfaces with subtle contours, includes a jump ring for attachment, no engraving or texture",
-                "camera": "close-up, eye-level with a slight tilt"
+                "camera": "close-up, eye-level with a slight tilt",
+                "manufacturing_rules": `
+CRITICAL 3D DESIGN RULES:
+- Focus entirely on the main subject (people, animals, objects, food, plants, fantasy creatures, etc.)
+- NO background elements, bases, scenery, or frames — only the subject
+- For people and animals: Simplify faces into soft, minimal features (small eyes, subtle nose/mouth, no exaggerated expressions), avoid cartoon exaggeration — aim for natural, serene, or affectionate emotion
+- For objects/food/plants/buildings: Keep forms bold, simple, iconic, and easily recognizable
+- Strongly emphasize smooth, rounded volumes and bold silhouettes with deeper grooves, softly padded surfaces, and clean flowing curves to enhance the 3D feel
+- Simplify all textures: NO fine patterns, tiny folds, or mechanical details — only large, clear shapes
+- Prioritize maximum readability
+
+MEDALLION RULES:
+- If the subject has thin, fragile, or widely spread parts (e.g., arms, tails, wings), contain the design inside a soft organic circular or oval medallion for strength
+- If the subject is naturally compact and sturdy, leave it free-floating and self-contained without a background frame
+
+MANUFACTURING CONSTRAINTS:
+- No full 3D bodies: All parts must rise smoothly from a single, slightly curved back surface (true 2.5D relief)
+- No rings, loops, or holes for attachments — design should be clean; attachment rings added manually later
+- All outer edges must be softly rounded and thick enough to ensure durability
+- Create significant dimensional depth with varying heights across the surface - NOT flat engravings`
             };
             
             return prompt;
@@ -2013,13 +2140,15 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 let promptText;
                 if (hasUploadedImages) {
                     if (responses.uploaded_images.Q2_images.length > 0) {
-                        promptText = `Transform this image into a single ${promptData.material} charm with a jump ring. Create two distinct design variations with dimensional, sculptural 2.5D relief: 
+                        promptText = `Transform this image into a single ${promptData.material} charm with a jump ring. Create two distinct design variations: 
 
-DESIGN 1 - Simple Realistic Style: Recreate the main subjects and elements from the image as a raised, dimensional relief design with varying depths and levels. Use realistic proportions and forms with clear depth gradations - foreground elements should be higher relief, background elements in lower relief. Create a sculptural, coin-like appearance with smooth transitions between different height levels. Focus on clear, recognizable 3D forms that capture the essence of the photo.
+DESIGN 1 - Classic Elegant: Create the main subject/object from the image as a refined relief design with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty that would appeal to traditional jewelry lovers.
 
-DESIGN 2 - Simple Cartoonish Style: Transform the subjects from the image into a cute, stylized cartoon version with pronounced 2.5D sculptural relief. Use simplified shapes with exaggerated dimensional features - rounded, puffy forms that pop out from the surface. Create playful depth with cartoon-like bulges, curves, and raised elements. Make it dimensionally charming with clear height variations between different parts of the design.
+DESIGN 2 - Modern Sculptural: Transform the subject/object from the image into a bold, contemporary 3D sculptural charm with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation that would appeal to fashion-forward individuals.
 
-Both designs must have significant dimensional depth and sculptural relief - NOT flat engravings. Create medal-like, coin-like dimensional quality with varying heights across the surface. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+${promptData.manufacturing_rules}
+
+DESIGN 1 should have a classic, refined jewelry aesthetic with elegant details. DESIGN 2 should be bold, modern, and sculptural with strong 3D presence. Both must have a jump ring for attachment. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     } else {
                         // Build detailed user preferences from ALL survey responses
                         let detailedPreferences = `
@@ -2051,18 +2180,20 @@ USER SURVEY RESPONSES TO INCORPORATE:
                             detailedPreferences += `\n- Recipient: ${responses.recipient}`;
                         }
 
-                        promptText = `Create a single ${promptData.subject} charm with a jump ring, combining the user's specific survey responses with inspiration from the reference image(s). Generate 2 distinct style variations with full 3D sculptural relief:
+                        promptText = `Create a single ${promptData.subject} charm with a jump ring, combining the user's specific survey responses with inspiration from the reference image(s). Generate 2 distinct style variations:
 
 ${detailedPreferences}
 
-DESIGN 1 - Simple Style: Create a clean, elegant interpretation that blends the reference images with ALL the user's survey responses above. Use sophisticated, refined forms with smooth sculptural relief and varying depths. Incorporate the requested symbols, story elements, and style preferences while drawing inspiration from the reference images. Full 3D dimensional quality with subtle height variations.
+DESIGN 1 - Classic Elegant: Create a refined interpretation that incorporates ALL the user's survey responses above with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty while incorporating the requested symbols, story elements, and style preferences.
 
-DESIGN 2 - Cartoonish/Cute Style: Transform the same concept into a playful, adorable version with exaggerated cute features. Use rounded, puffy forms that pop out dramatically from the surface. Make it whimsical and charming with pronounced 3D sculptural elements, cartoon-like proportions, and endearing details. Incorporate ALL the user's survey responses (symbols, story, style vibes) while being inspired by the reference images.
+DESIGN 2 - Modern Sculptural: Transform the concept into a bold, contemporary 3D sculptural charm with dramatic dimensional presence, incorporating ALL the user's survey responses. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation of the user's requests.
 
-Both designs must incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. Create full 3D sculptural relief with significant dimensional depth - NOT flat designs. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+${promptData.manufacturing_rules}
+
+Both designs must incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. DESIGN 1 = classic, refined jewelry aesthetic, DESIGN 2 = bold, modern sculptural style. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     }
                 } else {
-                    // No uploaded images - use comprehensive text-only prompt
+                    // No uploaded images - use text-only prompt
                     let textOnlyDetails = '';
                     if (responses.all_text_responses.Q6_symbols) {
                         textOnlyDetails += ` Incorporate meaningful symbols/elements: ${responses.all_text_responses.Q6_symbols}.`;
@@ -2077,7 +2208,11 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                         textOnlyDetails += ` Style vibes: ${responses.style_vibes.join(', ')}.`;
                     }
                     
-                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.${textOnlyDetails} ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}. Generate 2 different design variations.`;
+                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.${textOnlyDetails} 
+
+${promptData.manufacturing_rules}
+
+${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}. Generate 2 different design variations.`;
                 }
                 
                 console.log('Generated prompt:', promptText);
@@ -2199,12 +2334,12 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     
                     // Generate two separate images for better results
                     const design1Prompt = hasUploadedImages ? 
-                        promptText.replace('Generate 2 distinct style variations', 'Create Design 1 - Simple Style only') :
-                        promptText.replace('Generate 2 different design variations', 'Create a simple, elegant design');
+                        promptText.replace('Generate 2 distinct style variations', 'Create Design 1 - Classic Elegant only') :
+                        promptText.replace('Generate 2 different design variations', 'Create a classic, elegant design');
                     
                     const design2Prompt = hasUploadedImages ?
-                        promptText.replace('Generate 2 distinct style variations', 'Create Design 2 - Cartoonish/Cute Style only') :
-                        promptText.replace('Generate 2 different design variations', 'Create a playful, cute design');
+                        promptText.replace('Generate 2 distinct style variations', 'Create Design 2 - Modern Sculptural only') :
+                        promptText.replace('Generate 2 different design variations', 'Create a modern, sculptural design');
                     
                     const promises = [];
                     
@@ -2287,11 +2422,78 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                         'Pre-generated while you completed the questionnaire' : 
                         'Generated fresh for your design';
                     
-                    // Display header
+                    // Create purchase section FIRST - above designs for better conversion
+                    const purchaseDiv = document.createElement('div');
+                    purchaseDiv.innerHTML = `
+                        <div style="margin: 20px 0; padding: 20px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 15px 0; color: #000; font-size: 20px; font-weight: 500; text-align: center;">Get Your Custom Charm</h4>
+                            
+                            <div style="background: #f8f9fa; padding: 15px; border: 1px solid #e9ecef; border-radius: 6px; margin-bottom: 20px; text-align: center;">
+                                <p style="margin: 0 0 8px 0; color: #000; font-size: 15px; font-weight: 500;">Choose Your Design Below ↓</p>
+                                <p style="margin: 0; color: #666; font-size: 13px;">Select your favorite, pick material, and order</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; margin-bottom: 10px; color: #000000; font-size: 16px; font-weight: 500;">1. Select Design:</label>
+                                <div class="mobile-purchase-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e9ecef; cursor: pointer; transition: all 0.3s ease; background: #ffffff; font-size: 14px;" onclick="selectDesign(1)">
+                                        <input type="radio" name="design-selection" value="1" style="margin-right: 8px; transform: scale(1.1);">
+                                        <span>Design 1: Classic Elegant</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e9ecef; cursor: pointer; transition: all 0.3s ease; background: #ffffff; font-size: 14px;" onclick="selectDesign(2)">
+                                        <input type="radio" name="design-selection" value="2" style="margin-right: 8px; transform: scale(1.1);">
+                                        <span>Design 2: Modern Sculptural</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; margin-bottom: 10px; color: #000000; font-size: 16px; font-weight: 500;">2. Material:</label>
+                                <select id="material-select" style="width: 100%; padding: 12px 15px; border: 2px solid #e9ecef; background: #ffffff; font-size: 15px; font-family: inherit; color: #000000; cursor: pointer; transition: all 0.3s ease;" onchange="updateMainPrice()" onfocus="this.style.borderColor='#000000';" onblur="this.style.borderColor='#e9ecef';">
+                                    <option value="sterling-silver">Sterling Silver - $50</option>
+                                    <option value="gold-plated">Gold-Plated Silver - $50</option>
+                                    <option value="14k-gold">14K Solid Gold - $200</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #e9ecef;">
+                                <div>
+                                    <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Total:</div>
+                                    <div id="main-price-display" style="font-size: 24px; font-weight: 600; color: #000000;">$50</div>
+                                </div>
+                                <div style="text-align: right; font-size: 13px; color: #666;">
+                                    <div>Free shipping</div>
+                                    <div>5-7 days</div>
+                                </div>
+                            </div>
+                            
+                            <button 
+                                id="main-buy-button"
+                                onclick="purchaseSelectedDesign()" 
+                                style="width: 100%; padding: 18px 30px; background: #cccccc; color: #666666; border: none; font-size: 16px; font-weight: 600; cursor: not-allowed; transition: all 0.3s ease; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 4px; margin-bottom: 12px;"
+                                disabled
+                            >Select a Design to Buy</button>
+                            
+                            <div style="text-align: center; font-size: 12px; color: #666; line-height: 1.4;">
+                                30-day guarantee • Secure checkout • Gift ready
+                            </div>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(purchaseDiv);
+                    
+                    // Set default material selection
+                    setTimeout(() => {
+                        const materialSelect = document.getElementById('material-select');
+                        const userMaterialChoice = responses.material || 'sterling-silver';
+                        materialSelect.value = userMaterialChoice;
+                        updateMainPrice();
+                    }, 100);
+                    
+                    // Display header for designs
                     const headerDiv = document.createElement('div');
                     headerDiv.innerHTML = `
-                        <h4 style="margin: 20px 0 10px 0; color: #000;">Your Design Picks:</h4>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 15px;"><strong>${imageTypeText}</strong></p>
+                        <h4 style="margin: 30px 0 15px 0; color: #000; text-align: center;">Your Custom Designs</h4>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 20px; text-align: center;"><strong>${imageTypeText}</strong> • Choose your favorite above</p>
                     `;
                     resultsDiv.appendChild(headerDiv);
                     
@@ -2321,13 +2523,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                             
                             // Determine design type based on path and index
                             let designType;
-                            if (responses.uploaded_images.Q2_images.length > 0) {
-                                // Path C: Exact picture - realistic vs cartoonish of the exact image
-                                designType = index === 0 ? 'Simple Realistic' : 'Simple Cartoonish';
-                            } else {
-                                // Path A/B: Image+text combination - simple vs cute interpretations
-                                designType = index === 0 ? 'Simple Style' : 'Cartoonish/Cute Style';
-                            }
+                            designType = index === 0 ? 'Classic Elegant' : 'Modern Sculptural';
                             imageDiv.innerHTML = `
                                 <h5 style="margin: 0 0 10px 0; color: #000;">Design ${index + 1}: ${designType}</h5>
                                 
@@ -2345,39 +2541,32 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                                     </div>
                                 </div>
                                 
-                                <div class="story-section" id="story-${index + 1}" style="margin: 15px 0; padding: 20px; background: #DAE0FF; border: 1px solid #000000; border-radius: 0px;">
-                                    <div class="story-loading" style="text-align: center; color: #000000; font-style: italic; font-size: 14px; font-weight: 300;">
+                                <div class="story-section" id="story-${index + 1}" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px;">
+                                    <div class="story-loading" style="text-align: center; color: #666; font-style: italic; font-size: 13px; font-weight: 300;">
                                         Crafting the story behind this design...
                                     </div>
                                 </div>
                                 
 
                                 
-                                <div class="feedback-section" style="margin-top: 15px; background: #ffffff; border: 1px solid #000000;">
+                                <div class="feedback-section" style="margin-top: 10px; background: #f8f9fa; border: 1px solid #e9ecef;">
                                     <button 
                                         onclick="toggleRefineSection(${index + 1})" 
-                                        style="width: 100%; padding: 15px 20px; background: #f8f8f8; color: #333333; border: none; border-bottom: 1px solid #000000; font-size: 16px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; letter-spacing: 0.5px; text-align: left; display: flex; justify-content: space-between; align-items: center;"
-                                        onmouseover="this.style.background='#DAE0FF'; this.style.color='#000000';"
-                                        onmouseout="this.style.background='#f8f8f8'; this.style.color='#333333';"
-                                    >
-                                        <span>Want to refine this design?</span>
-                                        <span id="refine-arrow-${index + 1}" style="transition: transform 0.3s ease;">▼</span>
-                                    </button>
-                                    <div id="refine-content-${index + 1}" style="display: none; padding: 20px;">
+                                        style="width: 100%; padding: 15px 25px; background: #f8f9fa; color: #666666; border: none; font-size: 14px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; text-align: left; display: flex; justify-content: space-between; align-items: center;"
+                                        onmouseover="this.style.background='#e9ecef'; this.style.color='#333333';"
+                                        onmouseout="this.style.background='#f8f9fa'; this.style.color='#666666';"
+                                    ><span>Need changes? (Optional)</span><span id="refine-arrow-${index + 1}" style="transition: transform 0.3s ease; font-size: 12px;">▼</span></button>
+                                    <div id="refine-content-${index + 1}" style="display: none; padding: 15px;">
                                         <textarea 
                                             id="feedback-${index + 1}" 
-                                            placeholder="Share your thoughts... (e.g., make it more delicate, add sparkle, change proportions)"
-                                            style="width: 100%; height: 80px; padding: 15px; border: 1px solid #000000; font-size: 14px; font-family: inherit; font-weight: 300; resize: vertical; margin-bottom: 20px; background: #ffffff; transition: all 0.3s ease;"
-                                            onfocus="this.style.background='#DAE0FF'; this.style.borderColor='#000000';"
-                                            onblur="this.style.background='#ffffff'; this.style.borderColor='#000000';"
+                                            placeholder="Quick changes... (e.g., more delicate, add details)"
+                                            style="width: 100%; height: 60px; padding: 10px; border: 1px solid #e9ecef; font-size: 13px; font-family: inherit; resize: vertical; margin-bottom: 10px; background: #ffffff;"
                                         ></textarea>
                                         <button 
                                             onclick="regenerateDesign(${index + 1})" 
-                                            style="width: 100%; padding: 18px 20px; background: #f8f8f8; color: #333333; border: 1px solid #000000; font-size: 16px; font-weight: 400; cursor: pointer; transition: all 0.3s ease; font-family: inherit; letter-spacing: 0.5px;"
-                                            onmouseover="this.style.background='#DAE0FF'; this.style.color='#000000'; this.style.borderColor='#000000';"
-                                            onmouseout="this.style.background='#f8f8f8'; this.style.color='#333333'; this.style.borderColor='#000000';"
+                                            style="width: 100%; padding: 10px 15px; background: #f8f8f8; color: #333333; border: 1px solid #e9ecef; font-size: 13px; cursor: pointer; transition: all 0.3s ease; font-family: inherit;"
                                         >
-                                            Refine Design ${index + 1}
+                                            Update Design ${index + 1}
                                         </button>
                                     </div>
                                 </div>
@@ -2391,98 +2580,131 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     
                     resultsDiv.appendChild(imagesContainer);
                     
-                    // Add single purchase section immediately after designs
-                    const purchaseDiv = document.createElement('div');
-                    purchaseDiv.innerHTML = `
-                        <div style="margin: 40px 0 20px 0; padding: 30px; background: #ffffff; border: 2px solid #000000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                            <h4 style="margin: 0 0 25px 0; color: #000; font-size: 24px; font-weight: 500; text-align: center;">Purchase Your Custom Charm</h4>
-                            
-                            <div style="margin-bottom: 25px;">
-                                <label style="display: block; margin-bottom: 12px; color: #000000; font-size: 16px; font-weight: 500;">Select Design:</label>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                    <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #e9ecef; cursor: pointer; transition: all 0.3s ease; background: #ffffff;" onclick="selectDesign(1)">
-                                        <input type="radio" name="design-selection" value="1" style="margin-right: 10px; transform: scale(1.2);">
-                                        <span style="font-size: 16px; color: #000;">Design 1: ${responses.uploaded_images.Q2_images.length > 0 ? 'Simple Realistic' : 'Simple Style'}</span>
-                                    </label>
-                                    <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #e9ecef; cursor: pointer; transition: all 0.3s ease; background: #ffffff;" onclick="selectDesign(2)">
-                                        <input type="radio" name="design-selection" value="2" style="margin-right: 10px; transform: scale(1.2);">
-                                        <span style="font-size: 16px; color: #000;">Design 2: ${responses.uploaded_images.Q2_images.length > 0 ? 'Simple Cartoonish' : 'Cartoonish/Cute Style'}</span>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 25px;">
-                                <label style="display: block; margin-bottom: 12px; color: #000000; font-size: 16px; font-weight: 500;">Material:</label>
-                                <select id="material-select" style="width: 100%; padding: 15px 20px; border: 2px solid #e9ecef; background: #ffffff; font-size: 16px; font-family: inherit; color: #000000; cursor: pointer; transition: all 0.3s ease;" onchange="updateMainPrice()" onfocus="this.style.borderColor='#000000';" onblur="this.style.borderColor='#e9ecef';">
-                                    <option value="sterling-silver">Sterling Silver - $50</option>
-                                    <option value="gold-plated">Gold-Plated Silver - $50</option>
-                                    <option value="14k-gold">14K Solid Gold - $200</option>
-                                </select>
-                            </div>
-                            
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border: 1px solid #e9ecef;">
-                                <div>
-                                    <div style="font-size: 16px; color: #666; margin-bottom: 6px;">Total Price:</div>
-                                    <div id="main-price-display" style="font-size: 28px; font-weight: 600; color: #000000;">$50</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div style="font-size: 14px; color: #666;">Free shipping</div>
-                                    <div style="font-size: 14px; color: #666;">5-7 business days</div>
-                                </div>
-                            </div>
-                            
-                            <button 
-                                id="main-buy-button"
-                                onclick="purchaseSelectedDesign()" 
-                                style="width: 100%; padding: 20px 30px; background: #cccccc; color: #666666; border: none; font-size: 18px; font-weight: 600; cursor: not-allowed; transition: all 0.3s ease; font-family: inherit; text-transform: uppercase; letter-spacing: 1px;"
-                                disabled
-                            >
-                                Select a Design to Buy
-                            </button>
-                            
-                            <div style="margin-top: 20px; text-align: center;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; font-size: 14px; color: #666;">
-                                    <span>30-day guarantee</span>
-                                    <span>Secure checkout</span>
-                                    <span>Gift ready</span>
-                                </div>
-                            </div>
+                    // Add urgency CTA section right after designs
+                    const urgencyDiv = document.createElement('div');
+                    urgencyDiv.innerHTML = `
+                        <div style="margin: 20px 0; padding: 15px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9fa 100%); border: 1px solid #d0d7ff; border-radius: 6px; text-align: center;">
+                            <h5 style="margin: 0 0 8px 0; color: #000; font-size: 16px; font-weight: 600;">Ready to Order? Choose Your Design Above</h5>
+                            <p style="margin: 0 0 10px 0; color: #333; font-size: 13px; line-height: 1.4;">
+                                <strong>485+ happy customers</strong> • Made in USA • Ships in 5-7 days
+                            </p>
+                            <p style="margin: 0; color: #666; font-size: 12px; font-style: italic;">
+                                "Got my charm in 6 days, perfect quality!" - Sarah M.
+                            </p>
                         </div>
                     `;
-                    resultsDiv.appendChild(purchaseDiv);
+                    resultsDiv.appendChild(urgencyDiv);
                     
-                    // Add shopping info section after purchase
-                    const shoppingInfoDiv = document.createElement('div');
-                    shoppingInfoDiv.innerHTML = `
-                        <div style="margin: 40px 0 20px 0; padding: 30px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #000000; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                            <h4 style="margin: 0 0 30px 0; color: #000; font-size: 24px; font-weight: 500;">Your Custom Jewelry Experience</h4>
-                            
-                            <div class="three-column-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin: 25px 0;">
-                                <div style="text-align: center; padding: 20px; border-right: 1px solid #e0e0e0;">
-                                    <h5 style="margin: 0 0 12px 0; color: #000; font-size: 18px; font-weight: 500;">Fast Turnaround</h5>
-                                    <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.5;">Ships within 5-7 business days</p>
+                    // Add simplified trust signals section after purchase
+                    const trustDiv = document.createElement('div');
+                    trustDiv.innerHTML = `
+                        <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; text-align: center;">
+                            <div class="three-column-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                <div style="text-align: center; padding: 8px;">
+                                    <div style="font-size: 14px; font-weight: 500; color: #000; margin-bottom: 3px;">5-7 Days</div>
+                                    <p style="margin: 0; color: #666; font-size: 12px;">Fast shipping</p>
                                 </div>
-                                <div style="text-align: center; padding: 20px; border-right: 1px solid #e0e0e0;">
-                                    <h5 style="margin: 0 0 12px 0; color: #000; font-size: 18px; font-weight: 500;">Quality Guarantee</h5>
-                                    <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.5;">30-day satisfaction guarantee</p>
+                                <div style="text-align: center; padding: 8px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;">
+                                    <div style="font-size: 14px; font-weight: 500; color: #000; margin-bottom: 3px;">30-Day</div>
+                                    <p style="margin: 0; color: #666; font-size: 12px;">Guarantee</p>
                                 </div>
-                                <div style="text-align: center; padding: 20px;">
-                                    <h5 style="margin: 0 0 12px 0; color: #000; font-size: 18px; font-weight: 500;">Gift Ready</h5>
-                                    <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.5;">Beautiful packaging included</p>
+                                <div style="text-align: center; padding: 8px;">
+                                    <div style="font-size: 14px; font-weight: 500; color: #000; margin-bottom: 3px;">Gift Ready</div>
+                                    <p style="margin: 0; color: #666; font-size: 12px;">Beautiful box</p>
                                 </div>
                             </div>
                             
-                            <div style="margin-top: 30px; padding: 25px; background: #e8f5e8; border: 1px solid #28a745; border-radius: 8px;">
-                                <div style="margin-bottom: 12px;">
-                                    <strong style="color: #28a745; font-size: 18px;">Secure Checkout</strong>
-                                </div>
-                                <p style="margin: 0; color: #155724; font-size: 15px; line-height: 1.4;">
-                                    Powered by Stripe • SSL encrypted • Your payment info is safe
-                                </p>
+                            <div style="margin-top: 12px; padding: 10px; background: #e8f5e8; border: 1px solid #28a745; border-radius: 4px; font-size: 12px; color: #155724;">
+                                <strong>Secure Stripe Checkout</strong> • SSL encrypted
                             </div>
                         </div>
                     `;
-                    resultsDiv.appendChild(shoppingInfoDiv);
+                    resultsDiv.appendChild(trustDiv);
+                    
+                    // Add sticky mobile purchase button (mobile only)
+                    // const stickyMobileDiv = document.createElement('div');
+                    // stickyMobileDiv.className = 'sticky-mobile-purchase';
+                    // stickyMobileDiv.innerHTML = `
+                    //     <div style="display: flex; align-items: center; gap: 10px;">
+                    //         <div style="flex: 1;">
+                    //             <div style="font-size: 12px; color: #666; margin-bottom: 2px;">Selected: <span id="sticky-selected">Choose design first</span></div>
+                    //             <div style="font-size: 16px; font-weight: 600; color: #000;" id="sticky-price">$50</div>
+                    //         </div>
+                    //         <button 
+                    //             onclick="purchaseSelectedDesign()" 
+                    //             style="padding: 12px 20px; background: #000000; color: #ffffff; border: none; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.3s ease;"
+                    //             id="sticky-buy-button"
+                    //             disabled
+                    //         >
+                    //             Select Design
+                    //         </button>
+                    //     </div>
+                    // `;
+                    // document.body.appendChild(stickyMobileDiv);
+                    
+                    // Show/hide sticky button based on scroll and screen size (MOBILE ONLY)
+                    function updateStickyButton() {
+                        const purchaseSection = document.getElementById('main-buy-button')?.closest('div');
+                        const stickyButton = document.querySelector('.sticky-mobile-purchase');
+                        
+                        // Only show on mobile devices (640px and below)
+                        if (purchaseSection && stickyButton && window.innerWidth <= 640) {
+                            const rect = purchaseSection.getBoundingClientRect();
+                            const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                            
+                            if (!isVisible) {
+                                stickyButton.classList.add('show');
+                            } else {
+                                stickyButton.classList.remove('show');
+                            }
+                        } else if (stickyButton) {
+                            // Hide on desktop (above 640px)
+                            stickyButton.classList.remove('show');
+                        }
+                    }
+                    
+                    // Update sticky button when design selection changes
+                    function updateStickySelection() {
+                        const stickySelected = document.getElementById('sticky-selected');
+                        const stickyPrice = document.getElementById('sticky-price');
+                        const stickyBuyButton = document.getElementById('sticky-buy-button');
+                        const materialSelect = document.getElementById('material-select');
+                        
+                        if (selectedDesignNumber && stickySelected) {
+                            const designType = selectedDesignNumber === 1 ? 'Classic Elegant' : 'Modern Sculptural';
+                            stickySelected.textContent = `Design ${selectedDesignNumber}: ${designType}`;
+                            
+                            if (materialSelect) {
+                                const prices = { 'sterling-silver': '$50', 'gold-plated': '$50', '14k-gold': '$200' };
+                                stickyPrice.textContent = prices[materialSelect.value];
+                            }
+                            
+                            stickyBuyButton.disabled = false;
+                            stickyBuyButton.textContent = 'Buy Now';
+                            stickyBuyButton.style.background = '#000000';
+                            stickyBuyButton.style.cursor = 'pointer';
+                        }
+                    }
+                    
+                    // Override the selectDesign function to update sticky button
+                    const originalSelectDesign = window.selectDesign;
+                    window.selectDesign = function(designNumber) {
+                        originalSelectDesign(designNumber);
+                        setTimeout(updateStickySelection, 100);
+                    };
+                    
+                    // Override updateMainPrice to sync with sticky button
+                    const originalUpdateMainPrice = window.updateMainPrice;
+                    window.updateMainPrice = function() {
+                        originalUpdateMainPrice();
+                        setTimeout(updateStickySelection, 100);
+                    };
+                    
+                    // window.addEventListener('scroll', updateStickyButton);
+                    // window.addEventListener('resize', updateStickyButton);
+                    
+                    // Initial check
+                    // setTimeout(updateStickyButton, 500);
                     
                     // Add footer info
                     const footerDiv = document.createElement('div');
@@ -2628,7 +2850,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
             buyButton.style.background = '#000000';
             buyButton.style.color = '#ffffff';
             buyButton.style.cursor = 'pointer';
-            buyButton.textContent = 'Buy Now';
+            buyButton.innerHTML = 'Buy Now';
             
             // Add hover effects
             buyButton.onmouseover = function() {
@@ -2818,90 +3040,148 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     return;
                 }
                 
-                // Build comprehensive context from ALL user responses
-                let userContext = '';
-                let designContext = '';
-                let emotionalContext = '';
+                // Check if we have uploaded images to analyze
+                const hasUploadedImages = responses.uploaded_images.Q2_images.length > 0 || 
+                                        responses.uploaded_images.Q7_images.length > 0 || 
+                                        responses.uploaded_images.Q9_images.length > 0;
                 
-                // Journey-specific context
-                if (responses.journey_type === 'A') {
-                    // Path A: Need help with ideas
-                    if (responses.inspiration?.includes('moment')) {
-                        userContext = 'celebrating a significant milestone or achievement';
-                        emotionalContext = 'pride, accomplishment, and the desire to remember this pivotal time';
-                    } else if (responses.inspiration?.includes('person')) {
-                        userContext = 'honoring a meaningful relationship or connection';
-                        emotionalContext = 'love, gratitude, and the deep bonds that shape us';
-                    } else if (responses.inspiration?.includes('place')) {
-                        userContext = 'commemorating a location that holds special significance';
-                        emotionalContext = 'nostalgia, adventure, and the memories tied to meaningful places';
-                    } else if (responses.inspiration?.includes('curious')) {
-                        userContext = 'exploring personal style and self-expression';
-                        emotionalContext = 'curiosity, creativity, and the joy of discovering something beautiful';
-                    }
-                } else if (responses.journey_type === 'B') {
-                    // Path B: Have some ideas
-                    if (responses.all_text_responses.Q8_idea_description) {
-                        const idea = responses.all_text_responses.Q8_idea_description;
-                        userContext = `bringing a personal vision to life: "${idea}"`;
-                        emotionalContext = 'creativity, intention, and the satisfaction of seeing ideas become reality';
-                    } else {
-                        userContext = 'translating personal inspiration into tangible form';
-                        emotionalContext = 'artistic expression and individual creativity';
-                    }
-                } else if (responses.journey_type === 'C') {
-                    // Path C: Know exactly what they want
-                    userContext = 'preserving a specific image or memory in permanent form';
-                    emotionalContext = 'attachment, preservation, and the desire to keep precious moments close';
-                }
+                let storyPrompt = '';
+                let messages = [];
                 
-                // Add meaningful symbols/elements
-                if (responses.all_text_responses.Q6_symbols) {
-                    designContext += ` The design incorporates deeply personal elements: ${responses.all_text_responses.Q6_symbols}.`;
-                }
-                
-                // Add special details/requests
-                if (responses.all_text_responses.Q13_special_details) {
-                    designContext += ` Special attention was given to: ${responses.all_text_responses.Q13_special_details}.`;
-                }
-                
-                // Style vibes context
-                let styleContext = '';
-                if (responses.style_vibes && responses.style_vibes.length > 0) {
-                    const vibes = responses.style_vibes;
-                    if (vibes.includes('elegant')) styleContext += ' sophisticated and timeless,';
-                    if (vibes.includes('bold')) styleContext += ' confident and striking,';
-                    if (vibes.includes('playful')) styleContext += ' joyful and whimsical,';
-                    if (vibes.includes('spiritual')) styleContext += ' meaningful and symbolic,';
-                    if (vibes.includes('sweet')) styleContext += ' tender and sentimental,';
-                    styleContext = styleContext.replace(/,$/, ''); // Remove trailing comma
-                }
-                
-                // Recipient context
-                let recipientContext = '';
-                if (responses.recipient === 'for-me') {
-                    recipientContext = 'This personal talisman will serve as a daily touchstone, connecting the wearer to what matters most.';
-                } else if (responses.recipient === 'for-someone') {
-                    recipientContext = 'This thoughtful gift will carry the giver\'s love and intention, creating a lasting connection between hearts.';
+                if (hasUploadedImages) {
+                    // Use GPT-4o to analyze the image and create a story
+                    const imageAnalysisPrompt = `Look at this image and write exactly 1-2 simple, heartfelt sentences about what this would mean as a custom charm.
+
+Focus on the emotional significance, memories, and personal connection this image represents. Use warm, simple language. Avoid mentioning materials or technical details.
+
+Consider what story this image tells and why someone would want to carry it as a charm close to their heart.`;
+                    
+                    // Build messages array with image content
+                    const messageContent = [
+                        {
+                            "type": "text",
+                            "text": imageAnalysisPrompt
+                        }
+                    ];
+                    
+                    // Add all uploaded images
+                    const allImages = [
+                        ...responses.uploaded_images.Q2_images,
+                        ...responses.uploaded_images.Q7_images,
+                        ...responses.uploaded_images.Q9_images
+                    ];
+                    
+                    allImages.forEach(imageBase64 => {
+                        messageContent.push({
+                            "type": "image_url",
+                            "image_url": {
+                                "url": imageBase64
+                            }
+                        });
+                    });
+                    
+                    messages = [{
+                        "role": "user",
+                        "content": messageContent
+                    }];
                 } else {
-                    recipientContext = 'This piece will hold meaning for whoever wears it, telling a story that resonates beyond words.';
+                    // Build comprehensive emotional and sentimental context from ALL user responses
+                    let emotionalStory = '';
+                    let personalElements = [];
+                    let sentimentalContext = '';
+                    
+                    // Journey-specific emotional context
+                    if (responses.journey_type === 'A') {
+                        // Path A: Need help with ideas
+                        if (responses.inspiration?.includes('moment')) {
+                            emotionalStory = 'celebrating a milestone that changed everything';
+                            sentimentalContext = 'This charm holds the joy and pride of that transformative moment, keeping its power close to your heart.';
+                        } else if (responses.inspiration?.includes('person')) {
+                            emotionalStory = 'honoring someone who means the world to you';
+                            sentimentalContext = 'This charm carries their love and influence with you, a tangible reminder of the bond you share.';
+                        } else if (responses.inspiration?.includes('place')) {
+                            emotionalStory = 'preserving memories of somewhere that shaped you';
+                            sentimentalContext = 'This charm brings that special place with you wherever you go, holding its magic in your everyday life.';
+                        } else if (responses.inspiration?.includes('curious')) {
+                            emotionalStory = 'expressing your unique spirit and creativity';
+                            sentimentalContext = 'This charm reflects who you are at your core, celebrating your individual beauty and style.';
+                        }
+                    } else if (responses.journey_type === 'B') {
+                        // Path B: Have some ideas
+                        if (responses.all_text_responses.Q8_idea_description) {
+                            const idea = responses.all_text_responses.Q8_idea_description.toLowerCase();
+                            emotionalStory = `bringing your vision to life: "${responses.all_text_responses.Q8_idea_description}"`;
+                            sentimentalContext = 'This charm transforms your dreams into something you can touch and treasure every day.';
+                        } else {
+                            emotionalStory = 'turning inspiration into something deeply personal';
+                            sentimentalContext = 'This charm captures your creative spirit and makes it part of your story.';
+                        }
+                    } else if (responses.journey_type === 'C') {
+                        // Path C: Know exactly what they want
+                        emotionalStory = 'preserving something precious in permanent form';
+                        sentimentalContext = 'This charm keeps your most treasured memories alive, turning moments into lasting keepsakes.';
+                    }
+                    
+                    // Add meaningful symbols/elements to personal story
+                    if (responses.all_text_responses.Q6_symbols) {
+                        personalElements.push(`meaningful symbols: ${responses.all_text_responses.Q6_symbols}`);
+                    }
+                    
+                    // Add special details/requests to personal story
+                    if (responses.all_text_responses.Q13_special_details) {
+                        personalElements.push(`special touches: ${responses.all_text_responses.Q13_special_details}`);
+                    }
+                    
+                    // Add style vibes to emotional context
+                    let emotionalVibes = '';
+                    if (responses.style_vibes && responses.style_vibes.length > 0) {
+                        const vibes = responses.style_vibes;
+                        if (vibes.includes('elegant')) emotionalVibes += ' timeless and graceful,';
+                        if (vibes.includes('bold')) emotionalVibes += ' confident and empowering,';
+                        if (vibes.includes('playful')) emotionalVibes += ' joyful and lighthearted,';
+                        if (vibes.includes('spiritual')) emotionalVibes += ' deeply meaningful and sacred,';
+                        if (vibes.includes('sweet')) emotionalVibes += ' tender and heartwarming,';
+                        emotionalVibes = emotionalVibes.replace(/,$/, ''); // Remove trailing comma
+                        if (emotionalVibes) {
+                            emotionalVibes = ` The design feels${emotionalVibes}.`;
+                        }
+                    }
+                    
+                    // Recipient emotional context
+                    let recipientStory = '';
+                    if (responses.recipient === 'for-me') {
+                        recipientStory = 'Every time you wear it, you\'ll feel connected to what matters most.';
+                    } else if (responses.recipient === 'for-someone') {
+                        recipientStory = 'This gift will remind them how much they mean to you, carrying your love wherever they go.';
+                    } else {
+                        recipientStory = 'This piece will hold deep meaning for whoever wears it.';
+                    }
+                    
+                    // Build personal elements string
+                    let personalElementsText = '';
+                    if (personalElements.length > 0) {
+                        personalElementsText = ` It includes ${personalElements.join(' and ')}.`;
+                    }
+                    
+                    // Create a focused, sentimental prompt
+                    storyPrompt = `Write exactly 1-2 simple, heartfelt sentences about this custom charm's emotional meaning.
+
+The person is ${emotionalStory}.${personalElementsText}${emotionalVibes} ${sentimentalContext} ${recipientStory}
+
+Focus on feelings, memories, and personal connection. Use warm, simple language. Avoid mentioning materials or technical details.`;
+                    
+                    messages = [{
+                        "role": "user",
+                        "content": storyPrompt
+                    }];
                 }
                 
-                const material = responses.material === '14k-gold' ? '14K gold' : 
-                               responses.material === 'sterling-silver' ? 'sterling silver' : 'gold-plated silver';
+                console.log('Generating story with', hasUploadedImages ? 'GPT-4o (with image analysis)' : 'GPT-4o-mini (text only)');
                 
-                // Create a rich, specific prompt
-                const storyPrompt = `Write exactly 2 compelling sentences about this custom ${material} charm. 
-
-CONTEXT: The wearer is ${userContext}, driven by ${emotionalContext}.${designContext} The aesthetic is${styleContext}. ${recipientContext}
-
-DESIGN TYPE: ${designType}
-
-Create a story that feels personal and specific to this context. Avoid generic language about grandmothers, family heirlooms, or clichés. Focus on the unique emotional journey and specific meaning this piece holds. Make it feel authentic and contemporary.`;
+                // Use GPT-4o for image analysis, GPT-4o-mini for text-only
+                const model = hasUploadedImages ? "gpt-4o" : "gpt-4o-mini";
                 
-                console.log('Generating story with prompt:', storyPrompt);
-                
-                // Make API call to GPT-4o-mini for faster response
+                // Make API call
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
                     headers: {
@@ -2909,13 +3189,10 @@ Create a story that feels personal and specific to this context. Avoid generic l
                         'Authorization': 'Bearer ' + apiKey
                     },
                     body: JSON.stringify({
-                        model: "gpt-4o-mini",
-                        messages: [{
-                            role: "user",
-                            content: storyPrompt
-                        }],
-                        max_tokens: 150,
-                        temperature: 0.9 // Higher creativity for more unique stories
+                        model: model,
+                        messages: messages,
+                        max_tokens: 120,
+                        temperature: 0.8 // Balanced creativity for heartfelt stories
                     })
                 });
                 
@@ -2941,30 +3218,35 @@ Create a story that feels personal and specific to this context. Avoid generic l
             } catch (error) {
                 console.error('Error generating design story:', error);
                 
-                // Show improved contextual fallback messages
+                // Show improved contextual fallback messages with more sentimental focus
                 const storySection = document.getElementById(`story-${designNumber}`);
                 if (storySection) {
                     let fallbackStory = '';
                     
-                    // Create diverse, specific fallback stories based on user responses
+                    // Create heartfelt, sentimental fallback stories
                     if (responses.journey_type === 'A') {
                         if (responses.inspiration?.includes('moment')) {
-                            fallbackStory = 'This charm crystallizes a pivotal moment, transforming fleeting time into something tangible you can carry forward. Each detail serves as a reminder of your strength and the significance of this chapter in your story.';
+                            fallbackStory = 'This charm captures the joy and pride of your special moment, keeping its magic close to your heart every day.';
                         } else if (responses.inspiration?.includes('person')) {
-                            fallbackStory = 'Designed to honor a meaningful connection, this piece captures the essence of someone who has shaped your journey. It becomes a bridge between hearts, carrying their influence with you wherever life leads.';
+                            fallbackStory = 'This charm carries the love and connection you share with someone special, keeping them close no matter the distance.';
                         } else if (responses.inspiration?.includes('place')) {
-                            fallbackStory = 'This charm holds the spirit of a place that changed you, distilling its energy into wearable form. Whether it represents adventure, peace, or discovery, it keeps that transformative location close to your heart.';
+                            fallbackStory = 'This charm holds the spirit of a place that shaped you, bringing its memories and meaning into your everyday life.';
                         } else {
-                            fallbackStory = 'Born from curiosity and the desire for something uniquely beautiful, this charm represents your personal aesthetic journey. It embodies the confidence to choose pieces that speak to your individual style and story.';
+                            fallbackStory = 'This charm reflects your unique spirit and creativity, celebrating the beauty of who you are.';
                         }
                     } else if (responses.journey_type === 'B') {
                         if (responses.all_text_responses.Q8_idea_description) {
-                            fallbackStory = 'This charm brings your creative vision into reality, translating abstract ideas into tangible beauty. It represents the power of imagination and the satisfaction of seeing personal inspiration take physical form.';
+                            fallbackStory = 'This charm brings your personal vision to life, turning your dreams into something you can touch and treasure.';
                         } else {
-                            fallbackStory = 'Crafted from your personal inspiration, this piece bridges the gap between concept and creation. It embodies your unique perspective and serves as a testament to the beauty of individual expression.';
+                            fallbackStory = 'This charm transforms your inspiration into something deeply personal, carrying your story wherever you go.';
                         }
                     } else {
-                        fallbackStory = 'This charm preserves a specific moment or image that holds deep personal significance. It transforms something precious into a lasting keepsake, ensuring that what matters most remains close at hand.';
+                        fallbackStory = 'This charm preserves something precious to you, turning cherished memories into a keepsake you can always carry.';
+                    }
+                    
+                    // Add personal elements if they exist
+                    if (responses.all_text_responses.Q6_symbols || responses.all_text_responses.Q13_special_details) {
+                        fallbackStory += ' Every detail holds meaning that\'s uniquely yours.';
                     }
                     
                     storySection.innerHTML = `
@@ -3026,18 +3308,20 @@ Create a story that feels personal and specific to this context. Avoid generic l
                 
                 // Build the regeneration prompt based on the design number and feedback
                 let regenerationPrompt;
-                const designType = designNumber === 1 ? 'Simple Style' : 'Cartoonish/Cute Style';
+                const designType = designNumber === 1 ? 'Classic Elegant' : 'Modern Sculptural';
                 
                 if (hasUploadedImages) {
                     if (responses.uploaded_images.Q2_images.length > 0) {
                         // Path C: Exact picture
-                        regenerationPrompt = `Transform this image into a single ${promptData.material} charm with a jump ring. Create a ${designType} design with dimensional, sculptural 2.5D relief.
+                        regenerationPrompt = `Transform this image into a single ${promptData.material} charm with a jump ring. Create a ${designType} design.
 
-ORIGINAL DESIGN TYPE: ${designType === 'Simple Style' ? 'Simple Realistic Style - raised, dimensional relief design with varying depths and realistic proportions' : 'Simple Cartoonish Style - cute, stylized cartoon version with pronounced 2.5D sculptural relief'}
+ORIGINAL DESIGN TYPE: ${designType === 'Classic Elegant' ? 'Classic Elegant - refined relief design with elegant, sophisticated details, clean lines, and timeless traditional jewelry aesthetic' : 'Modern Sculptural - bold, contemporary 3D sculptural charm with dramatic dimensional presence and artistic forms'}
 
 USER FEEDBACK TO INCORPORATE: ${feedback}
 
-Based on the feedback above, modify the ${designType} approach while maintaining the core design principles. Address the user's specific requests while keeping the dimensional, sculptural quality. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+${promptData.manufacturing_rules}
+
+Based on the feedback above, modify the ${designType} approach while maintaining the core design principles. Address the user's specific requests while keeping the appropriate style (classic refined aesthetic vs bold modern sculptural). ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     } else {
                         // Path A/B: Image + text combination
                         let detailedPreferences = `
@@ -3052,15 +3336,17 @@ USER SURVEY RESPONSES TO INCORPORATE:
                         if (responses.size_presence) detailedPreferences += `\n- Size Preference: ${responses.size_presence}`;
                         if (responses.special_details) detailedPreferences += `\n- Special Details: ${responses.special_details}`;
 
-                        regenerationPrompt = `Create a single ${promptData.subject} charm with a jump ring, combining the user's survey responses with inspiration from the reference image(s). Generate a ${designType} design with full 3D sculptural relief:
+                        regenerationPrompt = `Create a single ${promptData.subject} charm with a jump ring, combining the user's survey responses with inspiration from the reference image(s). Generate a ${designType} design:
 
 ${detailedPreferences}
 
-ORIGINAL DESIGN TYPE: ${designType} - ${designType === 'Simple Style' ? 'clean, elegant interpretation with sophisticated, refined forms' : 'playful, adorable version with exaggerated cute features and cartoon-like proportions'}
+ORIGINAL DESIGN TYPE: ${designType} - ${designType === 'Classic Elegant' ? 'refined interpretation with elegant, sophisticated details, clean lines, and timeless traditional jewelry aesthetic' : 'bold, contemporary 3D sculptural charm with dramatic dimensional presence and artistic forms'}
 
 USER FEEDBACK TO INCORPORATE: ${feedback}
 
-Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests while incorporating ALL survey responses and drawing inspiration from the reference images. Maintain full 3D sculptural relief with significant dimensional depth. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+${promptData.manufacturing_rules}
+
+Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests while incorporating ALL survey responses and drawing inspiration from the reference images. Maintain the appropriate style (classic refined aesthetic vs bold modern sculptural). ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     }
                 } else {
                     // Text-only path
@@ -3069,6 +3355,8 @@ Based on the feedback above, create an improved ${designType} design that addres
 ORIGINAL DESIGN TYPE: ${designType}
 
 USER FEEDBACK TO INCORPORATE: ${feedback}
+
+${promptData.manufacturing_rules}
 
 Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
                 }
