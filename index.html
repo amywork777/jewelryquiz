@@ -1141,11 +1141,11 @@
 
         .select-image-btn {
             width: 100%;
-            padding: 15px 25px; /* Increased padding */
+            padding: 18px 30px;
             background: #ffffff;
             border: 2px solid #e0e0e0;
             color: #666666;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -1153,6 +1153,11 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 15px;
+            white-space: nowrap;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .select-image-btn:hover {
@@ -1298,7 +1303,7 @@
 
         .buy-button {
             width: 100%;
-            padding: 18px 30px;
+            padding: 20px 35px;
             background: #cccccc;
             color: #666666;
             border: none;
@@ -1311,6 +1316,11 @@
             letter-spacing: 0.5px;
             border-radius: 8px;
             margin-bottom: 15px;
+            min-height: 56px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .buy-button.enabled {
@@ -1391,11 +1401,11 @@
 
         .refine-toggle {
             width: 100%;
-            padding: 12px 15px;
+            padding: 15px 20px;
             background: #f8f9fa;
             border: 1px solid #e0e0e0;
             color: #666666;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
             border-radius: 6px;
@@ -1403,6 +1413,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            min-height: 48px;
+            white-space: nowrap;
         }
 
         .refine-toggle:hover {
@@ -1889,12 +1901,6 @@
                 <h1>You're all set!</h1>
                 <p>We'll craft your custom design and send it within 24-48 hours</p>
                 <p style="font-size: 16px; margin-top: 20px;">Keep an eye on your inbox - you're going to love what we create together</p>
-                <div class="results">
-                    <h3>Your Design Summary:</h3>
-                    <ul class="results-list" id="resultsList">
-                        <!-- Results will be populated here -->
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
@@ -2855,31 +2861,6 @@ The design should be a single, standalone charm with bold sculptural details. ${
             const container = document.querySelector('.container');
             container.classList.add('results-mode');
             
-            const resultsList = document.getElementById('resultsList');
-            const displayData = {
-                'Journey Type': formData.Q1 === 'A' ? 'Exploratory Design' : formData.Q1 === 'B' ? 'Idea Refinement' : 'Direct Creation',
-                'Email': formData.email || 'Not provided',
-                'Phone': formData.phone || 'Not provided',
-                'Material': getOptionText(formData.Q12),
-                'Style': getOptionText(formData.Q11),
-                'Community Share': formData.community || 'Not specified'
-            };
-            
-            // Add vibe if selected
-            if (formData.Q5 || formData.Q10) {
-                const vibes = formData.Q5 || formData.Q10;
-                if (vibes && vibes.length > 0) {
-                    displayData['Vibe'] = vibes.map(v => getVibeText(v)).join(', ');
-                }
-            }
-            
-            resultsList.innerHTML = '';
-            for (const [key, value] of Object.entries(displayData)) {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${key}:</strong> ${value}`;
-                resultsList.appendChild(li);
-            }
-            
             // Generate and display the charm image
             generateCharmImage();
             
@@ -2939,20 +2920,27 @@ The design should be a single, standalone charm with bold sculptural details. ${
                 else if (responses.inspiration.includes('curious')) objectDescription = 'geometric charm';
             }
             
-            // Determine material based on selection
-            let materialType = 'polished reflective gold metal';
-            if (responses.material === 'sterling-silver') {
-                materialType = 'polished reflective silver metal';
+            // Determine material based on selection - only gold or silver
+            let materialType = 'polished reflective silver metal';
+            let materialColor = 'silver';
+            if (responses.material === '14k-gold') {
+                materialType = 'polished reflective gold metal';
+                materialColor = 'gold';
             } else if (responses.material === 'gold-plated') {
-                materialType = 'gold-plated silver with warm reflective finish';
+                materialType = 'polished reflective gold metal';
+                materialColor = 'gold';
+            } else {
+                // sterling-silver or any other option defaults to silver
+                materialType = 'polished reflective silver metal';
+                materialColor = 'silver';
             }
             
             // Adjust style based on size preference
-            let styleAdjustment = 'high-gloss 3D sculptural metal';
+            let styleAdjustment = `high-gloss 3D sculptural ${materialColor} metal`;
             if (responses.size_presence === 'subtle') {
-                styleAdjustment = 'delicate high-gloss 3D sculptural metal with fine details';
+                styleAdjustment = `delicate high-gloss 3D sculptural ${materialColor} metal with fine details`;
             } else if (responses.size_presence === 'bold-sculptural') {
-                styleAdjustment = 'bold high-gloss 3D sculptural metal with dramatic presence';
+                styleAdjustment = `bold high-gloss 3D sculptural ${materialColor} metal with dramatic presence`;
             }
             
             // Incorporate style vibes
@@ -2966,7 +2954,7 @@ The design should be a single, standalone charm with bold sculptural details. ${
             }
 
             const prompt = {
-                "subject": `a single ${materialType.includes('gold') ? 'gold' : 'silver'} charm in the shape of ${objectDescription}${vibeAdjustment}`,
+                "subject": `a single ${materialColor} charm in the shape of ${objectDescription}${vibeAdjustment}`,
                 "style": styleAdjustment,
                 "material": materialType,
                 "lighting": "studio lighting with soft reflections and minimal shadows",
@@ -2983,6 +2971,7 @@ CRITICAL 3D DESIGN RULES:
 - Strongly emphasize smooth, rounded volumes and bold silhouettes with deeper grooves, softly padded surfaces, and clean flowing curves to enhance the 3D feel
 - Simplify all textures: NO fine patterns, tiny folds, or mechanical details — only large, clear shapes
 - Prioritize maximum readability
+- MATERIAL: Use only ${materialColor} metal finish - no other colors, gemstones, or mixed materials
 
 MEDALLION RULES:
 - If the subject has thin, fragile, or widely spread parts (e.g., arms, tails, wings), contain the design inside a soft organic circular or oval medallion for strength
@@ -3006,6 +2995,7 @@ MANUFACTURING CONSTRAINTS:
                 console.log('window.CONFIG:', window.CONFIG);
                 console.log('window.OPENAI_API_KEY:', window.OPENAI_API_KEY);
                 
+                // Capture responses first, before any other operations
                 const responses = captureAllResponses();
                 const promptData = generatePromptFromResponses(responses);
                 
@@ -3343,11 +3333,6 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                                     <h3 class="image-title">${designType}</h3>
                                     <p class="image-subtitle">Custom charm design</p>
                                     
-                                    <div class="design-story-section" id="story-${index + 1}">
-                                        <h6>The Story</h6>
-                                        <p>Generating your design story...</p>
-                                    </div>
-                                    
                                     <button class="select-image-btn" onclick="selectDesign(${index + 1})" id="select-btn-${index + 1}">
                                         Select This Design
                                     </button>
@@ -3376,8 +3361,10 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                             `;
                             imageGrid.appendChild(imageCard);
                             
-                            // Generate story for this design (start immediately for speed)
-                            setTimeout(() => generateDesignStory(index + 1, responses, designType), 100);
+                            // Generate story for the sidebar (only once for the first design)
+                            if (index === 0) {
+                                setTimeout(() => generateDesignStory(responses, designType), 100);
+                            }
                         }
                     });
                     
@@ -3390,6 +3377,11 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                         <div class="purchase-header">
                             <h2 class="purchase-title">Complete Your Order</h2>
                             <p class="purchase-subtitle">Select design and material to continue</p>
+                        </div>
+                        
+                        <div class="design-story-section" id="sidebar-story" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid #DAE0FF;">
+                            <h6 style="margin: 0 0 8px 0; color: #000000; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">The Story</h6>
+                            <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.5; font-style: italic; font-weight: 400;">Generating your design story...</p>
                         </div>
                         
                         <div class="selection-status" id="selection-status">
@@ -3450,7 +3442,6 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                     summarySection.className = 'design-summary-section';
                     
                     // Get user responses for summary
-                    const responses = captureAllResponses();
                     const displayData = {
                         'Journey Type': responses.journey_type === 'A' ? 'Exploratory Design' : responses.journey_type === 'B' ? 'Idea Refinement' : 'Direct Creation',
                         'Email': responses.email || 'Not provided',
@@ -3862,18 +3853,17 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
             }, 10000);
         }
 
-        async function generateDesignStory(designNumber, responses, designType) {
+        async function generateDesignStory(responses, designType) {
             try {
                 // Get API key
                 let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
                 if (!apiKey) {
                     console.log('No API key available for story generation');
-                    const storySection = document.getElementById(`story-${designNumber}`);
+                    const storySection = document.getElementById('sidebar-story');
                     if (storySection) {
                         storySection.innerHTML = `
-                            <p style="color: #000000; font-style: italic; font-size: 14px; text-align: center; font-weight: 300;">
-                                Story generation unavailable - API key required
-                            </p>
+                            <h6 style="margin: 0 0 8px 0; color: #000000; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">The Story</h6>
+                            <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.5; font-style: italic; font-weight: 400;">Story generation unavailable - API key required</p>
                         `;
                     }
                     return;
@@ -4040,12 +4030,12 @@ Focus on feelings, memories, and personal connection. Use warm, simple language.
                 if (data.choices && data.choices[0] && data.choices[0].message) {
                     const story = data.choices[0].message.content.trim();
                     
-                    // Update the story section under the design card
-                    const storySection = document.getElementById(`story-${designNumber}`);
+                    // Update the story section in the sidebar
+                    const storySection = document.getElementById('sidebar-story');
                     if (storySection) {
                         storySection.innerHTML = `
-                            <h6>The Story</h6>
-                            <p>${story}</p>
+                            <h6 style="margin: 0 0 8px 0; color: #000000; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">The Story</h6>
+                            <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.5; font-style: italic; font-weight: 400;">${story}</p>
                         `;
                     }
                 } else {
@@ -4056,7 +4046,7 @@ Focus on feelings, memories, and personal connection. Use warm, simple language.
                 console.error('Error generating design story:', error);
                 
                 // Show improved contextual fallback messages with more sentimental focus
-                const storySection = document.getElementById(`story-${designNumber}`);
+                const storySection = document.getElementById('sidebar-story');
                 if (storySection) {
                     let fallbackStory = '';
                     
@@ -4087,8 +4077,8 @@ Focus on feelings, memories, and personal connection. Use warm, simple language.
                     }
                     
                     storySection.innerHTML = `
-                        <h6>The Story</h6>
-                        <p>${fallbackStory}</p>
+                        <h6 style="margin: 0 0 8px 0; color: #000000; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">The Story</h6>
+                        <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.5; font-style: italic; font-weight: 400;">${fallbackStory}</p>
                     `;
                 }
             }

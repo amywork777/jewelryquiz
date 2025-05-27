@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Charm Design Questionnaire</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Avenir Next', 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 300;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border: 1px solid #000000;
+            box-shadow: 0 0 0 1px #000000;
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #f0f0f0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #000000;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .question-container {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #000000;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            color: #000000;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: -0.3px;
+        }
+
+        p {
+            color: #000000;
+            margin-bottom: 30px;
+            font-size: 18px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            padding: 20px;
+            border: 1px solid #000000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            text-align: left;
+            background: #ffffff;
+            font-weight: 300;
+            position: relative;
+        }
+
+        .option::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: #DAE0FF;
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+        .option:hover::after {
+            width: 100%;
+        }
+
+        .option:hover {
+            transform: translateX(5px);
+        }
+
+        .option:hover {
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: #DAE0FF;
+            border: 2px solid #000000;
+            padding: 19px;
+            animation: selectPulse 0.3s ease;
+        }
+
+        @keyframes selectPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .multi-select .option.selected {
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #000000;
+            padding: 20px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #000000;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+            background: #ffffff;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        textarea:focus {
+            outline: none;
+            border: 2px solid #000000;
+            padding: 14px;
+            background: #DAE0FF;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 15px;
+            border: 2px dashed #000000;
+            text-align: center;
+            color: #000000;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .file-upload:hover .file-upload-label {
+            background: #DAE0FF;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            color: #000000;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: 1px solid #000000;
+            font-size: 16px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            background: #ffffff;
+            color: #000000;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        button:hover svg {
+            transform: translateX(3px);
+        }
+
+        .btn-secondary:hover svg {
+            transform: translateX(-3px);
+        }
+
+        .btn-primary {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #DAE0FF;
+            color: #000000;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn-secondary:hover {
+            background: #DAE0FF;
+        }
+
+        .skip-link {
+            text-align: center;
+            margin-top: 15px;
+            color: #000000;
+            font-size: 14px;
+        }
+
+        .skip-link a {
+            color: #000000;
+            text-decoration: underline;
+        }
+
+        .skip-link a:hover {
+            background: #DAE0FF;
+            text-decoration: none;
+        }
+
+        .results {
+            background: #DAE0FF;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid #000000;
+        }
+
+        .results h3 {
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        .results-list {
+            list-style: none;
+        }
+
+        .results-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #000000;
+        }
+
+        .results-list li:last-child {
+            border-bottom: none;
+        }
+
+        .results-list strong {
+            color: #000000;
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .completion-message h1 {
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        .completion-message p {
+            font-size: 20px;
+            color: #000000;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            p {
+                font-size: 16px;
+            }
+
+            .option {
+                padding: 15px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <!-- Question 1 -->
+        <div class="question-container active" data-question="Q1">
+            <h2>Let's create something special together</h2>
+            <p>First, tell me where you're at with your idea:</p>
+            <div class="options">
+                <div class="option" onclick="selectOption(this, 'A')">
+                    I'd love help exploring ideas
+                </div>
+                <div class="option" onclick="selectOption(this, 'B')">
+                    I have a rough concept in mind
+                </div>
+                <div class="option" onclick="selectOption(this, 'C')">
+                    I know exactly what I want
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-primary" onclick="handleQ1Branch()" disabled>
+                    Continue
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Path C: Q2 -->
+        <div class="question-container" data-question="Q2">
+            <h2>Perfect! Show me your inspiration</h2>
+            <p>Upload any photo, sketch, or reference image</p>
+            <div class="file-upload">
+                <input type="file" id="q2-file" accept="image/*" onchange="handleFileUpload('q2-file')">
+                <label for="q2-file" class="file-upload-label">
+                    Drop your image here or click to browse
+                </label>
+                <div class="file-info" id="q2-file-info"></div>
+            </div>
+            <div class="skip-link">
+                <a href="#" onclick="skipUpload(); return false;">I'll describe it instead</a>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+                <button class="btn-primary" onclick="nextQuestion()">
+                    Continue
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Path A: Q3 -->
+        <div class="question-container" data-question="Q3">
+            <h2>What inspired you to create a custom charm?</h2>
+            <div class="options">
+                <div class="option" onclick="selectOption(this, 'curious')">
+                    Just exploring what's possible
+                </div>
+                <div class="option" onclick="selectOption(this, 'moment')">
+                    Celebrating a special moment
+                </div>
+                <div class="option" onclick="selectOption(this, 'person')">
+                    Honoring someone important
+                </div>
+                <div class="option" onclick="selectOption(this, 'place')">
+                    Remembering a meaningful place
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Path A: Q4 -->
+        <div class="question-container" data-question="Q4">
+            <h2>Who will wear this charm?</h2>
+            <div class="options">
+                <div class="option" onclick="selectOption(this, 'for-me')">
+                    It's for me
+                </div>
+                <div class="option" onclick="selectOption(this, 'for-someone')">
+                    A gift for someone special
+                </div>
+                <div class="option" onclick="selectOption(this, 'not-sure')">
+                    Still deciding
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Paths C & B: Q5 & Q10 (same content, different IDs) -->
+        <div class="question-container" data-question="Q5">
+            <h2>Choose your vibe</h2>
+            <p>Select all that resonate with you</p>
+            <div class="options multi-select">
+                <div class="option" onclick="toggleMultiSelect(this, 'elegant')">
+                    Elegant & Timeless
+                </div>
+                <div class="option" onclick="toggleMultiSelect(this, 'bold')">
+                    Bold & Confident
+                </div>
+                <div class="option" onclick="toggleMultiSelect(this, 'playful')">
+                    Playful & Fun
+                </div>
+                <div class="option" onclick="toggleMultiSelect(this, 'spiritual')">
+                    Spiritual & Meaningful
+                </div>
+                <div class="option" onclick="toggleMultiSelect(this, 'sweet')">
+                    Sweet & Sentimental
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Path A: Q6 -->
+        <div class="question-container" data-question="Q6">
+            <h2>Any symbols or themes speaking to you?</h2>
+            <textarea placeholder="Hearts, stars, initials, nature elements... anything that feels right"></textarea>
+            <div class="skip-link">
+                <a href="#" onclick="skipTextInput(); return false;">I'll figure this out later</a>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Path A: Q7 -->
+        <div class="question-container" data-question="Q7">
+            <h2>Want to share a photo, sketch, or anything else that might help? (optional)</h2>
+            <div class="file-upload">
+                <input type="file" id="q7-file" accept="image/*" onchange="handleFileUpload('q7-file')">
+                <label for="q7-file" class="file-upload-label">
+                    Click to upload or drag and drop
+                </label>
+                <div class="file-info" id="q7-file-info"></div>
+            </div>
+            <div class="skip-link">
+                <a href="#" onclick="skipUpload(); return false;">Skip this step</a>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Path B: Q8 -->
+        <div class="question-container" data-question="Q8">
+            <h2>Tell me about your idea</h2>
+            <textarea placeholder="Describe what you're envisioning... the more details, the better!"></textarea>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Path B: Q9 -->
+        <div class="question-container" data-question="Q9">
+            <h2>Upload any reference images (optional).</h2>
+            <div class="file-upload">
+                <input type="file" id="q9-file" accept="image/*" multiple onchange="handleFileUpload('q9-file')">
+                <label for="q9-file" class="file-upload-label">
+                    Click to upload or drag and drop
+                </label>
+                <div class="file-info" id="q9-file-info"></div>
+            </div>
+            <div class="skip-link">
+                <a href="#" onclick="skipUpload(); return false;">Skip this step</a>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Path B: Q10 (duplicate of Q5) -->
+        <div class="question-container" data-question="Q10">
+            <h2>What vibe are you going for?</h2>
+            <div class="options multi-select">
+                <div class="option" onclick="toggleMultiSelect(this, 'elegant')">
+                    Elegant & Timeless
+                </div>
+                <div class="option" onclick="toggleMultiSelect(this, 'bold')">
+                    Bold & Confident
+                </div>
+                <div class="option" onclick="toggleMultiSelect(this, 'playful')">
+                    Playful & Cute
+                </div>
+                <div class="option" onclick="toggleMultiSelect(this, 'spiritual')">
+                    Spiritual & Symbolic
+                </div>
+                <div class="option" onclick="toggleMultiSelect(this, 'sweet')">
+                    Sweet & Sentimental
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Convergence: Q11 -->
+        <div class="question-container" data-question="Q11">
+            <h2>How do you want it to feel when worn?</h2>
+            <div class="options">
+                <div class="option" onclick="selectOption(this, 'subtle')">
+                    Subtle & understated
+                </div>
+                <div class="option" onclick="selectOption(this, 'bold-sculptural')">
+                    Bold & eye-catching
+                </div>
+                <div class="option" onclick="selectOption(this, 'classic')">
+                    Classic & versatile
+                </div>
+                <div class="option" onclick="selectOption(this, 'not-sure')">
+                    Show me options
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Q12 -->
+        <div class="question-container" data-question="Q12">
+            <h2>Let's talk materials</h2>
+            <p>Each has its own character and price point</p>
+            <div class="options">
+                <div class="option" onclick="selectOption(this, '14k-gold')">
+                    14K Solid Gold
+                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Luxurious & lasting</span>
+                </div>
+                <div class="option" onclick="selectOption(this, 'sterling-silver')">
+                    Sterling Silver
+                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Classic & affordable</span>
+                </div>
+                <div class="option" onclick="selectOption(this, 'gold-plated')">
+                    Gold-Plated Silver
+                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Golden look, silver price</span>
+                </div>
+                <div class="option" onclick="selectOption(this, 'help-decide')">
+                    Help me choose
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Q13 -->
+        <div class="question-container" data-question="Q13">
+            <h2>Anything else we should know?</h2>
+            <textarea placeholder="Special dates, sizing, engravings, or just say hi!"></textarea>
+            <div class="skip-link">
+                <a href="#" onclick="skipTextInput(); return false;">All good for now</a>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Q14 -->
+        <div class="question-container" data-question="Q14">
+            <h2>Amazing! Your custom design is taking shape</h2>
+            <p>We'll create something beautiful based on everything you've shared</p>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="nextQuestion()">
+                    Almost done
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="question-container" data-question="email">
+            <h2>Where should we send your design?</h2>
+            <input type="email" placeholder="your@email.com" required>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="validateEmail()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <div class="question-container" data-question="phone">
+            <h2>Want a text when it's ready?</h2>
+            <input type="tel" placeholder="+1 (555) 123-4567">
+            <div class="skip-link">
+                <a href="#" onclick="skipPhone(); return false;">Email is fine</a>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="validatePhone()">Continue</button>
+            </div>
+        </div>
+
+        <div class="question-container" data-question="community">
+            <h2>Can we share your design to the Taiyaki Community?</h2>
+            <p>We love showcasing unique designs to inspire others</p>
+            <div class="options">
+                <div class="option" onclick="selectOption(this, 'yes')">
+                    Yes
+                </div>
+                <div class="option" onclick="selectOption(this, 'no')">
+                    No
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
+                <button class="btn-primary" onclick="submitForm()" disabled>
+                    Submit
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Completion -->
+        <div class="question-container" data-question="complete">
+            <div class="completion-message">
+                <h1>You're all set!</h1>
+                <p>We'll craft your custom design and send it within 24-48 hours</p>
+                <p style="font-size: 16px; margin-top: 20px;">Keep an eye on your inbox - you're going to love what we create together</p>
+                <div class="results">
+                    <ul class="results-list" id="resultsList">
+                        <!-- Results will be populated here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestionIndex = 0;
+        const formData = {};
+        let questionFlow = ['Q1'];
+        const questionHistory = [];
+
+        function updateProgress() {
+            const totalQuestions = questionFlow.length;
+            const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function addArrowToButtons() {
+            // Add arrows to all buttons that don't have them
+            document.querySelectorAll('.btn-primary').forEach(btn => {
+                if (!btn.querySelector('svg') && btn.textContent.trim() !== 'Submit') {
+                    btn.innerHTML = btn.textContent + `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>`;
+                }
+            });
+            
+            document.querySelectorAll('.btn-secondary').forEach(btn => {
+                if (!btn.querySelector('svg')) {
+                    btn.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>` + btn.textContent;
+                }
+            });
+        }
+
+        function showQuestion(questionId) {
+            document.querySelectorAll('.question-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            const targetQuestion = document.querySelector(`[data-question="${questionId}"]`);
+            if (targetQuestion) {
+                targetQuestion.classList.add('active');
+                // Add arrows to buttons in the active question
+                setTimeout(addArrowToButtons, 10);
+            }
+            
+            updateProgress();
+        }
+
+        function nextQuestion() {
+            const currentQuestion = questionFlow[currentQuestionIndex];
+            
+            // Save text inputs
+            const textarea = document.querySelector(`.question-container.active textarea`);
+            const emailInput = document.querySelector(`.question-container.active input[type="email"]`);
+            const phoneInput = document.querySelector(`.question-container.active input[type="tel"]`);
+            
+            if (textarea) {
+                formData[currentQuestion] = textarea.value;
+            }
+            if (emailInput) {
+                formData.email = emailInput.value;
+            }
+            if (phoneInput) {
+                formData.phone = phoneInput.value;
+            }
+            
+            questionHistory.push(currentQuestionIndex);
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questionFlow.length) {
+                showQuestion(questionFlow[currentQuestionIndex]);
+            }
+        }
+
+        function previousQuestion() {
+            if (questionHistory.length > 0) {
+                currentQuestionIndex = questionHistory.pop();
+                showQuestion(questionFlow[currentQuestionIndex]);
+            }
+        }
+
+        function selectOption(element, value) {
+            const container = element.parentElement;
+            container.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            const questionId = element.closest('.question-container').dataset.question;
+            formData[questionId] = value;
+            
+            // Enable continue button
+            const continueBtn = element.closest('.question-container').querySelector('.btn-primary');
+            if (continueBtn) {
+                continueBtn.disabled = false;
+            }
+            
+            // Auto-advance after a short delay
+            setTimeout(() => {
+                if (questionId === 'Q1') {
+                    handleQ1Branch();
+                } else if (questionId === 'community') {
+                    submitForm();
+                } else {
+                    nextQuestion();
+                }
+            }, 300);
+        }
+
+        function toggleMultiSelect(element, value) {
+            element.classList.toggle('selected');
+            
+            const questionId = element.closest('.question-container').dataset.question;
+            if (!formData[questionId]) {
+                formData[questionId] = [];
+            }
+            
+            if (element.classList.contains('selected')) {
+                formData[questionId].push(value);
+            } else {
+                formData[questionId] = formData[questionId].filter(v => v !== value);
+            }
+            
+            // Enable continue button if at least one option is selected
+            const continueBtn = element.closest('.question-container').querySelector('.btn-primary');
+            if (continueBtn) {
+                continueBtn.disabled = formData[questionId].length === 0;
+            }
+            
+            // Auto-advance after selecting at least one option and a delay
+            if (formData[questionId].length > 0) {
+                clearTimeout(window.multiSelectTimer);
+                window.multiSelectTimer = setTimeout(() => {
+                    nextQuestion();
+                }, 1000); // Slightly longer delay for multi-select
+            }
+        }
+
+        function handleQ1Branch() {
+            const answer = formData.Q1;
+            
+            // Build the appropriate flow based on the answer
+            if (answer === 'A') {
+                // Path A: Need help
+                questionFlow = ['Q1', 'Q3', 'Q4', 'Q6', 'Q7', 'Q11', 'Q12', 'Q13', 'Q14', 'email', 'phone', 'community', 'complete'];
+            } else if (answer === 'B') {
+                // Path B: Have ideas
+                questionFlow = ['Q1', 'Q8', 'Q9', 'Q10', 'Q11', 'Q12', 'Q13', 'Q14', 'email', 'phone', 'community', 'complete'];
+            } else if (answer === 'C') {
+                // Path C: Know exactly
+                questionFlow = ['Q1', 'Q2', 'Q5', 'Q11', 'Q12', 'Q13', 'Q14', 'email', 'phone', 'community', 'complete'];
+            }
+            
+            nextQuestion();
+        }
+
+        function handleFileUpload(inputId) {
+            const fileInput = document.getElementById(inputId);
+            const fileInfo = document.getElementById(inputId + '-info');
+            
+            if (fileInput.files.length > 0) {
+                const files = Array.from(fileInput.files);
+                const fileNames = files.map(f => f.name).join(', ');
+                fileInfo.textContent = `Selected: ${fileNames}`;
+                
+                const questionId = fileInput.closest('.question-container').dataset.question;
+                formData[questionId + '_files'] = files;
+            }
+        }
+
+        function skipUpload() {
+            nextQuestion();
+        }
+
+        function skipTextInput() {
+            const textarea = document.querySelector('.question-container.active textarea');
+            if (textarea) {
+                textarea.value = '';
+            }
+            nextQuestion();
+        }
+
+        function skipPhone() {
+            formData.phone = '';
+            nextQuestion();
+        }
+
+        function validateEmail() {
+            const emailInput = document.querySelector('.question-container.active input[type="email"]');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailInput && emailRegex.test(emailInput.value)) {
+                nextQuestion();
+            } else {
+                alert('Please enter a valid email address');
+            }
+        }
+
+        function validatePhone() {
+            const phoneInput = document.querySelector('.question-container.active input[type="tel"]');
+            
+            if (phoneInput && phoneInput.value.trim()) {
+                nextQuestion();
+            } else {
+                nextQuestion(); // Allow skipping
+            }
+        }
+
+        function submitForm() {
+            // Save final answer
+            formData.community = document.querySelector('.question-container.active .option.selected').textContent.trim();
+            
+            // Generate results summary
+            generateResults();
+            nextQuestion();
+        }
+
+        function generateResults() {
+            const resultsList = document.getElementById('resultsList');
+            const displayData = {
+                'Journey Type': formData.Q1 === 'A' ? 'Exploratory Design' : formData.Q1 === 'B' ? 'Idea Refinement' : 'Direct Creation',
+                'Email': formData.email || 'Not provided',
+                'Phone': formData.phone || 'Not provided',
+                'Material': getOptionText(formData.Q12),
+                'Style': getOptionText(formData.Q11),
+                'Community Share': formData.community || 'Not specified'
+            };
+            
+            // Add vibe if selected
+            if (formData.Q5 || formData.Q10) {
+                const vibes = formData.Q5 || formData.Q10;
+                if (vibes && vibes.length > 0) {
+                    displayData['Vibe'] = vibes.map(v => getVibeText(v)).join(', ');
+                }
+            }
+            
+            resultsList.innerHTML = '';
+            for (const [key, value] of Object.entries(displayData)) {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${key}:</strong> ${value}`;
+                resultsList.appendChild(li);
+            }
+        }
+
+        function getOptionText(value) {
+            const mapping = {
+                'subtle': 'Subtle & delicate',
+                'bold-sculptural': 'Bold & sculptural',
+                'classic': 'Classic & balanced',
+                'not-sure': 'Not sure yet',
+                '14k-gold': '14K Solid Gold',
+                'sterling-silver': 'Sterling Silver (925)',
+                'gold-plated': 'Gold-Plated Silver',
+                'help-decide': 'Help me decide'
+            };
+            return mapping[value] || value;
+        }
+
+        function getVibeText(value) {
+            const mapping = {
+                'elegant': 'Elegant & Timeless',
+                'bold': 'Bold & Confident',
+                'playful': 'Playful & Cute',
+                'spiritual': 'Spiritual & Symbolic',
+                'sweet': 'Sweet & Sentimental'
+            };
+            return mapping[value] || value;
+        }
+
+        // Enable continue button and auto-advance for text inputs
+        document.querySelectorAll('textarea, input[type="email"], input[type="tel"]').forEach(input => {
+            input.addEventListener('input', function() {
+                const continueBtn = this.closest('.question-container').querySelector('.btn-primary');
+                if (continueBtn) {
+                    continueBtn.disabled = this.value.trim() === '';
+                }
+                
+                // Clear any existing timer
+                clearTimeout(window.textInputTimer);
+                
+                // Auto-advance for required fields after user stops typing
+                if (this.type === 'email' && this.value.trim() !== '') {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (emailRegex.test(this.value)) {
+                        window.textInputTimer = setTimeout(() => {
+                            validateEmail();
+                        }, 1500);
+                    }
+                } else if (this.closest('[data-question="Q8"]') && this.value.trim() !== '') {
+                    // Auto-advance for Q8 (required text field)
+                    window.textInputTimer = setTimeout(() => {
+                        nextQuestion();
+                    }, 2000);
+                }
+            });
+            
+            // Handle Enter key for immediate advancement
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    if (this.tagName === 'TEXTAREA') {
+                        e.preventDefault();
+                    }
+                    const continueBtn = this.closest('.question-container').querySelector('.btn-primary');
+                    if (continueBtn && !continueBtn.disabled) {
+                        continueBtn.click();
+                    }
+                }
+            });
+        });
+
+        // Initialize
+        showQuestion('Q1');
+        addArrowToButtons();
+    </script>
+</body>
+</html>
