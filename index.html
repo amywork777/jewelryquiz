@@ -2492,31 +2492,61 @@
 
         // Function to ensure config is loaded
         async function ensureConfigLoaded() {
+            // Check if config is already loaded
             if (window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY) {
                 console.log('Config already loaded');
                 return true;
             }
             
-            console.log('Config not loaded, attempting to fetch...');
+            console.log('Config not loaded, attempting to fetch from server...');
+            
+            // Try to fetch from the server endpoint first
             try {
-                const response = await fetch('/config.js');
+                const response = await fetch('/config.js', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/javascript, text/javascript, */*'
+                    }
+                });
+                
                 if (response.ok) {
                     const configScript = await response.text();
-                    console.log('Config script fetched:', configScript.substring(0, 100) + '...');
+                    console.log('Config script fetched from server:', configScript.substring(0, 100) + '...');
                     
                     // Execute the script
                     eval(configScript);
                     
                     console.log('After eval - window.CONFIG:', window.CONFIG);
-                    return !!(window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY);
+                    if (window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY) {
+                        console.log('Config loaded successfully from server');
+                        return true;
+                    }
                 } else {
-                    console.error('Failed to fetch config:', response.status, response.statusText);
-                    return false;
+                    console.error('Failed to fetch config from server:', response.status, response.statusText);
                 }
             } catch (error) {
-                console.error('Error loading config:', error);
-                return false;
+                console.error('Error loading config from server:', error);
             }
+            
+            // If server config failed, try to prompt user for API key
+            console.log('Server config failed, prompting user for API key...');
+            
+            // Check if we're in a development environment or if user wants to provide key
+            const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            if (isDevelopment || confirm('Image generation requires an OpenAI API key. Would you like to provide one for this session?')) {
+                const apiKey = prompt('Please enter your OpenAI API key (starts with sk-):');
+                if (apiKey && apiKey.startsWith('sk-')) {
+                    window.CONFIG = { OPENAI_API_KEY: apiKey };
+                    console.log('API key provided by user');
+                    return true;
+                } else if (apiKey) {
+                    alert('Invalid API key format. API keys should start with "sk-"');
+                }
+            }
+            
+            console.log('No valid API key available');
+            return false;
         }
 
         async function startBackgroundImageGeneration() {
@@ -3508,15 +3538,73 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                 const loading = document.getElementById('image-loading');
                 if (loading) loading.remove();
                 
-                // Show error message
-                const resultsDiv = document.querySelector('.results');
-                const errorDiv = document.createElement('div');
-                errorDiv.innerHTML = `
-                    <p style="color: #666; text-align: center; margin: 20px 0;">
-                        <em>Image generation temporarily unavailable. We'll still create your custom design manually!</em>
-                    </p>
-                `;
-                resultsDiv.appendChild(errorDiv);
+                // Check if the error is due to missing API key
+                if (error.message === 'API key not available') {
+                    console.log('API key error detected, attempting to reload configuration...');
+                    
+                    // Try to reload configuration
+                    const configReloaded = await ensureConfigLoaded();
+                    
+                    if (configReloaded) {
+                        console.log('Configuration reloaded successfully, retrying image generation...');
+                        // Retry image generation once
+                        try {
+                            await generateCharmImage();
+                            return; // Exit if successful
+                        } catch (retryError) {
+                            console.error('Retry failed:', retryError);
+                        }
+                    }
+                    
+                    // Show specific error message for API key issues
+                    const resultsDiv = document.querySelector('.results');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.innerHTML = `
+                        <div style="text-align: center; margin: 20px 0; padding: 20px; border: 1px solid #ddd; background: #f9f9f9;">
+                            <h3 style="color: #000; margin-bottom: 15px;">Image Generation Unavailable</h3>
+                            <p style="color: #666; margin-bottom: 15px;">
+                                We're unable to generate images right now due to a configuration issue.
+                            </p>
+                            <p style="color: #666; margin-bottom: 20px;">
+                                <strong>Don't worry!</strong> We've captured all your design preferences and will create your custom charm manually.
+                            </p>
+                            <div style="background: #DAE0FF; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                                <p style="color: #000; font-weight: 500; margin-bottom: 10px;">What happens next:</p>
+                                <ul style="text-align: left; color: #333; margin-left: 20px;">
+                                    <li>Our designers will create your charm based on your responses</li>
+                                    <li>You'll receive design mockups within 24-48 hours</li>
+                                    <li>We'll work with you to perfect the design before production</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(errorDiv);
+                } else {
+                    // Show generic error message for other errors
+                    const resultsDiv = document.querySelector('.results');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.innerHTML = `
+                        <div style="text-align: center; margin: 20px 0; padding: 20px; border: 1px solid #ddd; background: #f9f9f9;">
+                            <h3 style="color: #000; margin-bottom: 15px;">Creating Your Design</h3>
+                            <p style="color: #666; margin-bottom: 15px;">
+                                We're experiencing high demand for our AI design generator right now.
+                            </p>
+                            <p style="color: #666; margin-bottom: 20px;">
+                                <strong>No problem!</strong> Our expert designers will create your custom charm manually using all the preferences you've shared.
+                            </p>
+                            <div style="background: #DAE0FF; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                                <p style="color: #000; font-weight: 500; margin-bottom: 10px;">Your design process:</p>
+                                <ul style="text-align: left; color: #333; margin-left: 20px;">
+                                    <li>Hand-crafted design based on your detailed responses</li>
+                                    <li>Professional mockups delivered within 24-48 hours</li>
+                                    <li>Unlimited revisions until you love it</li>
+                                    <li>Higher quality than AI-generated designs</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(errorDiv);
+                }
             }
         }
 
