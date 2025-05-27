@@ -2524,15 +2524,13 @@
                     // Create prompt that incorporates the uploaded images
                     if (responses.uploaded_images.Q2_images.length > 0) {
                         // Path C: Exact design - make this image into a charm
-                        promptText = `Transform this image into a single ${promptData.material} charm with a jump ring. Create two distinct design variations: 
+                        promptText = `Transform this image into a single ${promptData.material} charm with a jump ring. 
 
-DESIGN 1 - Classic Elegant: Create the main subject/object from the image as a refined relief design with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty that would appeal to traditional jewelry lovers.
-
-DESIGN 2 - Modern Sculptural: Transform the subject/object from the image into a bold, contemporary 3D sculptural charm with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation that would appeal to fashion-forward individuals.
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
 ${promptData.manufacturing_rules}
 
-DESIGN 1 should have a classic, refined jewelry aesthetic with elegant details. DESIGN 2 should be bold, modern, and sculptural with strong 3D presence. Both must have a jump ring for attachment. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                         
                         // Add the uploaded image(s) to input
                         inputContent.push({
@@ -2546,7 +2544,7 @@ DESIGN 1 should have a classic, refined jewelry aesthetic with elegant details. 
                                 "image_url": imageBase64
                             });
                         });
-            } else {
+                    } else {
                         // Path A or B: Combine text preferences with image inspiration
                         // Build detailed user preferences from ALL survey responses
                         let detailedPreferences = `
@@ -2578,17 +2576,15 @@ USER SURVEY RESPONSES TO INCORPORATE:
                             detailedPreferences += `\n- Recipient: ${responses.recipient}`;
                         }
 
-                        promptText = `Create a single ${promptData.subject} charm with a jump ring, combining the user's specific survey responses with inspiration from the reference image(s). Generate 2 distinct style variations:
+                        promptText = `Create a single ${promptData.subject} charm with a jump ring, incorporating the user's survey responses with inspiration from the reference image(s).
 
 ${detailedPreferences}
 
-DESIGN 1 - Classic Elegant: Create a refined interpretation that incorporates ALL the user's survey responses above with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty while incorporating the requested symbols, story elements, and style preferences.
-
-DESIGN 2 - Modern Sculptural: Transform the concept into a bold, contemporary 3D sculptural charm with dramatic dimensional presence, incorporating ALL the user's survey responses. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation of the user's requests.
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
 ${promptData.manufacturing_rules}
 
-Both designs must incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. DESIGN 1 = classic, refined jewelry aesthetic, DESIGN 2 = bold, modern sculptural style. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+The design should incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                         
                         inputContent.push({
                             "type": "input_text", 
@@ -2604,17 +2600,15 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                             });
                         });
                     }
-            } else {
+                } else {
                     // No uploaded images - use text-only prompt
-                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. Generate 2 different design variations:
+                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.
 
-DESIGN 1 - Classic Elegant: Create a refined, sophisticated design with elegant details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty.
-
-DESIGN 2 - Modern Sculptural: Create a bold, contemporary 3D sculptural design with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation.
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
 ${promptData.manufacturing_rules}
 
-DESIGN 1 should have a classic, refined jewelry aesthetic. DESIGN 2 should be bold, modern, and sculptural. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
                     inputContent.push({
                         "type": "input_text",
                         "text": promptText
@@ -2627,14 +2621,80 @@ DESIGN 1 should have a classic, refined jewelry aesthetic. DESIGN 2 should be bo
                 const promises = [];
                 
                 // Design 1: Classic Elegant
-                const design1Prompt = hasUploadedImages ? 
-                    promptText.replace('Generate 2 distinct style variations', 'Create Design 1 - Classic Elegant only') :
-                    promptText.replace('Generate 2 different design variations', 'Create a classic, elegant design');
+                let design1Prompt = promptText;
+                if (hasUploadedImages) {
+                    if (responses.uploaded_images.Q2_images.length > 0) {
+                        design1Prompt = `Transform this image into a single ${promptData.material} charm with a jump ring. 
+
+Create a CLASSIC ELEGANT design: refined relief design with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty.
+
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
+${promptData.manufacturing_rules}
+
+The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+                    } else {
+                        design1Prompt = `Create a single ${promptData.subject} charm with a jump ring, incorporating the user's survey responses with inspiration from the reference image(s).
+
+${detailedPreferences}
+
+Create a CLASSIC ELEGANT design: refined interpretation with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms.
+
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
+${promptData.manufacturing_rules}
+
+The design should incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+                    }
+                } else {
+                    design1Prompt = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.
+
+Create a CLASSIC ELEGANT design: refined, sophisticated design with elegant details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms.
+
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
+${promptData.manufacturing_rules}
+
+The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                }
                 
                 // Design 2: Modern Sculptural  
-                const design2Prompt = hasUploadedImages ?
-                    promptText.replace('Generate 2 distinct style variations', 'Create Design 2 - Modern Sculptural only') :
-                    promptText.replace('Generate 2 different design variations', 'Create a modern, sculptural design');
+                let design2Prompt = promptText;
+                if (hasUploadedImages) {
+                    if (responses.uploaded_images.Q2_images.length > 0) {
+                        design2Prompt = `Transform this image into a single ${promptData.material} charm with a jump ring. 
+
+Create a MODERN SCULPTURAL design: bold, contemporary 3D sculptural charm with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities.
+
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
+${promptData.manufacturing_rules}
+
+The design should be a single, standalone charm with bold sculptural details. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+                    } else {
+                        design2Prompt = `Create a single ${promptData.subject} charm with a jump ring, incorporating the user's survey responses with inspiration from the reference image(s).
+
+${detailedPreferences}
+
+Create a MODERN SCULPTURAL design: bold, contemporary 3D sculptural charm with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities.
+
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
+${promptData.manufacturing_rules}
+
+The design should incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+                    }
+                } else {
+                    design2Prompt = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.
+
+Create a MODERN SCULPTURAL design: bold, contemporary 3D sculptural design with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities.
+
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
+${promptData.manufacturing_rules}
+
+The design should be a single, standalone charm with bold sculptural details. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+                }
                 
                 // Two separate API calls for better quality
                 [design1Prompt, design2Prompt].forEach(prompt => {
@@ -2922,15 +2982,13 @@ MANUFACTURING CONSTRAINTS:
                 let promptText;
                 if (hasUploadedImages) {
                     if (responses.uploaded_images.Q2_images.length > 0) {
-                        promptText = `Transform this image into a single ${promptData.material} charm with a jump ring. Create two distinct design variations: 
+                        promptText = `Transform this image into a single ${promptData.material} charm with a jump ring. 
 
-DESIGN 1 - Classic Elegant: Create the main subject/object from the image as a refined relief design with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty that would appeal to traditional jewelry lovers.
-
-DESIGN 2 - Modern Sculptural: Transform the subject/object from the image into a bold, contemporary 3D sculptural charm with dramatic dimensional presence. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation that would appeal to fashion-forward individuals.
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
 ${promptData.manufacturing_rules}
 
-DESIGN 1 should have a classic, refined jewelry aesthetic with elegant details. DESIGN 2 should be bold, modern, and sculptural with strong 3D presence. Both must have a jump ring for attachment. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     } else {
                         // Build detailed user preferences from ALL survey responses
                         let detailedPreferences = `
@@ -2962,17 +3020,15 @@ USER SURVEY RESPONSES TO INCORPORATE:
                             detailedPreferences += `\n- Recipient: ${responses.recipient}`;
                         }
 
-                        promptText = `Create a single ${promptData.subject} charm with a jump ring, combining the user's specific survey responses with inspiration from the reference image(s). Generate 2 distinct style variations:
+                        promptText = `Create a single ${promptData.subject} charm with a jump ring, incorporating the user's survey responses with inspiration from the reference image(s).
 
 ${detailedPreferences}
 
-DESIGN 1 - Classic Elegant: Create a refined interpretation that incorporates ALL the user's survey responses above with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty while incorporating the requested symbols, story elements, and style preferences.
-
-DESIGN 2 - Modern Sculptural: Transform the concept into a bold, contemporary 3D sculptural charm with dramatic dimensional presence, incorporating ALL the user's survey responses. Use chunky, artistic forms with interesting textures and bold geometric shapes. Make it statement-making and eye-catching with strong sculptural qualities. Focus on modern, artistic interpretation of the user's requests.
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
 ${promptData.manufacturing_rules}
 
-Both designs must incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. DESIGN 1 = classic, refined jewelry aesthetic, DESIGN 2 = bold, modern sculptural style. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+The design should incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     }
                 } else {
                     // No uploaded images - use text-only prompt
@@ -4056,9 +4112,11 @@ ORIGINAL DESIGN TYPE: ${designType === 'Classic Elegant' ? 'Classic Elegant - re
 
 USER FEEDBACK TO INCORPORATE: ${feedback}
 
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
 ${promptData.manufacturing_rules}
 
-Based on the feedback above, modify the ${designType} approach while maintaining the core design principles. Address the user's specific requests while keeping the appropriate style (classic refined aesthetic vs bold modern sculptural). ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+Based on the feedback above, modify the ${designType} approach while maintaining the core design principles. Address the user's specific requests while keeping the appropriate style (classic refined aesthetic vs bold modern sculptural). The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     } else {
                         // Path A/B: Image + text combination
                         let detailedPreferences = `
@@ -4073,7 +4131,7 @@ USER SURVEY RESPONSES TO INCORPORATE:
                         if (responses.size_presence) detailedPreferences += `\n- Size Preference: ${responses.size_presence}`;
                         if (responses.special_details) detailedPreferences += `\n- Special Details: ${responses.special_details}`;
 
-                        regenerationPrompt = `Create a single ${promptData.subject} charm with a jump ring, combining the user's survey responses with inspiration from the reference image(s). Generate a ${designType} design:
+                        regenerationPrompt = `Create a single ${promptData.subject} charm with a jump ring, incorporating the user's survey responses with inspiration from the reference image(s). Create a ${designType} design:
 
 ${detailedPreferences}
 
@@ -4081,9 +4139,11 @@ ORIGINAL DESIGN TYPE: ${designType} - ${designType === 'Classic Elegant' ? 'refi
 
 USER FEEDBACK TO INCORPORATE: ${feedback}
 
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
 ${promptData.manufacturing_rules}
 
-Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests while incorporating ALL survey responses and drawing inspiration from the reference images. Maintain the appropriate style (classic refined aesthetic vs bold modern sculptural). ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests while incorporating ALL survey responses and drawing inspiration from the reference images. Maintain the appropriate style (classic refined aesthetic vs bold modern sculptural). The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     }
                 } else {
                     // Text-only path
@@ -4093,9 +4153,11 @@ ORIGINAL DESIGN TYPE: ${designType}
 
 USER FEEDBACK TO INCORPORATE: ${feedback}
 
+Create ONE charm design only. Do not show multiple variations or designs in the same image.
+
 ${promptData.manufacturing_rules}
 
-Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
+Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests. The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
                 }
                 
                 // Prepare input content

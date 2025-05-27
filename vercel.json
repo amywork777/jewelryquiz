@@ -3,6 +3,10 @@
     {
       "source": "/config.js",
       "destination": "/api/config"
+    },
+    {
+      "source": "/design",
+      "destination": "/design.html"
     }
   ]
 } 
