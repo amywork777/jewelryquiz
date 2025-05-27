@@ -444,6 +444,8 @@
             margin-bottom: 20px !important;
             flex-wrap: nowrap !important;
             overflow-x: auto !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
         }
 
         .design-item {
@@ -454,6 +456,11 @@
             border: 1px solid #eee !important;
             border-radius: 8px !important;
             text-align: center !important;
+        }
+
+        /* Ensure exactly 2 designs are shown side by side */
+        .design-container .design-item:nth-child(n+3) {
+            display: none !important;
         }
 
         @media (max-width: 768px) {
@@ -623,22 +630,42 @@
         <div class="question-container" data-question="Q3">
             <h2>What's the story behind your charm?</h2>
             <div class="options">
-                <div class="option" onclick="selectOption(this, 'curious')">
-                    Just browsing for something beautiful
+                <div class="option option-with-image" onclick="selectOption(this, 'moment')">
+                    <img src="images/questions/story/moment.jpg" alt="Special moment" class="option-image">
+                    <div class="option-text">
+                        Celebrating a special moment
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'moment')">
-                    Celebrating a special moment
+                <div class="option option-with-image" onclick="selectOption(this, 'person')">
+                    <img src="images/questions/story/person.jpg" alt="Someone special" class="option-image">
+                    <div class="option-text">
+                        Honoring someone special
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'person')">
-                    Honoring someone special
+                <div class="option option-with-image" onclick="selectOption(this, 'place')">
+                    <img src="images/questions/story/place.jpg" alt="Meaningful place" class="option-image">
+                    <div class="option-text">
+                        Remembering a meaningful place
+                    </div>
                 </div>
-                <div class="option" onclick="selectOption(this, 'place')">
-                    Remembering a meaningful place
+                <div class="option option-with-image" onclick="selectOption(this, 'curious')">
+                    <img src="images/questions/story/curious.jpg" alt="Just browsing" class="option-image">
+                    <div class="option-text">
+                        Just browsing for something beautiful
+                    </div>
                 </div>
             </div>
             <div class="button-group">
-                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
-                <button class="btn-primary" onclick="nextQuestion()" disabled>Continue</button>
+                <button class="btn-secondary" onclick="previousQuestion()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <button class="btn-primary" onclick="nextQuestion()" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -796,13 +823,13 @@
                     <img src="images/questions/size/subtle.jpg" alt="Small & delicate" class="option-image">
                     <div class="option-text">
                         Small & delicate
-                    </div>
+                </div>
                 </div>
                 <div class="option option-with-image" onclick="selectOption(this, 'classic')">
                     <img src="images/questions/size/classic.jpg" alt="Medium & versatile" class="option-image">
                     <div class="option-text">
                         Medium & versatile
-                    </div>
+                </div>
                 </div>
                 <div class="option option-with-image" onclick="selectOption(this, 'bold-sculptural')">
                     <img src="images/questions/size/bold-sculptural.jpg" alt="Bold & statement-making" class="option-image">
@@ -831,28 +858,28 @@
                 <div class="option option-with-image" onclick="selectOption(this, '14k-gold')">
                     <img src="images/questions/materials/14k-gold.jpg" alt="14K Gold" class="option-image">
                     <div class="option-text">
-                        14K Solid Gold
-                        <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Luxurious & lasting</span>
-                    </div>
+                    14K Solid Gold
+                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Luxurious & lasting</span>
+                </div>
                 </div>
                 <div class="option option-with-image" onclick="selectOption(this, 'sterling-silver')">
                     <img src="images/questions/materials/sterling-silver.jpg" alt="Sterling Silver" class="option-image">
                     <div class="option-text">
-                        Sterling Silver
-                        <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Classic & affordable</span>
-                    </div>
+                    Sterling Silver
+                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Classic & affordable</span>
+                </div>
                 </div>
                 <div class="option option-with-image" onclick="selectOption(this, 'gold-plated')">
                     <img src="images/questions/materials/gold-plated.jpg" alt="Gold Plated" class="option-image">
                     <div class="option-text">
-                        Gold-Plated Silver
-                        <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Golden look, silver price</span>
-                    </div>
+                    Gold-Plated Silver
+                    <span style="display: block; font-size: 14px; margin-top: 5px; opacity: 0.7;">Golden look, silver price</span>
+                </div>
                 </div>
                 <div class="option option-with-image" onclick="selectOption(this, 'help-decide')">
                     <img src="images/questions/materials/help-decide.jpg" alt="Help Decide" class="option-image">
                     <div class="option-text">
-                        Help me choose
+                    Help me choose
                     </div>
                 </div>
             </div>
@@ -892,8 +919,8 @@
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 400; color: #000;">Email address *</label>
                 <input type="email" id="contact-email" placeholder="your@email.com" required style="margin-bottom: 15px;">
-            </div>
-            
+        </div>
+
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 400; color: #000;">Phone number (optional)</label>
                 <input type="tel" id="contact-phone" placeholder="+1 (555) 123-4567">
@@ -1486,7 +1513,7 @@
                 showQuestion('Q8');
             } else {
                 // For other upload questions, just continue normally
-                nextQuestion();
+            nextQuestion();
             }
         }
 
@@ -1632,7 +1659,7 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                             });
                         });
                     }
-                } else {
+            } else {
                     // No uploaded images - use text-only prompt
                     promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}. Generate 2 different design variations.`;
                     inputContent.push({
@@ -2175,6 +2202,10 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                 // Extract image data from response
                 const imageGenerationCalls = data.output?.filter(output => output.type === "image_generation_call") || [];
                 
+                // Debug: Log how many images we got
+                console.log(`Total images generated: ${imageGenerationCalls.length}`);
+                console.log('Image generation calls:', imageGenerationCalls);
+                
                 if (imageGenerationCalls.length > 0) {
                     const imageTypeText = hasUploadedImages ? 
                         (responses.uploaded_images.Q2_images.length > 0 ? 
@@ -2198,8 +2229,11 @@ Both designs must incorporate ALL the user's stated survey responses while drawi
                     const imagesContainer = document.createElement('div');
                     imagesContainer.className = 'design-container';
                     
-                    // Display each generated image
-                    imageGenerationCalls.forEach((call, index) => {
+                    // Display only the first 2 generated images
+                    const imagesToDisplay = imageGenerationCalls.slice(0, 2);
+                    console.log(`Displaying ${imagesToDisplay.length} images out of ${imageGenerationCalls.length} total`);
+                    
+                    imagesToDisplay.forEach((call, index) => {
                         if (call.result) {
                             // Convert base64 to blob URL for display
                             const base64Data = call.result;
@@ -2591,7 +2625,7 @@ Based on the feedback above, create an improved ${designType} design that addres
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         continueBtn.disabled = !emailInput || !emailRegex.test(emailInput.value);
                     } else {
-                        continueBtn.disabled = this.value.trim() === '';
+                    continueBtn.disabled = this.value.trim() === '';
                     }
                 }
                 
