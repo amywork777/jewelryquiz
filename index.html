@@ -1141,11 +1141,11 @@
 
         .select-image-btn {
             width: 100%;
-            padding: 18px 30px;
+            padding: 15px 25px; /* Increased padding */
             background: #ffffff;
             border: 2px solid #e0e0e0;
             color: #666666;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -1153,11 +1153,6 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 15px;
-            white-space: nowrap;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .select-image-btn:hover {
@@ -1303,7 +1298,7 @@
 
         .buy-button {
             width: 100%;
-            padding: 20px 35px;
+            padding: 18px 30px;
             background: #cccccc;
             color: #666666;
             border: none;
@@ -1316,11 +1311,6 @@
             letter-spacing: 0.5px;
             border-radius: 8px;
             margin-bottom: 15px;
-            min-height: 56px;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .buy-button.enabled {
@@ -1401,11 +1391,11 @@
 
         .refine-toggle {
             width: 100%;
-            padding: 15px 20px;
+            padding: 12px 15px;
             background: #f8f9fa;
             border: 1px solid #e0e0e0;
             color: #666666;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
             border-radius: 6px;
@@ -1413,8 +1403,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 48px;
-            white-space: nowrap;
         }
 
         .refine-toggle:hover {
@@ -1901,6 +1889,12 @@
                 <h1>You're all set!</h1>
                 <p>We'll craft your custom design and send it within 24-48 hours</p>
                 <p style="font-size: 16px; margin-top: 20px;">Keep an eye on your inbox - you're going to love what we create together</p>
+                <div class="results">
+                    <h3>Your Design Summary:</h3>
+                    <ul class="results-list" id="resultsList">
+                        <!-- Results will be populated here -->
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
