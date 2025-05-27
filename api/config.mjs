@@ -20,7 +20,7 @@ export default function handler(req, res) {
   res.setHeader('Content-Type', 'application/javascript');
   const configScript = `window.CONFIG = { OPENAI_API_KEY: '${apiKey}' };
 window.OPENAI_API_KEY = '${apiKey}';
-console.log('Config loaded from server');`;
+console.log('Config loaded from server - API key available');`;
   
   return res.status(200).send(configScript);
 } 
