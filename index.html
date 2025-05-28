@@ -1179,6 +1179,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden; /* Prevent image overflow */
+            border: none;
         }
 
         .product-image {
@@ -1188,6 +1190,12 @@
             height: auto;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            object-fit: contain; /* Ensure image fits properly without distortion */
+            background: transparent; /* Remove white background */
+            border: none;
+            outline: none;
+            margin: 0;
+            padding: 0;
         }
 
         .image-badge {
@@ -2556,6 +2564,87 @@
             line-height: 1.2;
             color: #333333;
             font-weight: 500;
+        }
+
+        /* Carousel styles - only applied when carousel is created */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 8px;
+            background: transparent;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.3s ease;
+            width: 100%;
+            background: transparent;
+        }
+
+        .carousel-track img {
+            min-width: 100%;
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            flex-shrink: 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        .carousel-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid #e0e0e0;
+        }
+
+        .carousel-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        .carousel-btn:hover {
+            background: #e0e0e0;
+            color: #000;
+        }
+
+        .carousel-btn:active {
+            transform: scale(0.95);
+        }
+
+        .carousel-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .carousel-indicator {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            min-width: 60px;
+            text-align: center;
         }
     </style>
 </head>
@@ -5812,26 +5901,17 @@ Create an improved ${designType} charm design that incorporates the user feedbac
                 }
                 
                 if (newImageUrl) {
-                    // Find the existing image and replace it (same structure as original)
-                    const designContainer = document.querySelector(`#image-card-${designNumber}`);
-                    if (!designContainer) {
-                        alert('Could not find the design container. Please try again.');
-                        return;
-                    }
+                    // Add the new image to the carousel instead of replacing
+                    const success = addImageToCarousel(designNumber, newImageUrl);
                     
-                    const existingImage = designContainer.querySelector('.product-image');
-                    if (existingImage) {
-                        // Update the existing image with the new one
-                        existingImage.src = newImageUrl;
-                        existingImage.alt = `Generated charm design ${designNumber} - Updated`;
-                        
+                    if (success) {
                         // Clear the feedback textarea
                         feedbackTextarea.value = '';
                         
                         // Show success message
                         const successMsg = document.createElement('div');
                         successMsg.style.cssText = 'background: #d4edda; color: #155724; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 12px; text-align: center;';
-                        successMsg.textContent = `Design ${designNumber} updated successfully!`;
+                        successMsg.textContent = `New version of Design ${designNumber} added to carousel!`;
                         feedbackTextarea.parentElement.appendChild(successMsg);
                         
                         // Remove success message after 3 seconds
@@ -5847,7 +5927,7 @@ Create an improved ${designType} charm design that incorporates the user feedbac
                             setTimeout(() => generateStoryFromCharmImage(newImageUrl, responses), 500);
                         }
                     } else {
-                        alert('Could not find the image to update. Please try again.');
+                        alert('Could not add the new image to the carousel. Please try again.');
                     }
                 } else {
                     throw new Error('No image generated');
@@ -6046,6 +6126,293 @@ Create an improved ${designType} charm design that incorporates the user feedbac
                 });
             }
         });
+
+        // Carousel navigation functions
+        function navigateCarousel(designNumber, direction) {
+            const track = document.getElementById(`track-${designNumber}`);
+            if (!track) return;
+            
+            const images = track.querySelectorAll('img');
+            const totalImages = images.length;
+            if (totalImages <= 1) return;
+            
+            let currentIndex = parseInt(track.dataset.currentIndex) || 0;
+            
+            if (direction === 'prev') {
+                currentIndex = currentIndex > 0 ? currentIndex - 1 : totalImages - 1;
+            } else {
+                currentIndex = currentIndex < totalImages - 1 ? currentIndex + 1 : 0;
+            }
+            
+            track.dataset.currentIndex = currentIndex;
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            updateCarouselIndicator(designNumber, currentIndex + 1, totalImages);
+            updateCarouselButtons(designNumber, currentIndex, totalImages);
+        }
+
+        function updateCarouselIndicator(designNumber, current, total) {
+            const indicator = document.getElementById(`indicator-${designNumber}`);
+            if (indicator) {
+                indicator.textContent = `${current} of ${total}`;
+            }
+        }
+
+        function updateCarouselButtons(designNumber, currentIndex, totalImages) {
+            const prevBtn = document.getElementById(`prev-${designNumber}`);
+            const nextBtn = document.getElementById(`next-${designNumber}`);
+            
+            if (prevBtn) prevBtn.disabled = currentIndex === 0;
+            if (nextBtn) nextBtn.disabled = currentIndex === totalImages - 1;
+        }
+
+        function convertToCarousel(designNumber, existingImageSrc) {
+            const designContainer = document.querySelector(`#image-card-${designNumber}`);
+            if (!designContainer) return null;
+            
+            const imageContainer = designContainer.querySelector('.image-container');
+            if (!imageContainer) return null;
+            
+            // Create carousel structure
+            const carouselContainer = document.createElement('div');
+            carouselContainer.className = 'carousel-container';
+            carouselContainer.innerHTML = `
+                <div class="carousel-track" id="track-${designNumber}" data-current-index="0">
+                    <img src="${existingImageSrc}" alt="Generated charm design ${designNumber} - Version 1" class="product-image" data-version="1" style="min-width: 100%; width: 100%; height: auto; display: block; object-fit: contain; border: none; outline: none; background: transparent; margin: 0; padding: 0;">
+                </div>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="prev-${designNumber}" onclick="navigateCarousel(${designNumber}, 'prev')" disabled>‹</button>
+                    <span class="carousel-indicator" id="indicator-${designNumber}">1 of 1</span>
+                    <button class="carousel-btn" id="next-${designNumber}" onclick="navigateCarousel(${designNumber}, 'next')" disabled>›</button>
+                </div>
+            `;
+            
+            // Replace the simple image with carousel
+            const existingImage = imageContainer.querySelector('.product-image');
+            if (existingImage) {
+                existingImage.parentNode.replaceChild(carouselContainer, existingImage);
+            }
+            
+            return carouselContainer.querySelector('.carousel-track');
+        }
+
+        function addImageToCarousel(designNumber, newImageSrc) {
+            let track = document.getElementById(`track-${designNumber}`);
+            
+            // If no carousel exists, convert the existing image to a carousel first
+            if (!track) {
+                const existingImage = document.querySelector(`#image-card-${designNumber} .product-image`);
+                if (existingImage) {
+                    track = convertToCarousel(designNumber, existingImage.src);
+                }
+            }
+            
+            if (!track) return false;
+            
+            // Get current number of images
+            const currentImages = track.querySelectorAll('img');
+            const newVersion = currentImages.length + 1;
+            
+            // Create new image element
+            const newImage = document.createElement('img');
+            newImage.src = newImageSrc;
+            newImage.alt = `Generated charm design ${designNumber} - Version ${newVersion}`;
+            newImage.className = 'product-image';
+            newImage.dataset.version = newVersion;
+            newImage.style.cssText = 'min-width: 100%; width: 100%; height: auto; display: block; object-fit: contain; border: none; outline: none; background: transparent; margin: 0; padding: 0;';
+            
+            // Add to track
+            track.appendChild(newImage);
+            
+            // Navigate to the new image
+            const newIndex = newVersion - 1;
+            track.dataset.currentIndex = newIndex;
+            track.style.transform = `translateX(-${newIndex * 100}%)`;
+            
+            // Update controls
+            updateCarouselIndicator(designNumber, newVersion, newVersion);
+            updateCarouselButtons(designNumber, newIndex, newVersion);
+            
+            return true;
+        }
+
+        async function regenerateDesign(designNumber) {
+            try {
+                const feedbackTextarea = document.getElementById(`feedback-${designNumber}`);
+                const feedback = feedbackTextarea.value.trim();
+                
+                if (!feedback) {
+                    alert('Please provide feedback about what you\'d like to change in this design.');
+                    return;
+                }
+                
+                // Get API key
+                let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
+                if (!apiKey) {
+                    throw new Error("API key not available");
+                }
+                
+                // Show loading state
+                const button = feedbackTextarea.nextElementSibling;
+                if (!button) {
+                    alert('Could not find the update button. Please try again.');
+                    return;
+                }
+                const originalText = button.textContent;
+                button.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <div class="swimming-logo-container" style="height: 20px; margin: 0;">
+                            <svg class="swimming-logo" style="height: 16px;" version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet">
+                                <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#666666" stroke="none">
+                                    <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29 -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363 204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125 -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81 144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61 144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070 -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298 -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100 -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156 -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215 -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500 -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
+                                    <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62 44 259 -90 205z"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <span>Regenerating...</span>
+                    </div>`;
+                button.disabled = true;
+                button.style.background = '#ccc';
+                
+                // Get current responses and prompt data
+                const responses = captureAllResponses();
+                const promptData = generatePromptFromResponses(responses);
+                
+                // Check if we have uploaded images
+                const hasUploadedImages = responses.uploaded_images.Q2_images.length > 0 || 
+                                        responses.uploaded_images.Q7_images.length > 0 || 
+                                        responses.uploaded_images.Q9_images.length > 0;
+                
+                // Build the regeneration prompt based on the design number and feedback
+                const designType = designNumber === 1 ? 'Classic Elegant' : 'Modern Sculptural';
+                
+                // Create detailed preferences (same format as original generation)
+                let detailedPreferences = `
+USER SURVEY RESPONSES TO INCORPORATE:
+- Material: ${promptData.material}
+- Style: ${promptData.style}
+- Subject/Theme: ${promptData.subject}`;
+
+                if (responses.inspiration) detailedPreferences += `\n- Story/Inspiration: ${responses.inspiration}`;
+                if (responses.symbols) detailedPreferences += `\n- Requested Symbols/Elements: ${responses.symbols}`;
+                if (responses.style_vibes && responses.style_vibes.length > 0) detailedPreferences += `\n- Style Vibes: ${responses.style_vibes.join(', ')}`;
+                if (responses.size_presence) detailedPreferences += `\n- Size Preference: ${responses.size_presence}`;
+                if (responses.special_details) detailedPreferences += `\n- Special Details: ${responses.special_details}`;
+
+                // Add image description if user uploaded images
+                if (hasUploadedImages) {
+                    detailedPreferences += `\n- Reference Images: User provided reference images for inspiration (incorporate the style and elements from their uploaded references)`;
+                }
+
+                const regenerationPrompt = `Create a single ${promptData.subject} charm with an attachment loop. Design style: ${designType}.
+
+User preferences:
+- Material: ${promptData.material}
+- Style: ${promptData.style}
+- Subject: ${promptData.subject}${responses.inspiration ? `\n- Inspiration: ${responses.inspiration}` : ''}${responses.symbols ? `\n- Elements: ${responses.symbols}` : ''}${responses.style_vibes && responses.style_vibes.length > 0 ? `\n- Style vibes: ${responses.style_vibes.join(', ')}` : ''}${responses.size_presence ? `\n- Size preference: ${responses.size_presence}` : ''}${responses.special_details ? `\n- Special details: ${responses.special_details}` : ''}
+
+Design type: ${designType === 'Classic Elegant' ? 'Classic elegant style with refined details, clean lines, and timeless aesthetic' : 'Modern sculptural style with bold 3D forms and contemporary geometric shapes'}
+
+User feedback: ${feedback}
+
+Create an improved ${designType} charm design that incorporates the user feedback while maintaining the specified style. The design should be a single, unified charm piece. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+                
+                // Store the regeneration prompt for story generation
+                imageGenerationPrompts.regenerated[designNumber] = regenerationPrompt;
+                console.log(`Stored regeneration prompt for design ${designNumber}:`, regenerationPrompt);
+                
+                // Make API call using the same endpoint and format as original generation
+                const response = await fetch('https://api.openai.com/v1/responses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4.1-mini",
+                        input: regenerationPrompt,
+                        tools: [{
+                            type: "image_generation",
+                            quality: "high", // Use high quality to match original generation
+                            size: "1024x1024",
+                            background: "opaque"
+                        }]
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('GPT API error:', response.status, errorData);
+                    throw new Error(`GPT API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+                }
+                
+                const data = await response.json();
+                
+                // Extract image from GPT response (same format as original generation)
+                let newImageUrl = null;
+                if (data.output && Array.isArray(data.output)) {
+                    const imageCall = data.output.find(output => output.type === "image_generation_call");
+                    if (imageCall && imageCall.result) {
+                        // Convert base64 to blob URL for display (same as original generation)
+                        const base64Data = imageCall.result;
+                        const byteCharacters = atob(base64Data);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], { type: 'image/png' });
+                        newImageUrl = URL.createObjectURL(blob);
+                    }
+                }
+                
+                if (newImageUrl) {
+                    // Add the new image to the carousel instead of replacing
+                    const success = addImageToCarousel(designNumber, newImageUrl);
+                    
+                    if (success) {
+                        // Clear the feedback textarea
+                        feedbackTextarea.value = '';
+                        
+                        // Show success message
+                        const successMsg = document.createElement('div');
+                        successMsg.style.cssText = 'background: #d4edda; color: #155724; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 12px; text-align: center;';
+                        successMsg.textContent = `New version of Design ${designNumber} added to carousel!`;
+                        feedbackTextarea.parentElement.appendChild(successMsg);
+                        
+                        // Remove success message after 3 seconds
+                        setTimeout(() => {
+                            if (successMsg.parentElement) {
+                                successMsg.parentElement.removeChild(successMsg);
+                            }
+                        }, 3000);
+                        
+                        // Regenerate story with the new image for design 1 only (since that's what shows in sidebar)
+                        if (designNumber === 1) {
+                            const responses = captureAllResponses();
+                            setTimeout(() => generateStoryFromCharmImage(newImageUrl, responses), 500);
+                        }
+                    } else {
+                        alert('Could not add the new image to the carousel. Please try again.');
+                    }
+                } else {
+                    throw new Error('No image generated');
+                }
+                
+            } catch (error) {
+                console.error('Error regenerating design:', error);
+                alert('Sorry, there was an error regenerating the design. Please try again.');
+            } finally {
+                // Reset button state
+                const feedbackTextarea = document.querySelector(`#feedback-${designNumber}`);
+                if (feedbackTextarea && feedbackTextarea.nextElementSibling) {
+                    const button = feedbackTextarea.nextElementSibling;
+                    button.textContent = 'Update';
+                    button.disabled = false;
+                    button.style.background = '#f8f8f8';
+                }
+            }
+        }
     </script>
 </body>
 </html>
