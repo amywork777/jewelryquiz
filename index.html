@@ -1139,32 +1139,55 @@
             font-weight: 400;
         }
 
-        .select-image-btn {
-            width: 100%;
-            padding: 15px 25px; /* Increased padding */
-            background: #ffffff;
-            border: 2px solid #e0e0e0;
-            color: #666666;
+        .select-image-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-radius: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 15px;
+            color: #333333;
         }
 
-        .select-image-btn:hover {
-            border-color: #000000;
-            background: #f8f9fa;
+        .select-image-text:hover {
             color: #000000;
         }
 
-        .select-image-btn.selected {
-            background: #000000;
-            color: #ffffff;
+        .select-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #dddddd;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .select-image-text:hover .select-checkbox {
             border-color: #000000;
+        }
+
+        .select-image-text.selected .select-checkbox {
+            background: #000000;
+            border-color: #000000;
+        }
+
+        .select-image-text.selected {
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .checkbox-check {
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: bold;
         }
 
         .purchase-sidebar {
@@ -1298,24 +1321,25 @@
 
         .buy-button {
             width: 100%;
-            padding: 18px 30px;
-            background: #cccccc;
-            color: #666666;
-            border: none;
+            padding: 15px 30px;
+            background: #f8f8f8;
+            color: #333333;
+            border: 1px solid #dddddd;
             font-size: 16px;
             font-weight: 600;
-            cursor: not-allowed;
+            cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-bottom: 15px;
         }
 
         .buy-button.enabled {
             background: #000000;
             color: #ffffff;
+            border: 1px solid #000000;
             cursor: pointer;
         }
 
@@ -1323,6 +1347,12 @@
             background: #333333;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .buy-button:hover {
+            background: #DAE0FF;
+            color: #000000;
+            border: 1px solid #000000;
         }
 
         .trust-signals {
@@ -1390,24 +1420,22 @@
         }
 
         .refine-toggle {
-            width: 100%;
-            padding: 12px 15px;
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
+            padding: 8px 0;
+            background: none;
+            border: none;
             color: #666666;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-radius: 6px;
             text-align: left;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
         }
 
         .refine-toggle:hover {
-            background: #e9ecef;
-            color: #333333;
+            color: #000000;
         }
 
         .refine-content {
@@ -1433,16 +1461,18 @@
             padding: 10px 15px;
             background: #f8f8f8;
             color: #333333;
-            border: 1px solid #e9ecef;
+            border: 1px solid #dddddd;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
-            border-radius: 4px;
+            border-radius: 6px;
         }
 
         .refine-button:hover {
-            background: #e9ecef;
+            background: #DAE0FF;
+            color: #000000;
+            border: 1px solid #000000;
         }
 
         /* Mobile responsive */
@@ -1890,7 +1920,6 @@
                 <p>We'll craft your custom design and send it within 24-48 hours</p>
                 <p style="font-size: 16px; margin-top: 20px;">Keep an eye on your inbox - you're going to love what we create together</p>
                 <div class="results">
-                    <h3>Your Design Summary:</h3>
                     <ul class="results-list" id="resultsList">
                         <!-- Results will be populated here -->
                     </ul>
@@ -3451,9 +3480,12 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                                     <h3 class="image-title">${designType}</h3>
                                     <p class="image-subtitle">Custom charm design</p>
                                     
-                                    <button class="select-image-btn" onclick="selectDesign(${index + 1})" id="select-btn-${index + 1}">
-                                        Select This Design
-                                    </button>
+                                    <div class="select-image-text" onclick="selectDesign(${index + 1})" id="select-btn-${index + 1}">
+                                        <div class="select-checkbox" id="checkbox-${index + 1}">
+                                            <span class="checkbox-check" style="display: none;">✓</span>
+                                        </div>
+                                        <span>Select This Design</span>
+                                    </div>
                                     
                                     <div class="refine-section">
                                         <button class="refine-toggle" onclick="toggleRefineSection(${index + 1})">
@@ -3471,7 +3503,7 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                                                 class="refine-button"
                                                 onclick="regenerateDesign(${index + 1})"
                                             >
-                                                Update Design ${index + 1}
+                                                Update
                                             </button>
                                         </div>
                                     </div>
@@ -3794,9 +3826,12 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
             selectedDesignNumber = designNumber;
             
             // Update design selection styling
-            document.querySelectorAll('.select-image-btn').forEach(btn => {
-                btn.classList.remove('selected');
-                btn.textContent = 'Select This Design';
+            document.querySelectorAll('.select-image-text').forEach(textEl => {
+                textEl.classList.remove('selected');
+                const checkbox = textEl.querySelector('.checkbox-check');
+                if (checkbox) {
+                    checkbox.style.display = 'none';
+                }
             });
             
             document.querySelectorAll('.product-image-card').forEach(card => {
@@ -3808,7 +3843,10 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
             
             if (selectedBtn) {
                 selectedBtn.classList.add('selected');
-                selectedBtn.textContent = 'Selected ✓';
+                const checkbox = selectedBtn.querySelector('.checkbox-check');
+                if (checkbox) {
+                    checkbox.style.display = 'block';
+                }
             }
             
             if (selectedCard) {
