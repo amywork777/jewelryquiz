@@ -1309,6 +1309,9 @@
             position: sticky;
             top: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
         }
 
         .purchase-header {
@@ -1443,7 +1446,7 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             border-radius: 12px;
-            margin-bottom: 15px;
+            margin: 0 auto 15px auto;
             text-align: center;
             display: flex;
             align-items: center;
@@ -1451,6 +1454,9 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.15), 0 3px 10px rgba(0,0,0,0.1);
             position: relative;
             overflow: hidden;
+            align-self: stretch;
+            line-height: 1;
+            vertical-align: middle;
         }
 
         .buy-button::before {
@@ -1477,6 +1483,15 @@
         .buy-button:active {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .buy-button:disabled {
+            background: #f8f8f8;
+            color: #999999;
+            border: 1px solid #dddddd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         /* Checkout button responsive optimizations */
@@ -1506,15 +1521,6 @@
             }
         }
 
-        .buy-button:disabled {
-            background: #f8f8f8;
-            color: #999999;
-            border: 1px solid #dddddd;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
         .checkout-disabled-text {
             text-align: center;
             color: #333333;
@@ -1532,6 +1538,7 @@
             font-size: 12px;
             color: #666;
             line-height: 1.4;
+            margin-top: auto;
         }
 
         /* Design summary section - moved to bottom */
@@ -3186,6 +3193,8 @@ The design should be a single, standalone charm with bold sculptural details. ${
                 let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
                 if (!apiKey) {
                     console.log('No API key available for charm image story generation');
+                    // Fall back to text-based story generation
+                    generateDesignStory(responses, 'charm-based');
                     return;
                 }
 
@@ -3256,6 +3265,8 @@ Be specific about the actual design elements you see and how they connect to the
 
                 if (!response.ok) {
                     console.error('Story generation API error:', response.status, response.statusText);
+                    const errorText = await response.text();
+                    console.error('Error details:', errorText);
                     // Fall back to the original story generation method instead of throwing
                     generateDesignStory(responses, 'charm-based');
                     return;
@@ -4531,9 +4542,16 @@ Focus on what the charm actually depicts and symbolizes, describing the specific
                     })
                 });
                 
+                if (!response.ok) {
+                    console.error('Story generation API error:', response.status, response.statusText);
+                    const errorText = await response.text();
+                    console.error('Error details:', errorText);
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
-                if (data.choices && data.choices[0] && data.choices[0].message) {
+                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
                     const story = data.choices[0].message.content.trim();
                     
                     // Update the story section in the sidebar
@@ -4544,7 +4562,10 @@ Focus on what the charm actually depicts and symbolizes, describing the specific
                             <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.5; font-style: italic; font-weight: 400;">${story}</p>
                         `;
                     }
+                    
+                    console.log('Story generated successfully:', story);
                 } else {
+                    console.error('Invalid response from story generation API:', data);
                     throw new Error('Invalid response from story generation API');
                 }
                 
