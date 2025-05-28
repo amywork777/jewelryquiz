@@ -4,5 +4,13 @@
       "source": "/config.js",
       "destination": "/api/config"
     }
-  ]
+  ],
+  "functions": {
+    "api/save-design.js": {
+      "maxDuration": 30
+    },
+    "api/get-designs.js": {
+      "maxDuration": 10
+    }
+  }
 } 

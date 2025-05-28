@@ -4134,6 +4134,9 @@ The design should be a single, standalone charm with bold sculptural details. ${
             // Save final answer
             formData.community = document.querySelector('.question-container.active .option.selected').textContent.trim();
             
+            // Save design data before generating results
+            saveDesignData();
+            
             // Generate results summary
             generateResults();
             
@@ -4141,6 +4144,75 @@ The design should be a single, standalone charm with bold sculptural details. ${
             clearQuizProgress();
             
             nextQuestion();
+        }
+
+        async function saveDesignData() {
+            try {
+                const responses = captureAllResponses();
+                
+                // Prepare design data for saving
+                const designData = {
+                    timestamp: new Date().toISOString(),
+                    responses: responses,
+                    quiz_version: '1.0',
+                    user_agent: navigator.userAgent,
+                    // Add any generated images if available
+                    generated_images: {
+                        design1: window.generatedImages?.design1 || null,
+                        design2: window.generatedImages?.design2 || null
+                    }
+                };
+
+                // Send to backend for saving and email
+                const response = await fetch('/api/save-design', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: responses.email,
+                        designData: designData,
+                        images: designData.generated_images
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('Design saved and email sent successfully');
+                    
+                    // Store in localStorage as backup
+                    const userDesigns = JSON.parse(localStorage.getItem('userDesigns') || '[]');
+                    userDesigns.push({
+                        email: responses.email,
+                        designData: designData,
+                        saved_at: new Date().toISOString()
+                    });
+                    
+                    // Keep only last 10 designs per browser
+                    if (userDesigns.length > 10) {
+                        userDesigns.splice(0, userDesigns.length - 10);
+                    }
+                    
+                    localStorage.setItem('userDesigns', JSON.stringify(userDesigns));
+                } else {
+                    console.error('Failed to save design:', await response.text());
+                }
+            } catch (error) {
+                console.error('Error saving design data:', error);
+                
+                // Fallback: save to localStorage only
+                const responses = captureAllResponses();
+                const userDesigns = JSON.parse(localStorage.getItem('userDesigns') || '[]');
+                userDesigns.push({
+                    email: responses.email,
+                    designData: {
+                        timestamp: new Date().toISOString(),
+                        responses: responses,
+                        fallback_save: true
+                    },
+                    saved_at: new Date().toISOString()
+                });
+                localStorage.setItem('userDesigns', JSON.stringify(userDesigns));
+            }
         }
 
         function generateResults() {

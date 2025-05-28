@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Design History</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Avenir Next', 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 300;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #000000;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #000000;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .email-form {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+
+        .email-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 400;
+            color: #000;
+        }
+
+        .email-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: #000000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #333;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border: 1px solid #f5c6cb;
+            margin-bottom: 20px;
+        }
+
+        .designs-container {
+            display: none;
+        }
+
+        .design-card {
+            border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .design-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .design-date {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .design-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .design-details {
+            margin-bottom: 15px;
+        }
+
+        .design-details strong {
+            color: #000;
+        }
+
+        .no-designs {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                border: none;
+            }
+            
+            .design-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Design History</h1>
+        <p class="subtitle">Enter your email to view all your custom charm designs</p>
+        
+        <div class="email-form">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="your@email.com" required>
+            <button class="btn" onclick="loadDesigns()">View My Designs</button>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            Loading your designs...
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="designs-container" class="designs-container">
+            <h2>Your Designs</h2>
+            <div id="designs-list"></div>
+        </div>
+        
+        <div id="no-designs" class="no-designs" style="display: none;">
+            <h3>No designs found</h3>
+            <p>We couldn't find any designs for this email address.</p>
+            <p style="margin-top: 15px;">
+                <a href="/" style="color: #000; text-decoration: underline;">Create your first design</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Enable button when email is valid
+        document.getElementById('email').addEventListener('input', function() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const button = document.querySelector('.btn');
+            button.disabled = !emailRegex.test(this.value);
+        });
+
+        // Allow Enter key to submit
+        document.getElementById('email').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.querySelector('.btn').disabled) {
+                loadDesigns();
+            }
+        });
+
+        async function loadDesigns() {
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailRegex.test(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('designs-container').style.display = 'none';
+            document.getElementById('no-designs').style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/get-designs?email=${encodeURIComponent(email)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.success && data.designs && data.designs.length > 0) {
+                    displayDesigns(data.designs);
+                } else {
+                    document.getElementById('no-designs').style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('Error loading designs:', error);
+                document.getElementById('loading').style.display = 'none';
+                showError('Failed to load designs. Please try again.');
+            }
+        }
+
+        function displayDesigns(designs) {
+            const container = document.getElementById('designs-list');
+            container.innerHTML = '';
+            
+            designs.forEach(design => {
+                const designCard = createDesignCard(design);
+                container.appendChild(designCard);
+            });
+            
+            document.getElementById('designs-container').style.display = 'block';
+        }
+
+        function createDesignCard(design) {
+            const card = document.createElement('div');
+            card.className = 'design-card';
+            
+            const date = new Date(design.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const statusClass = design.status === 'completed' ? 'status-completed' : 'status-pending';
+            const statusText = design.status === 'completed' ? 'Completed' : 'In Progress';
+            
+            card.innerHTML = `
+                <div class="design-header">
+                    <div class="design-date">${date}</div>
+                    <div class="design-status ${statusClass}">${statusText}</div>
+                </div>
+                <div class="design-details">
+                    <p><strong>Design ID:</strong> ${design.id}</p>
+                    ${design.journey_type ? `<p><strong>Journey Type:</strong> ${getJourneyTypeText(design.journey_type)}</p>` : ''}
+                    ${design.material ? `<p><strong>Material:</strong> ${getMaterialText(design.material)}</p>` : ''}
+                    ${design.style ? `<p><strong>Style:</strong> ${getStyleText(design.style)}</p>` : ''}
+                    ${design.summary ? `<p><strong>Summary:</strong> ${design.summary}</p>` : ''}
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function getJourneyTypeText(type) {
+            const mapping = {
+                'A': 'Exploratory Design',
+                'B': 'Idea Refinement',
+                'C': 'Direct Creation'
+            };
+            return mapping[type] || type;
+        }
+
+        function getMaterialText(material) {
+            const mapping = {
+                'sterling-silver': 'Sterling Silver (925)',
+                '14k-gold': '14K Solid Gold',
+                'gold-plated': 'Gold-Plated Silver',
+                'help-decide': 'Help me decide'
+            };
+            return mapping[material] || material;
+        }
+
+        function getStyleText(style) {
+            const mapping = {
+                'subtle': 'Subtle & delicate',
+                'bold-sculptural': 'Bold & sculptural',
+                'classic': 'Classic & balanced',
+                'not-sure': 'Not sure yet'
+            };
+            return mapping[style] || style;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 
