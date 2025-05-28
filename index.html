@@ -1818,8 +1818,8 @@
             
             /* Full-width story section on mobile - purple section takes full width */
             .product-story {
-                padding: 15px;
-                margin: 15px -15px; /* Negative margin to extend to card edges */
+                padding: 15px 20px; /* Increased horizontal padding */
+                margin: 15px -25px; /* Larger negative margin to extend beyond container */
                 border-radius: 0; /* Remove border radius for full width effect */
                 border-left: none;
                 border-left: 4px solid #DAE0FF; /* Thicker left border for emphasis */
@@ -2495,6 +2495,53 @@
                 padding: 6px 8px;
                 font-size: 12px;
             }
+        }
+
+        /* Show story section with maximum width on small screens */
+        .product-story {
+            display: block;
+            padding: 10px 12px; /* Compact padding */
+            margin: 10px -25px; /* Large negative margin for full screen width */
+            border-radius: 0;
+            border-left: 3px solid #DAE0FF;
+            background: #DAE0FF;
+        }
+        
+        .product-story h6 {
+            font-size: 9px;
+            margin-bottom: 4px;
+            color: #000000;
+            font-weight: 600;
+        }
+        
+        .product-story p {
+            font-size: 11px;
+            line-height: 1.3;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        /* Maximum width story section for tiny screens */
+        .product-story {
+            padding: 8px 10px; /* Ultra-compact padding */
+            margin: 8px -20px; /* Large negative margin for full screen width */
+            border-radius: 0;
+            border-left: 2px solid #DAE0FF;
+            background: #DAE0FF;
+        }
+        
+        .product-story h6 {
+            font-size: 8px;
+            margin-bottom: 3px;
+            color: #000000;
+            font-weight: 600;
+        }
+        
+        .product-story p {
+            font-size: 10px;
+            line-height: 1.2;
+            color: #333333;
+            font-weight: 500;
         }
     </style>
 </head>
