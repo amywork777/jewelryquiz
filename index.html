@@ -1321,10 +1321,10 @@
 
         .buy-button {
             width: 100%;
-            padding: 15px 30px;
-            background: #f8f8f8;
-            color: #333333;
-            border: 1px solid #dddddd;
+            padding: 18px 30px;
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #000000;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -1336,23 +1336,28 @@
             margin-bottom: 15px;
         }
 
-        .buy-button.enabled {
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #000000;
-            cursor: pointer;
-        }
-
-        .buy-button.enabled:hover {
+        .buy-button:hover {
             background: #333333;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
-        .buy-button:hover {
-            background: #DAE0FF;
-            color: #000000;
-            border: 1px solid #000000;
+        .buy-button:disabled {
+            background: #f8f8f8;
+            color: #999999;
+            border: 1px solid #dddddd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .checkout-disabled-text {
+            text-align: center;
+            color: #999999;
+            font-size: 14px;
+            padding: 18px 30px;
+            margin-bottom: 15px;
+            font-style: italic;
         }
 
         .trust-signals {
@@ -3571,11 +3576,16 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                             </div>
                         </div>
                         
+                        <div id="checkout-disabled-text" class="checkout-disabled-text">
+                            Select a design to continue
+                        </div>
+                        
                         <button 
                             class="buy-button"
                             id="main-buy-button"
                             onclick="purchaseSelectedDesign()"
-                        >Select a Design to Continue</button>
+                            style="display: none;"
+                        >Check Out</button>
                         
                         <div class="trust-signals">
                             30-day guarantee • Secure Stripe checkout • Gift ready packaging
@@ -3894,17 +3904,23 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
 
         function updateBuyButton() {
             const buyButton = document.getElementById('main-buy-button');
+            const disabledText = document.getElementById('checkout-disabled-text');
             
             if (selectedDesignNumber && selectedMaterial) {
-                buyButton.classList.add('enabled');
-                buyButton.textContent = 'Buy Now';
-                
-                // Remove disabled attribute if it exists
+                buyButton.style.display = 'block';
+                buyButton.textContent = 'Check Out';
                 buyButton.removeAttribute('disabled');
+                
+                if (disabledText) {
+                    disabledText.style.display = 'none';
+                }
             } else {
-                buyButton.classList.remove('enabled');
-                buyButton.textContent = 'Select a Design to Continue';
+                buyButton.style.display = 'none';
                 buyButton.setAttribute('disabled', 'true');
+                
+                if (disabledText) {
+                    disabledText.style.display = 'block';
+                }
             }
         }
 
