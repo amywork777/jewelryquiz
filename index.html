@@ -1321,7 +1321,7 @@
 
         .buy-button {
             width: 100%;
-            padding: 18px 30px;
+            padding: 12px 40px;
             background: #000000;
             color: #ffffff;
             border: 1px solid #000000;
@@ -1332,14 +1332,18 @@
             font-family: inherit;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-radius: 6px;
+            border-radius: 25px;
             margin-bottom: 15px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .buy-button:hover {
             background: #333333;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .buy-button:disabled {
@@ -1353,11 +1357,14 @@
 
         .checkout-disabled-text {
             text-align: center;
-            color: #999999;
-            font-size: 14px;
-            padding: 18px 30px;
+            color: #333333;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 20px;
             margin-bottom: 15px;
-            font-style: italic;
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
         }
 
         .trust-signals {
@@ -3577,7 +3584,7 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                         </div>
                         
                         <div id="checkout-disabled-text" class="checkout-disabled-text">
-                            Select a design to continue
+                            Select a design to checkout
                         </div>
                         
                         <button 
