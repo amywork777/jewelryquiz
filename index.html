@@ -903,7 +903,12 @@
             width: auto;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            object-fit: contain;
+            background: transparent;
+            border: none;
+            outline: none;
+            margin: 0;
+            padding: 0;
         }
 
         .product-badge {
@@ -1172,14 +1177,14 @@
 
         .image-container {
             position: relative;
-            background: #f8f9fa;
-            padding: 30px 20px;
+            background: transparent;
+            padding: 20px;
             text-align: center;
-            min-height: 320px; /* Increased height */
+            min-height: 300px;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden; /* Prevent image overflow */
+            overflow: hidden;
             border: none;
         }
 
@@ -1189,9 +1194,8 @@
             width: auto;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            object-fit: contain; /* Ensure image fits properly without distortion */
-            background: transparent; /* Remove white background */
+            object-fit: contain;
+            background: transparent;
             border: none;
             outline: none;
             margin: 0;
@@ -2571,7 +2575,6 @@
             position: relative;
             width: 100%;
             overflow: hidden;
-            border-radius: 8px;
             background: transparent;
         }
 
@@ -2594,6 +2597,7 @@
             background: transparent;
             margin: 0;
             padding: 0;
+            border-radius: 8px;
         }
 
         .carousel-controls {
@@ -2601,12 +2605,13 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
             border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .carousel-btn {
