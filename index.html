@@ -1750,6 +1750,291 @@
                 max-height: 140px;
             }
         }
+
+        /* Mobile-specific compact layouts to reduce vertical scroll */
+        @media (max-width: 768px) {
+            /* Compact question layout */
+            .question-container {
+                margin-bottom: 15px;
+            }
+            
+            h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+                line-height: 1.3;
+            }
+            
+            p {
+                font-size: 14px;
+                margin-bottom: 15px;
+                line-height: 1.4;
+            }
+            
+            /* Compact options with smaller spacing */
+            .options {
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .option {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+            
+            .option-with-image {
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            
+            .option-image {
+                width: 60px;
+                height: 60px;
+            }
+            
+            /* Compact file upload */
+            .file-upload-label {
+                padding: 20px 15px;
+                min-height: 80px;
+                font-size: 14px;
+            }
+            
+            .file-upload-label::before {
+                font-size: 18px;
+                margin-bottom: 5px;
+            }
+            
+            /* Compact button groups */
+            .button-group {
+                margin-top: 15px;
+                gap: 10px;
+            }
+            
+            .btn-primary, .btn-secondary {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        /* Mobile results page - tabbed interface */
+        @media (max-width: 768px) {
+            .ecommerce-layout {
+                display: block;
+                gap: 0;
+            }
+            
+            /* Mobile tab navigation */
+            .mobile-tabs {
+                display: flex;
+                background: #f8f9fa;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 4px;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            .mobile-tab {
+                flex: 1;
+                padding: 10px 8px;
+                text-align: center;
+                background: transparent;
+                border: none;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                color: #666;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .mobile-tab.active {
+                background: #ffffff;
+                color: #000;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            /* Tab content sections */
+            .tab-content {
+                display: none;
+            }
+            
+            .tab-content.active {
+                display: block;
+            }
+            
+            /* Compact product images in tab */
+            .product-image-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .image-container {
+                min-height: 160px;
+                padding: 10px;
+            }
+            
+            .product-image {
+                max-height: 140px;
+            }
+            
+            .image-info {
+                padding: 15px;
+            }
+            
+            .image-title {
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            
+            .image-subtitle {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+            
+            /* Compact purchase sidebar as accordion */
+            .purchase-sidebar {
+                position: static;
+                padding: 0;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                background: transparent;
+            }
+            
+            .purchase-section {
+                background: #ffffff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                margin-bottom: 10px;
+                overflow: hidden;
+            }
+            
+            .purchase-section-header {
+                padding: 12px 15px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #e0e0e0;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: 500;
+                font-size: 14px;
+            }
+            
+            .purchase-section-content {
+                padding: 15px;
+                display: none;
+            }
+            
+            .purchase-section.expanded .purchase-section-content {
+                display: block;
+            }
+            
+            .purchase-section.expanded .section-arrow {
+                transform: rotate(180deg);
+            }
+            
+            .section-arrow {
+                transition: transform 0.3s ease;
+                font-size: 12px;
+            }
+            
+            /* Compact material options */
+            .material-options-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .material-option {
+                padding: 10px;
+                min-height: auto;
+            }
+            
+            .material-info h4 {
+                font-size: 14px;
+                margin-bottom: 3px;
+            }
+            
+            .material-info p {
+                font-size: 11px;
+                margin-bottom: 8px;
+            }
+            
+            .material-price {
+                font-size: 16px;
+            }
+            
+            .material-option button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            /* Compact design story */
+            .design-story-section {
+                padding: 12px;
+                margin: 10px 0;
+            }
+            
+            .design-story-section h6 {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+            
+            .design-story-section p {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+        }
+
+        /* Extra compact for very small screens */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .mobile-tab {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+            
+            .purchase-section-header {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            
+            .purchase-section-content {
+                padding: 12px;
+            }
+            
+            .image-container {
+                min-height: 120px;
+                padding: 8px;
+            }
+            
+            .product-image {
+                max-height: 100px;
+            }
+        }
+
+        /* Hide desktop elements on mobile */
+        @media (max-width: 768px) {
+            .desktop-only {
+                display: none !important;
+            }
+        }
+
+        /* Show mobile elements only on mobile */
+        .mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3513,6 +3798,119 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                     ecommerceContainer.appendChild(imagesSection);
                     ecommerceContainer.appendChild(purchaseSidebar);
                     
+                    // Add mobile tabs for compact layout
+                    const mobileTabsContainer = document.createElement('div');
+                    mobileTabsContainer.className = 'mobile-only mobile-tabs';
+                    mobileTabsContainer.innerHTML = `
+                        <button class="mobile-tab active" onclick="switchMobileTab('designs')">Designs</button>
+                        <button class="mobile-tab" onclick="switchMobileTab('purchase')">Purchase</button>
+                        <button class="mobile-tab" onclick="switchMobileTab('summary')">Summary</button>
+                    `;
+                    
+                    // Wrap sections in tab content containers
+                    imagesSection.className += ' tab-content active';
+                    imagesSection.id = 'tab-designs';
+                    
+                    // Convert purchase sidebar to accordion format for mobile
+                    const mobilePurchaseContent = document.createElement('div');
+                    mobilePurchaseContent.className = 'tab-content';
+                    mobilePurchaseContent.id = 'tab-purchase';
+                    mobilePurchaseContent.innerHTML = `
+                        <div class="purchase-section expanded">
+                            <div class="purchase-section-header" onclick="togglePurchaseSection(this)">
+                                <span>Design Selection</span>
+                                <span class="section-arrow">▼</span>
+                            </div>
+                            <div class="purchase-section-content">
+                                <div class="design-story-section" id="mobile-sidebar-story">
+                                    <h6>The Story</h6>
+                                    <p>Generating your design story...</p>
+                                </div>
+                                <div class="selection-status" id="mobile-selection-status">
+                                    <div style="font-size: 14px; color: #666;">
+                                        <div>Design: <span id="mobile-selected-design-text">Not selected</span></div>
+                                        <div>Material: <span id="mobile-selected-material-text">Sterling Silver</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="purchase-section">
+                            <div class="purchase-section-header" onclick="togglePurchaseSection(this)">
+                                <span>Choose Material</span>
+                                <span class="section-arrow">▼</span>
+                            </div>
+                            <div class="purchase-section-content">
+                                <div class="material-options-grid">
+                                    <div class="material-option" onclick="selectMaterial('sterling-silver')" id="mobile-material-sterling-silver">
+                                        <div class="material-info">
+                                            <h4>Sterling Silver</h4>
+                                            <p>Classic and elegant</p>
+                                        </div>
+                                        <div class="material-price">$50</div>
+                                        <button>Select</button>
+                                    </div>
+                                    <div class="material-option" onclick="selectMaterial('gold-plated')" id="mobile-material-gold-plated">
+                                        <div class="material-info">
+                                            <h4>Gold-Plated</h4>
+                                            <p>Warm golden finish</p>
+                                        </div>
+                                        <div class="material-price">$50</div>
+                                        <button>Select</button>
+                                    </div>
+                                    <div class="material-option" onclick="selectMaterial('14k-gold')" id="mobile-material-14k-gold">
+                                        <div class="material-info">
+                                            <h4>14K Gold</h4>
+                                            <p>Premium solid gold</p>
+                                        </div>
+                                        <div class="material-price">$200</div>
+                                        <button>Select</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="purchase-section">
+                            <div class="purchase-section-header" onclick="togglePurchaseSection(this)">
+                                <span>Checkout</span>
+                                <span class="section-arrow">▼</span>
+                            </div>
+                            <div class="purchase-section-content">
+                                <div class="price-summary">
+                                    <div class="price-details">
+                                        <div class="price-label">Total:</div>
+                                        <div class="price-amount" id="mobile-price-display">$50</div>
+                                    </div>
+                                    <div class="shipping-info">
+                                        <div style="font-weight: 500; margin-bottom: 2px;">Free shipping</div>
+                                        <div>Ships in 5-7 days</div>
+                                    </div>
+                                </div>
+                                
+                                <div id="mobile-checkout-disabled-text" class="checkout-disabled-text">
+                                    Select a design to checkout
+                                </div>
+                                
+                                <button 
+                                    class="buy-button"
+                                    id="mobile-buy-button"
+                                    onclick="purchaseSelectedDesign()"
+                                    style="display: none;"
+                                >Check Out</button>
+                                
+                                <div class="trust-signals">
+                                    30-day guarantee • Secure Stripe checkout • Gift ready packaging
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insert mobile tabs before ecommerce container
+                    resultsDiv.insertBefore(mobileTabsContainer, ecommerceContainer);
+                    
+                    // Add mobile purchase content after ecommerce container
+                    resultsDiv.insertBefore(mobilePurchaseContent, ecommerceContainer.nextSibling);
+                    
                     resultsDiv.appendChild(ecommerceContainer);
                     
                     // Design summary section at the bottom
@@ -4578,6 +4976,178 @@ Based on the feedback above, create an improved ${designType} design that addres
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(initializeDragDrop, 200);
         });
+
+        // Mobile tab switching functionality
+        function switchMobileTab(tabName) {
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.mobile-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Show corresponding content
+            const contentId = `tab-${tabName}`;
+            const content = document.getElementById(contentId);
+            if (content) {
+                content.classList.add('active');
+            }
+            
+            // Handle summary tab - create it if it doesn't exist
+            if (tabName === 'summary') {
+                let summaryContent = document.getElementById('tab-summary');
+                if (!summaryContent) {
+                    summaryContent = document.createElement('div');
+                    summaryContent.className = 'tab-content';
+                    summaryContent.id = 'tab-summary';
+                    
+                    // Get the summary section content
+                    const summarySection = document.querySelector('.design-summary-section');
+                    if (summarySection) {
+                        summaryContent.innerHTML = summarySection.innerHTML;
+                    }
+                    
+                    // Insert after purchase tab content
+                    const purchaseTab = document.getElementById('tab-purchase');
+                    if (purchaseTab) {
+                        purchaseTab.parentNode.insertBefore(summaryContent, purchaseTab.nextSibling);
+                    }
+                }
+                summaryContent.classList.add('active');
+            }
+        }
+        
+        // Accordion functionality for purchase sections
+        function togglePurchaseSection(header) {
+            const section = header.parentElement;
+            const isExpanded = section.classList.contains('expanded');
+            
+            if (isExpanded) {
+                section.classList.remove('expanded');
+            } else {
+                section.classList.add('expanded');
+            }
+        }
+        
+        // Enhanced material selection for mobile
+        function selectMaterial(materialType) {
+            // Update both desktop and mobile displays
+            const materials = ['sterling-silver', 'gold-plated', '14k-gold'];
+            materials.forEach(material => {
+                const desktopElement = document.getElementById(`material-${material}`);
+                const mobileElement = document.getElementById(`mobile-material-${material}`);
+                
+                if (desktopElement) {
+                    desktopElement.classList.remove('selected');
+                }
+                if (mobileElement) {
+                    mobileElement.classList.remove('selected');
+                }
+            });
+            
+            // Select the chosen material
+            const selectedDesktop = document.getElementById(`material-${materialType}`);
+            const selectedMobile = document.getElementById(`mobile-material-${materialType}`);
+            
+            if (selectedDesktop) {
+                selectedDesktop.classList.add('selected');
+            }
+            if (selectedMobile) {
+                selectedMobile.classList.add('selected');
+            }
+            
+            // Update price displays
+            const prices = {
+                'sterling-silver': '$50',
+                'gold-plated': '$50',
+                '14k-gold': '$200'
+            };
+            
+            const price = prices[materialType];
+            const priceDisplays = ['main-price-display', 'mobile-price-display'];
+            priceDisplays.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = price;
+                }
+            });
+            
+            // Update material text displays
+            const materialNames = {
+                'sterling-silver': 'Sterling Silver',
+                'gold-plated': 'Gold-Plated',
+                '14k-gold': '14K Gold'
+            };
+            
+            const materialTextDisplays = ['selected-material-text', 'mobile-selected-material-text'];
+            materialTextDisplays.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = materialNames[materialType];
+                }
+            });
+            
+            // Store selected material globally
+            window.selectedMaterial = materialType;
+            
+            // Update checkout button visibility if design is selected
+            updateCheckoutButton();
+        }
+        
+        // Enhanced design selection for mobile
+        function selectDesign(designNumber) {
+            // Update both desktop and mobile displays
+            [1, 2].forEach(num => {
+                const desktopBtn = document.getElementById(`select-btn-${num}`);
+                const desktopCheckbox = document.getElementById(`checkbox-${num}`);
+                
+                if (desktopBtn && desktopCheckbox) {
+                    if (num === designNumber) {
+                        desktopBtn.classList.add('selected');
+                        desktopCheckbox.querySelector('.checkbox-check').style.display = 'block';
+                    } else {
+                        desktopBtn.classList.remove('selected');
+                        desktopCheckbox.querySelector('.checkbox-check').style.display = 'none';
+                    }
+                }
+            });
+            
+            // Update design text displays
+            const designTextDisplays = ['selected-design-text', 'mobile-selected-design-text'];
+            designTextDisplays.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = `Design ${designNumber}`;
+                }
+            });
+            
+            // Store selected design globally
+            window.selectedDesign = designNumber;
+            
+            // Update checkout button visibility
+            updateCheckoutButton();
+        }
+        
+        // Update checkout button visibility
+        function updateCheckoutButton() {
+            const hasDesign = window.selectedDesign;
+            const buyButtons = ['main-buy-button', 'mobile-buy-button'];
+            const disabledTexts = ['checkout-disabled-text', 'mobile-checkout-disabled-text'];
+            
+            buyButtons.forEach(id => {
+                const button = document.getElementById(id);
+                if (button) {
+                    button.style.display = hasDesign ? 'block' : 'none';
+                }
+            });
+            
+            disabledTexts.forEach(id => {
+                const text = document.getElementById(id);
+                if (text) {
+                    text.style.display = hasDesign ? 'none' : 'block';
+                }
+            });
+        }
     </script>
 </body>
 </html>
