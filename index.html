@@ -5694,10 +5694,7 @@ Focus on what the charm actually depicts and symbolizes, describing the specific
                 // Get API key
                 let apiKey = window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY;
                 if (!apiKey) {
-                    
-                    if (!apiKey) {
-                        throw new Error("API key not available");
-                    }
+                    throw new Error("API key not available");
                 }
                 
                 // Show loading state
@@ -5732,10 +5729,9 @@ Focus on what the charm actually depicts and symbolizes, describing the specific
                                         responses.uploaded_images.Q9_images.length > 0;
                 
                 // Build the regeneration prompt based on the design number and feedback
-                let regenerationPrompt;
                 const designType = designNumber === 1 ? 'Classic Elegant' : 'Modern Sculptural';
                 
-                // For DALL-E 3, we need to create a comprehensive text prompt that incorporates all information
+                // Create detailed preferences (same format as original generation)
                 let detailedPreferences = `
 USER SURVEY RESPONSES TO INCORPORATE:
 - Material: ${promptData.material}
@@ -5753,107 +5749,106 @@ USER SURVEY RESPONSES TO INCORPORATE:
                     detailedPreferences += `\n- Reference Images: User provided reference images for inspiration (incorporate the style and elements from their uploaded references)`;
                 }
 
-                regenerationPrompt = `Create a single ${promptData.subject} charm with an attachment loop. Create a ${designType} design:
+                const regenerationPrompt = `Create a single ${promptData.subject} charm with an attachment loop. Design style: ${designType}.
 
-${detailedPreferences}
+User preferences:
+- Material: ${promptData.material}
+- Style: ${promptData.style}
+- Subject: ${promptData.subject}${responses.inspiration ? `\n- Inspiration: ${responses.inspiration}` : ''}${responses.symbols ? `\n- Elements: ${responses.symbols}` : ''}${responses.style_vibes && responses.style_vibes.length > 0 ? `\n- Style vibes: ${responses.style_vibes.join(', ')}` : ''}${responses.size_presence ? `\n- Size preference: ${responses.size_presence}` : ''}${responses.special_details ? `\n- Special details: ${responses.special_details}` : ''}
 
-ORIGINAL DESIGN TYPE: ${designType} - ${designType === 'Classic Elegant' ? 'refined interpretation with elegant, sophisticated details, clean lines, and timeless traditional jewelry aesthetic with all elements connected as one cohesive piece' : 'bold, contemporary 3D sculptural charm with dramatic dimensional presence, playful cartoony artistic forms, and angular geometric shapes with fun stylized cartoon aesthetic and strong 3D sculptural qualities'}
+Design type: ${designType === 'Classic Elegant' ? 'Classic elegant style with refined details, clean lines, and timeless aesthetic' : 'Modern sculptural style with bold 3D forms and contemporary geometric shapes'}
 
-USER FEEDBACK TO INCORPORATE: ${feedback}
+User feedback: ${feedback}
 
-IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form.
-
-Create ONE charm design only. Do not show multiple variations or designs in the same image.
-
-${promptData.manufacturing_rules}
-
-Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests while incorporating ALL survey responses. Maintain the appropriate style (classic refined aesthetic vs bold modern sculptural). The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+Create an improved ${designType} charm design that incorporates the user feedback while maintaining the specified style. The design should be a single, unified charm piece. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                 
                 // Store the regeneration prompt for story generation
                 imageGenerationPrompts.regenerated[designNumber] = regenerationPrompt;
                 console.log(`Stored regeneration prompt for design ${designNumber}:`, regenerationPrompt);
                 
-                // Make API call using DALL-E 3
-                const response = await fetch('https://api.openai.com/v1/images/generations', {
+                // Make API call using the same endpoint and format as original generation
+                const response = await fetch('https://api.openai.com/v1/responses', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + apiKey
                     },
                     body: JSON.stringify({
-                        model: "dall-e-3",
-                        prompt: regenerationPrompt,
-                        n: 1,
-                        size: "1024x1024",
-                        quality: "standard"
+                        model: "gpt-4.1-mini",
+                        input: regenerationPrompt,
+                        tools: [{
+                            type: "image_generation",
+                            quality: "high", // Use high quality to match original generation
+                            size: "1024x1024",
+                            background: "opaque"
+                        }]
                     })
                 });
                 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error('DALL-E API error:', response.status, errorData);
-                    throw new Error(`DALL-E API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+                    console.error('GPT API error:', response.status, errorData);
+                    throw new Error(`GPT API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
                 }
                 
                 const data = await response.json();
                 
-                if (data.data && data.data[0] && data.data[0].url) {
-                    const newImageUrl = data.data[0].url;
-                    
-                    // Add the new image to the carousel
+                // Extract image from GPT response (same format as original generation)
+                let newImageUrl = null;
+                if (data.output && Array.isArray(data.output)) {
+                    const imageCall = data.output.find(output => output.type === "image_generation_call");
+                    if (imageCall && imageCall.result) {
+                        // Convert base64 to blob URL for display (same as original generation)
+                        const base64Data = imageCall.result;
+                        const byteCharacters = atob(base64Data);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], { type: 'image/png' });
+                        newImageUrl = URL.createObjectURL(blob);
+                    }
+                }
+                
+                if (newImageUrl) {
+                    // Find the existing image and replace it (same structure as original)
                     const designContainer = document.querySelector(`#image-card-${designNumber}`);
                     if (!designContainer) {
                         alert('Could not find the design container. Please try again.');
                         return;
                     }
-                    const track = designContainer.querySelector(`#track-${designNumber}`);
-                    if (!track) {
-                        alert('Could not find the image track. Please try again.');
-                        return;
-                    }
-                    const images = track.querySelectorAll('img');
-                     const newVersion = images.length + 1;
-                     
-                     // Create new image element
-                     const newImage = document.createElement('img');
-                     newImage.src = newImageUrl;
-                     newImage.alt = `Generated charm design ${designNumber} - Version ${newVersion}`;
-                     newImage.style.cssText = 'min-width: 100%; height: auto; display: block;';
-                     newImage.dataset.version = newVersion;
-                     
-                     // Add to carousel track
-                     track.appendChild(newImage);
-                     
-                     // Navigate to the new image
-                     const newIndex = images.length;
-                     track.style.transform = `translateX(-${newIndex * 100}%)`;
-                     track.dataset.currentIndex = newIndex;
-                     
-                     // Update indicator and show controls
-                     updateCarouselIndicator(designNumber, newIndex + 1, newVersion);
-                     
-                     // Clear the feedback textarea
-                     feedbackTextarea.value = '';
-                     
-                     // Show success message
-                     const successMsg = document.createElement('div');
-                     successMsg.style.cssText = 'background: #d4edda; color: #155724; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 12px; text-align: center;';
-                     successMsg.textContent = `Design ${designNumber} refined successfully! (Version ${newVersion})`;
-                     feedbackTextarea.parentElement.appendChild(successMsg);
-                     
-                     // Remove success message after 3 seconds
-                     setTimeout(() => {
-                         if (successMsg.parentElement) {
-                             successMsg.parentElement.removeChild(successMsg);
-                         }
-                     }, 3000);
-                     
-                     // Regenerate story with the new prompt for design 1 only (since that's what shows in sidebar)
-                     if (designNumber === 1) {
-                         const responses = captureAllResponses();
-                         setTimeout(() => generateStoryFromCharmImage(imageUrl, responses), 500);
-                     }
                     
+                    const existingImage = designContainer.querySelector('.product-image');
+                    if (existingImage) {
+                        // Update the existing image with the new one
+                        existingImage.src = newImageUrl;
+                        existingImage.alt = `Generated charm design ${designNumber} - Updated`;
+                        
+                        // Clear the feedback textarea
+                        feedbackTextarea.value = '';
+                        
+                        // Show success message
+                        const successMsg = document.createElement('div');
+                        successMsg.style.cssText = 'background: #d4edda; color: #155724; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 12px; text-align: center;';
+                        successMsg.textContent = `Design ${designNumber} updated successfully!`;
+                        feedbackTextarea.parentElement.appendChild(successMsg);
+                        
+                        // Remove success message after 3 seconds
+                        setTimeout(() => {
+                            if (successMsg.parentElement) {
+                                successMsg.parentElement.removeChild(successMsg);
+                            }
+                        }, 3000);
+                        
+                        // Regenerate story with the new image for design 1 only (since that's what shows in sidebar)
+                        if (designNumber === 1) {
+                            const responses = captureAllResponses();
+                            setTimeout(() => generateStoryFromCharmImage(newImageUrl, responses), 500);
+                        }
+                    } else {
+                        alert('Could not find the image to update. Please try again.');
+                    }
                 } else {
                     throw new Error('No image generated');
                 }
@@ -5866,7 +5861,7 @@ Based on the feedback above, create an improved ${designType} design that addres
                 const feedbackTextarea = document.querySelector(`#feedback-${designNumber}`);
                 if (feedbackTextarea && feedbackTextarea.nextElementSibling) {
                     const button = feedbackTextarea.nextElementSibling;
-                    button.textContent = `Update`;
+                    button.textContent = 'Update';
                     button.disabled = false;
                     button.style.background = '#f8f8f8';
                 }
