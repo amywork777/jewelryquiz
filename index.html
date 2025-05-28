@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=3.0">
     <title>Custom Charm Design Questionnaire</title>
     <script src="config.js"></script>
     <script>
@@ -34,6 +34,25 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            /* Iframe optimizations */
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        /* Iframe-specific optimizations */
+        @media (max-width: 1200px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 5px;
+                padding-top: 10px;
+            }
         }
 
         .container {
@@ -46,10 +65,50 @@
             position: relative;
             overflow: hidden;
             transition: max-width 0.5s ease;
+            /* Iframe optimizations */
+            min-width: 320px;
+            box-sizing: border-box;
         }
 
         .container.results-mode {
             max-width: 1450px; /* Increased to accommodate wider ecommerce layout */
+        }
+
+        /* Container responsive optimizations */
+        @media (max-width: 1500px) {
+            .container.results-mode {
+                max-width: 95vw;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                padding: 30px;
+            }
+            .container.results-mode {
+                max-width: 98vw;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                padding: 20px;
+                border: none;
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 10px;
+            }
         }
 
         .progress-bar {
@@ -110,6 +169,57 @@
             font-size: 18px;
             line-height: 1.6;
             font-weight: 300;
+        }
+
+        /* Typography responsive optimizations */
+        @media (max-width: 900px) {
+            h1 {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+            
+            h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            p {
+                font-size: 16px;
+                margin-bottom: 20px;
+                line-height: 1.5;
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 22px;
+            }
+            
+            h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            p {
+                font-size: 15px;
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            h2 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+            
+            p {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
         }
 
         .options {
@@ -1366,6 +1476,33 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1);
         }
 
+        /* Checkout button responsive optimizations */
+        @media (max-width: 900px) {
+            .buy-button {
+                padding: 16px 28px;
+                font-size: 14px;
+                letter-spacing: 1.2px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .buy-button {
+                padding: 14px 24px;
+                font-size: 13px;
+                letter-spacing: 1px;
+                border-radius: 10px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .buy-button {
+                padding: 12px 20px;
+                font-size: 12px;
+                letter-spacing: 0.8px;
+                border-radius: 8px;
+            }
+        }
+
         .buy-button:disabled {
             background: #f8f8f8;
             color: #999999;
@@ -1507,42 +1644,110 @@
             border: 1px solid #000000;
         }
 
-        /* Mobile responsive */
-        @media (max-width: 768px) {
+        /* Enhanced responsive design for iframe compatibility */
+        @media (max-width: 1400px) {
+            .ecommerce-layout {
+                gap: 15px;
+            }
+            
+            .purchase-sidebar {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 1200px) {
             .ecommerce-layout {
                 grid-template-columns: 1fr;
                 gap: 20px;
                 max-width: 100%;
             }
             
+            .purchase-sidebar {
+                position: static;
+                order: -1;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .product-image-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 900px) {
             .product-image-grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
             
-            .purchase-sidebar {
-                position: static;
-                order: -1;
-                padding: 20px;
-            }
-            
             .image-container {
-                min-height: 220px;
-                padding: 20px 15px;
+                min-height: 250px;
+                padding: 15px;
             }
             
             .product-image {
-                max-height: 200px;
+                max-height: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ecommerce-layout {
+                gap: 15px;
+            }
+            
+            .purchase-sidebar {
+                padding: 15px;
+            }
+            
+            .image-container {
+                min-height: 200px;
+                padding: 15px 10px;
+            }
+            
+            .product-image {
+                max-height: 180px;
             }
 
             .design-summary-section {
-                margin-top: 30px;
-                padding: 20px;
+                margin-top: 20px;
+                padding: 15px;
             }
 
             .summary-details {
                 grid-template-columns: 1fr;
-                padding: 20px;
+                padding: 15px;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .purchase-sidebar {
+                padding: 10px;
+            }
+            
+            .image-container {
+                min-height: 180px;
+                padding: 10px;
+            }
+            
+            .product-image {
+                max-height: 160px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .ecommerce-layout {
+                gap: 10px;
+            }
+            
+            .image-container {
+                min-height: 150px;
+                padding: 8px;
+            }
+            
+            .product-image {
+                max-height: 140px;
             }
         }
     </style>
@@ -4652,7 +4857,53 @@ Based on the feedback above, create an improved ${designType} design that addres
             });
         }
 
+        // Iframe detection and optimization
+        function detectIframe() {
+            try {
+                const isInIframe = window.self !== window.top;
+                if (isInIframe) {
+                    document.body.classList.add('in-iframe');
+                    console.log('Running in iframe - applying optimizations');
+                    
+                    // Add iframe-specific styles
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        .in-iframe .container {
+                            margin: 0;
+                            border-radius: 0;
+                        }
+                        
+                        .in-iframe body {
+                            padding: 5px;
+                            min-height: auto;
+                        }
+                        
+                        .in-iframe .container.results-mode {
+                            max-width: 100vw;
+                        }
+                        
+                        @media (max-width: 1000px) {
+                            .in-iframe .ecommerce-layout {
+                                grid-template-columns: 1fr;
+                                gap: 10px;
+                            }
+                            
+                            .in-iframe .purchase-sidebar {
+                                order: -1;
+                                padding: 15px;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            } catch (e) {
+                // Cross-origin iframe - can't detect, but assume we might be in one
+                console.log('Possible cross-origin iframe');
+            }
+        }
+
         // Initialize
+        detectIframe();
         showQuestion('Q1');
         addArrowToButtons();
         
