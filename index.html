@@ -2988,6 +2988,165 @@
             regenerated: {}
         };
 
+        // Auto-save and restore quiz progress
+        function saveQuizProgress() {
+            const quizState = {
+                currentQuestion,
+                currentQuestionIndex,
+                questionFlow,
+                questionHistory,
+                formData,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('jewelryQuizProgress', JSON.stringify(quizState));
+        }
+
+        function loadQuizProgress() {
+            try {
+                const savedState = localStorage.getItem('jewelryQuizProgress');
+                if (savedState) {
+                    const quizState = JSON.parse(savedState);
+                    
+                    // Check if the saved state is recent (within 24 hours)
+                    const saveTime = new Date(quizState.timestamp);
+                    const now = new Date();
+                    const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24) {
+                        currentQuestion = quizState.currentQuestion;
+                        currentQuestionIndex = quizState.currentQuestionIndex;
+                        questionFlow = quizState.questionFlow;
+                        questionHistory = quizState.questionHistory;
+                        formData = quizState.formData;
+                        
+                        // Restore form selections
+                        restoreFormSelections();
+                        
+                        // Show the current question
+                        showQuestion(currentQuestion);
+                        
+                        // Show visual indicator that progress was restored
+                        showProgressRestoredIndicator();
+                        
+                        console.log('Quiz progress restored from:', quizState.timestamp);
+                        return true;
+                    } else {
+                        // Clear old state
+                        localStorage.removeItem('jewelryQuizProgress');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading quiz progress:', error);
+                localStorage.removeItem('jewelryQuizProgress');
+            }
+            return false;
+        }
+
+        function restoreFormSelections() {
+            // Restore selected options for all questions
+            Object.keys(formData).forEach(questionId => {
+                const value = formData[questionId];
+                const questionContainer = document.querySelector(`[data-question="${questionId}"]`);
+                
+                if (questionContainer) {
+                    // Restore single-choice selections
+                    if (typeof value === 'string') {
+                        const option = questionContainer.querySelector(`[onclick*="${value}"]`);
+                        if (option) {
+                            option.classList.add('selected');
+                            const continueBtn = questionContainer.querySelector('.btn-primary');
+                            if (continueBtn) continueBtn.disabled = false;
+                        }
+                    }
+                    
+                    // Restore multi-choice selections
+                    if (Array.isArray(value)) {
+                        value.forEach(val => {
+                            const option = questionContainer.querySelector(`[onclick*="${val}"]`);
+                            if (option) {
+                                option.classList.add('selected');
+                            }
+                        });
+                        const continueBtn = questionContainer.querySelector('.btn-primary');
+                        if (continueBtn && value.length > 0) continueBtn.disabled = false;
+                    }
+                    
+                    // Restore text inputs
+                    const textarea = questionContainer.querySelector('textarea');
+                    const emailInput = questionContainer.querySelector('input[type="email"]');
+                    const phoneInput = questionContainer.querySelector('input[type="tel"]');
+                    
+                    if (textarea && formData[questionId]) {
+                        textarea.value = formData[questionId];
+                    }
+                    if (emailInput && formData.email) {
+                        emailInput.value = formData.email;
+                    }
+                    if (phoneInput && formData.phone) {
+                        phoneInput.value = formData.phone;
+                    }
+                }
+            });
+        }
+
+        function clearQuizProgress() {
+            localStorage.removeItem('jewelryQuizProgress');
+        }
+        
+        function showProgressRestoredIndicator() {
+            const indicator = document.createElement('div');
+            indicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #d4edda;
+                color: #155724;
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                border: 1px solid #c3e6cb;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                animation: slideIn 0.5s ease-out;
+            `;
+            indicator.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">✓</span>
+                    <span>Quiz progress restored! Continuing where you left off.</span>
+                </div>
+            `;
+            
+            // Add slide-in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(indicator);
+            
+            // Remove after 4 seconds
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.style.animation = 'slideIn 0.5s ease-out reverse';
+                    setTimeout(() => {
+                        if (indicator.parentNode) {
+                            indicator.parentNode.removeChild(indicator);
+                        }
+                    }, 500);
+                }
+            }, 4000);
+        }
+
         function updateProgress() {
             const totalQuestions = questionFlow.length;
             const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
@@ -3034,8 +3193,6 @@
         }
 
         function nextQuestion() {
-            const currentQuestion = questionFlow[currentQuestionIndex];
-            
             // Save text inputs
             const textarea = document.querySelector(`.question-container.active textarea`);
             const emailInput = document.querySelector(`.question-container.active input[type="email"]`);
@@ -3055,6 +3212,7 @@
             currentQuestionIndex++;
             
             if (currentQuestionIndex < questionFlow.length) {
+                currentQuestion = questionFlow[currentQuestionIndex];
                 showQuestion(questionFlow[currentQuestionIndex]);
             }
         }
@@ -3082,19 +3240,19 @@
                 continueBtn.disabled = false;
             }
             
-            // Only auto-advance for specific questions where it makes sense
-            if (questionId === 'Q1') {
-                // Auto-advance after Q1 to build the flow
-                setTimeout(() => {
+            // Auto-advance after a short delay for all selection questions
+            setTimeout(() => {
+                if (questionId === 'Q1') {
+                    // Auto-advance after Q1 to build the flow
                     handleQ1Branch();
-                }, 300);
-            } else if (questionId === 'community') {
-                // Auto-advance for final submission
-                setTimeout(() => {
+                } else if (questionId === 'community') {
+                    // Auto-advance for final submission
                     submitForm();
-                }, 300);
-            }
-            // Removed auto-advance for all other questions - let users manually continue
+                } else {
+                    // Auto-advance for all other single-choice questions
+                    nextQuestion();
+                }
+            }, 300);
         }
 
         function toggleMultiSelect(element, value) {
@@ -3117,8 +3275,13 @@
                 continueBtn.disabled = formData[questionId].length === 0;
             }
             
-            // Removed auto-advance for multi-select questions - let users manually continue
-            // This allows users to make multiple selections and review their choices
+            // Auto-advance after selecting at least one option and a delay
+            if (formData[questionId].length > 0) {
+                clearTimeout(window.multiSelectTimer);
+                window.multiSelectTimer = setTimeout(() => {
+                    nextQuestion();
+                }, 1500); // Longer delay for multi-select to allow multiple selections
+            }
         }
 
         function handleQ1Branch() {
@@ -3973,6 +4136,10 @@ The design should be a single, standalone charm with bold sculptural details. ${
             
             // Generate results summary
             generateResults();
+            
+            // Clear saved progress since quiz is complete
+            clearQuizProgress();
+            
             nextQuestion();
         }
 
@@ -5649,6 +5816,18 @@ Based on the feedback above, create an improved ${designType} design that addres
                     }
                 }
                 
+                // Auto-save text input progress
+                const questionId = this.closest('.question-container').dataset.question;
+                if (questionId) {
+                    if (this.type === 'email') {
+                        formData.email = this.value;
+                    } else if (this.type === 'tel') {
+                        formData.phone = this.value;
+                    } else {
+                        formData[questionId] = this.value;
+                    }
+                }
+                
                 // Clear any existing timer
                 clearTimeout(window.textInputTimer);
                 
@@ -5767,7 +5946,11 @@ Based on the feedback above, create an improved ${designType} design that addres
 
         // Initialize
         detectIframe();
+        
+        // Always start fresh from Q1 - no save states
+        clearQuizProgress();
         showQuestion('Q1');
+        
         addArrowToButtons();
         
         // Setup drag and drop once when page loads
