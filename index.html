@@ -835,6 +835,21 @@
             }
         }
 
+        /* Spinning Loader Animation */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #666666;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Mobile font weight improvements */
         @media (max-width: 640px) {
             body {
@@ -2611,7 +2626,7 @@
             background: rgba(255, 255, 255, 0.9);
             border-radius: 16px;
             backdrop-filter: blur(8px);
-            border: 1px solid #e0e0e0;
+            border: none;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
@@ -5800,16 +5815,8 @@ Focus on what the charm actually depicts and symbolizes, describing the specific
                 }
                 const originalText = button.textContent;
                 button.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <div class="swimming-logo-container" style="height: 20px; margin: 0;">
-                            <svg class="swimming-logo" style="height: 16px;" version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet">
-                                <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#666666" stroke="none">
-                                    <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29 -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363 204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125 -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81 144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61 144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070 -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298 -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100 -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156 -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215 -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500 -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
-                                    <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62 44 259 -90 205z"/>
-                                </g>
-                            </svg>
-                        </div>
-                        <span>Regenerating...</span>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <div class="spinner"></div>
                     </div>`;
                 button.disabled = true;
                 button.style.background = '#ccc';
@@ -6266,16 +6273,8 @@ Create an improved ${designType} charm design that incorporates the user feedbac
                 }
                 const originalText = button.textContent;
                 button.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <div class="swimming-logo-container" style="height: 20px; margin: 0;">
-                            <svg class="swimming-logo" style="height: 16px;" version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet">
-                                <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#666666" stroke="none">
-                                    <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29 -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363 204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125 -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81 144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61 144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070 -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298 -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100 -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156 -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215 -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500 -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
-                                    <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62 44 259 -90 205z"/>
-                                </g>
-                            </svg>
-                        </div>
-                        <span>Regenerating...</span>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <div class="spinner"></div>
                     </div>`;
                 button.disabled = true;
                 button.style.background = '#ccc';
