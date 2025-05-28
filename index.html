@@ -1360,43 +1360,58 @@
             letter-spacing: 0.5px;
         }
 
-        .material-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
+        /* Material Dropdown Styling */
+        .material-dropdown {
+            position: relative;
+            width: 100%;
         }
 
-        .material-option {
+        .material-select {
+            width: 100%;
+            padding: 15px 20px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
             background: #ffffff;
-        }
-
-        .material-option:hover {
-            border-color: #000000;
-            background: #f8f9fa;
-        }
-
-        .material-option.selected {
-            border-color: #000000;
-            background: #DAE0FF;
-        }
-
-        .material-name {
             font-size: 14px;
             font-weight: 500;
             color: #000000;
-            margin: 0 0 4px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            padding-right: 45px;
         }
 
-        .material-price {
-            font-size: 16px;
-            font-weight: 600;
-            color: #000000;
+        .material-select:hover {
+            border-color: #000000;
+            background-color: #f8f9fa;
+        }
+
+        .material-select:focus {
+            outline: none;
+            border-color: #000000;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .material-select option {
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Remove old material grid styles */
+        .material-grid {
+            display: none;
+        }
+
+        .material-option {
+            display: none;
         }
 
         .price-summary {
@@ -1770,10 +1785,12 @@
                 margin: 15px 0;
             }
             
-            /* Compact product cards on mobile */
+            /* Wider product cards on mobile for better content display */
             .product-card {
                 border-radius: 8px;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+                width: 100%;
+                max-width: none;
             }
             
             .product-image-container {
@@ -1799,20 +1816,28 @@
                 margin-bottom: 12px;
             }
             
-            /* Compact story section on mobile */
+            /* Full-width story section on mobile - purple section takes full width */
             .product-story {
-                padding: 12px;
-                margin: 12px 0;
+                padding: 15px;
+                margin: 15px -15px; /* Negative margin to extend to card edges */
+                border-radius: 0; /* Remove border radius for full width effect */
+                border-left: none;
+                border-left: 4px solid #DAE0FF; /* Thicker left border for emphasis */
+                background: #DAE0FF; /* Make it more prominent */
             }
             
             .product-story h6 {
                 font-size: 11px;
                 margin-bottom: 6px;
+                color: #000000;
+                font-weight: 600;
             }
             
             .product-story p {
                 font-size: 13px;
                 line-height: 1.4;
+                color: #333333;
+                font-weight: 500;
             }
             
             /* Compact action buttons */
@@ -1900,9 +1925,22 @@
                 margin-bottom: 10px;
             }
             
-            .material-option {
-                padding: 12px;
+            /* Mobile dropdown styling */
+            .material-select {
+                padding: 12px 16px;
+                font-size: 13px;
                 border-radius: 6px;
+                padding-right: 40px;
+                background-size: 14px;
+                background-position: right 12px center;
+            }
+            
+            .material-select:hover {
+                border-color: #000000;
+            }
+            
+            .material-select:focus {
+                box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
             }
             
             .material-name {
@@ -2017,6 +2055,15 @@
                 font-size: 12px;
             }
             
+            /* Ultra-compact dropdown for small screens */
+            .material-select {
+                padding: 10px 14px;
+                font-size: 12px;
+                padding-right: 35px;
+                background-size: 12px;
+                background-position: right 10px center;
+            }
+            
             .material-option {
                 padding: 10px;
             }
@@ -2127,6 +2174,15 @@
             
             .material-grid {
                 gap: 8px;
+            }
+            
+            /* Maximum compact dropdown for tiny screens */
+            .material-select {
+                padding: 8px 12px;
+                font-size: 11px;
+                padding-right: 30px;
+                background-size: 10px;
+                background-position: right 8px center;
             }
             
             .material-option {
@@ -4515,19 +4571,12 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                         
                         <div class="material-section">
                             <div class="section-label">Choose Material</div>
-                            <div class="material-grid">
-                                <div class="material-option" onclick="selectMaterial('sterling-silver')" id="material-sterling-silver">
-                                    <div class="material-name">Sterling Silver</div>
-                                    <div class="material-price">$50</div>
-                                </div>
-                                <div class="material-option" onclick="selectMaterial('gold-plated')" id="material-gold-plated">
-                                    <div class="material-name">Gold-Plated</div>
-                                    <div class="material-price">$50</div>
-                                </div>
-                                <div class="material-option" onclick="selectMaterial('14k-gold')" id="material-14k-gold">
-                                    <div class="material-name">14K Gold</div>
-                                    <div class="material-price">$200</div>
-                                </div>
+                            <div class="material-dropdown">
+                                <select class="material-select" id="material-select">
+                                    <option value="sterling-silver">Sterling Silver</option>
+                                    <option value="gold-plated">Gold-Plated</option>
+                                    <option value="14k-gold">14K Gold</option>
+                                </select>
                             </div>
                         </div>
                         
@@ -4782,11 +4831,11 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
         function selectMaterial(material) {
             selectedMaterial = material;
             
-            // Update material option styling
-            document.querySelectorAll('.material-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            document.getElementById(`material-${material}`).classList.add('selected');
+            // Update dropdown selection
+            const dropdown = document.getElementById('material-select');
+            if (dropdown) {
+                dropdown.value = material;
+            }
             
             // Update price display
             updateMainPrice();
@@ -5638,6 +5687,17 @@ Based on the feedback above, create an improved ${designType} design that addres
         // Setup drag and drop after DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(initializeDragDrop, 200);
+        });
+
+        // Add event listener for material dropdown when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listener for material dropdown
+            const materialDropdown = document.getElementById('material-select');
+            if (materialDropdown) {
+                materialDropdown.addEventListener('change', function() {
+                    selectMaterial(this.value);
+                });
+            }
         });
     </script>
 </body>
