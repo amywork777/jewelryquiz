@@ -1760,6 +1760,686 @@
                 max-height: 140px;
             }
         }
+
+        /* Enhanced Mobile Optimizations for Better UX */
+        @media (max-width: 768px) {
+            /* Mobile-first ecommerce layout - stack vertically */
+            .results-ecommerce {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin: 15px 0;
+            }
+            
+            /* Compact product cards on mobile */
+            .product-card {
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            }
+            
+            .product-image-container {
+                padding: 20px 15px;
+                min-height: 200px;
+            }
+            
+            .product-image {
+                max-height: 180px;
+            }
+            
+            .product-info {
+                padding: 15px;
+            }
+            
+            .product-title {
+                font-size: 16px;
+                margin-bottom: 6px;
+            }
+            
+            .product-subtitle {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+            
+            /* Compact story section on mobile */
+            .product-story {
+                padding: 12px;
+                margin: 12px 0;
+            }
+            
+            .product-story h6 {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+            
+            .product-story p {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+            
+            /* Compact action buttons */
+            .product-actions {
+                gap: 8px;
+                margin-top: 15px;
+            }
+            
+            .product-select-btn {
+                padding: 12px 16px;
+                font-size: 13px;
+                border-radius: 6px;
+            }
+            
+            .product-refine-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+
+        /* Mobile Purchase Sidebar Optimizations */
+        @media (max-width: 1200px) {
+            .ecommerce-layout {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                max-width: 100%;
+            }
+            
+            /* Move purchase sidebar to top on mobile for better UX */
+            .purchase-sidebar {
+                position: static;
+                order: -1;
+                padding: 20px;
+                margin-bottom: 15px;
+                border-radius: 8px;
+            }
+            
+            /* Compact purchase header */
+            .purchase-header {
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+            }
+            
+            .purchase-title {
+                font-size: 20px;
+                margin-bottom: 6px;
+            }
+            
+            .purchase-subtitle {
+                font-size: 12px;
+            }
+            
+            /* Compact story section in sidebar */
+            .design-story-section {
+                padding: 12px !important;
+                margin-bottom: 15px !important;
+                border-radius: 6px !important;
+            }
+            
+            .design-story-section h6 {
+                font-size: 11px !important;
+                margin-bottom: 6px !important;
+            }
+            
+            .design-story-section p {
+                font-size: 13px !important;
+                line-height: 1.4 !important;
+            }
+            
+            /* Compact selection status */
+            .selection-status {
+                padding: 12px;
+                margin-bottom: 15px;
+                border-radius: 6px;
+                font-size: 13px;
+            }
+            
+            /* Compact material section */
+            .material-section {
+                margin-bottom: 20px;
+            }
+            
+            .section-label {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+            
+            .material-option {
+                padding: 12px;
+                border-radius: 6px;
+            }
+            
+            .material-name {
+                font-size: 13px;
+                margin-bottom: 3px;
+            }
+            
+            .material-price {
+                font-size: 15px;
+            }
+            
+            /* Compact price summary */
+            .price-summary {
+                margin: 20px 0;
+                padding: 15px;
+                border-radius: 6px;
+            }
+            
+            .price-label {
+                font-size: 13px;
+            }
+            
+            .price-amount {
+                font-size: 24px;
+            }
+            
+            .shipping-info {
+                font-size: 12px;
+            }
+            
+            /* Compact buy button */
+            .buy-button {
+                padding: 15px 28px;
+                font-size: 14px;
+                letter-spacing: 1.2px;
+                margin-bottom: 12px;
+                border-radius: 8px;
+            }
+            
+            .checkout-disabled-text {
+                padding: 15px;
+                margin-bottom: 12px;
+                font-size: 15px;
+                border-radius: 6px;
+            }
+            
+            .trust-signals {
+                font-size: 11px;
+                line-height: 1.3;
+            }
+        }
+
+        /* Extra Mobile Optimizations for Small Screens */
+        @media (max-width: 640px) {
+            .container.results-mode {
+                padding: 10px !important;
+            }
+            
+            /* Ultra-compact product cards */
+            .product-image-container {
+                padding: 15px 10px;
+                min-height: 160px;
+            }
+            
+            .product-image {
+                max-height: 140px;
+            }
+            
+            .product-info {
+                padding: 12px;
+            }
+            
+            .product-title {
+                font-size: 15px;
+            }
+            
+            .product-subtitle {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+            
+            /* Hide story section on very small screens to save space */
+            .product-story {
+                display: none;
+            }
+            
+            /* Ultra-compact purchase sidebar */
+            .purchase-sidebar {
+                padding: 15px;
+            }
+            
+            .purchase-title {
+                font-size: 18px;
+            }
+            
+            .design-story-section {
+                padding: 10px !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .design-story-section h6 {
+                font-size: 10px !important;
+            }
+            
+            .design-story-section p {
+                font-size: 12px !important;
+            }
+            
+            .selection-status {
+                padding: 10px;
+                margin-bottom: 12px;
+                font-size: 12px;
+            }
+            
+            .material-option {
+                padding: 10px;
+            }
+            
+            .material-name {
+                font-size: 12px;
+            }
+            
+            .material-price {
+                font-size: 14px;
+            }
+            
+            .price-summary {
+                margin: 15px 0;
+                padding: 12px;
+            }
+            
+            .price-amount {
+                font-size: 22px;
+            }
+            
+            .buy-button {
+                padding: 12px 24px;
+                font-size: 13px;
+                letter-spacing: 1px;
+            }
+            
+            .checkout-disabled-text {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            /* Compact design summary */
+            .design-summary-section {
+                margin-top: 15px;
+                padding: 12px;
+            }
+            
+            .design-summary-section h3 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .summary-details {
+                padding: 12px;
+                gap: 12px;
+            }
+            
+            .summary-item {
+                padding: 8px 0;
+            }
+            
+            .summary-label,
+            .summary-value {
+                font-size: 13px;
+            }
+        }
+
+        /* Tiny Mobile Screens - Maximum Compactness */
+        @media (max-width: 480px) {
+            .container.results-mode {
+                padding: 8px !important;
+            }
+            
+            .ecommerce-layout {
+                gap: 10px;
+            }
+            
+            .product-image-container {
+                padding: 12px 8px;
+                min-height: 140px;
+            }
+            
+            .product-image {
+                max-height: 120px;
+            }
+            
+            .product-info {
+                padding: 10px;
+            }
+            
+            .product-actions {
+                gap: 6px;
+                margin-top: 10px;
+            }
+            
+            .product-select-btn {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            
+            .purchase-sidebar {
+                padding: 12px;
+            }
+            
+            .purchase-header {
+                margin-bottom: 15px;
+                padding-bottom: 12px;
+            }
+            
+            .purchase-title {
+                font-size: 16px;
+            }
+            
+            .purchase-subtitle {
+                font-size: 11px;
+            }
+            
+            .material-grid {
+                gap: 8px;
+            }
+            
+            .material-option {
+                padding: 8px;
+            }
+            
+            .price-summary {
+                margin: 12px 0;
+                padding: 10px;
+            }
+            
+            .price-amount {
+                font-size: 20px;
+            }
+            
+            .buy-button {
+                padding: 10px 20px;
+                font-size: 12px;
+                letter-spacing: 0.8px;
+                border-radius: 6px;
+            }
+            
+            .trust-signals {
+                font-size: 10px;
+            }
+            
+            .design-summary-section {
+                margin-top: 12px;
+                padding: 10px;
+            }
+            
+            .design-summary-section h3 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+            
+            .summary-details {
+                padding: 10px;
+                gap: 10px;
+            }
+        }
+
+        /* Mobile Questionnaire Optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 22px;
+                margin-bottom: 6px;
+            }
+            
+            h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+                line-height: 1.3;
+            }
+            
+            p {
+                font-size: 15px;
+                margin-bottom: 20px;
+                line-height: 1.4;
+            }
+            
+            .options {
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .option {
+                padding: 15px;
+                font-size: 15px;
+                border-radius: 8px;
+            }
+            
+            .option-with-image {
+                padding: 12px;
+            }
+            
+            .option-image {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 8px;
+            }
+            
+            .option-text {
+                font-size: 14px;
+                line-height: 1.3;
+            }
+            
+            .button-group {
+                margin-top: 20px;
+                gap: 12px;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            /* Compact file upload */
+            .file-upload-label {
+                padding: 20px;
+                border-radius: 8px;
+            }
+            
+            .file-upload-label strong {
+                font-size: 15px;
+            }
+            
+            .file-upload-instructions {
+                font-size: 13px;
+                margin-top: 6px;
+            }
+            
+            /* Compact text inputs */
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            textarea {
+                padding: 12px;
+                font-size: 15px;
+                border-radius: 6px;
+            }
+            
+            textarea {
+                min-height: 80px;
+            }
+            
+            /* Compact checkbox groups */
+            .checkbox-group {
+                gap: 10px;
+            }
+            
+            .checkbox-item {
+                padding: 10px 12px;
+                font-size: 14px;
+                border-radius: 6px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+                margin-bottom: 5px;
+            }
+            
+            h2 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+            
+            p {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+            
+            .options {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .option {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .option-with-image {
+                padding: 10px;
+            }
+            
+            .option-image {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 6px;
+            }
+            
+            .option-text {
+                font-size: 13px;
+            }
+            
+            .button-group {
+                margin-top: 15px;
+                gap: 10px;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+            
+            /* Ultra-compact file upload */
+            .file-upload-label {
+                padding: 15px;
+            }
+            
+            .file-upload-label strong {
+                font-size: 14px;
+            }
+            
+            .file-upload-instructions {
+                font-size: 12px;
+            }
+            
+            /* Ultra-compact inputs */
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            textarea {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            textarea {
+                min-height: 70px;
+            }
+            
+            .checkbox-item {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            h2 {
+                font-size: 15px;
+                margin-bottom: 10px;
+            }
+            
+            p {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+            
+            .options {
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .option {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .option-with-image {
+                padding: 8px;
+            }
+            
+            .option-image {
+                width: 45px;
+                height: 45px;
+                margin-bottom: 5px;
+            }
+            
+            .option-text {
+                font-size: 12px;
+            }
+            
+            .button-group {
+                margin-top: 12px;
+                gap: 8px;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+            
+            .file-upload-label {
+                padding: 12px;
+            }
+            
+            .file-upload-label strong {
+                font-size: 13px;
+            }
+            
+            .file-upload-instructions {
+                font-size: 11px;
+            }
+            
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            textarea {
+                padding: 8px;
+                font-size: 13px;
+            }
+            
+            textarea {
+                min-height: 60px;
+            }
+            
+            .checkbox-item {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
