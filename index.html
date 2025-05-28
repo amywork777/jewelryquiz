@@ -1321,26 +1321,27 @@
 
         .buy-button {
             width: 100%;
-            padding: 20px;
+            padding: 15px 30px;
             background: #000000;
             color: #ffffff;
-            border: 1px solid #000000;
+            border: none;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
-            text-transform: none;
-            letter-spacing: normal;
-            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
             margin-bottom: 15px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .buy-button:hover {
             background: #333333;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         }
 
         .buy-button:disabled {
@@ -2954,12 +2955,34 @@ The design should be a single, standalone charm with bold sculptural details. ${
                     return;
                 }
 
-                // Create a prompt that analyzes the actual generated charm image
+                // Create a comprehensive prompt that combines the charm image with survey context
+                let surveyContext = '';
+                if (responses.inspiration) {
+                    surveyContext += `\nUser's inspiration: "${responses.inspiration}"`;
+                }
+                if (responses.symbols) {
+                    surveyContext += `\nMeaningful elements requested: "${responses.symbols}"`;
+                }
+                if (responses.all_text_responses?.Q8_idea_description) {
+                    surveyContext += `\nUser's idea description: "${responses.all_text_responses.Q8_idea_description}"`;
+                }
+                if (responses.all_text_responses?.Q13_special_details) {
+                    surveyContext += `\nSpecial details requested: "${responses.all_text_responses.Q13_special_details}"`;
+                }
+                if (responses.recipient) {
+                    surveyContext += `\nThis charm is for: ${responses.recipient}`;
+                }
+                if (responses.style_vibes && responses.style_vibes.length > 0) {
+                    surveyContext += `\nDesired style vibes: ${responses.style_vibes.join(', ')}`;
+                }
+
                 const charmAnalysisPrompt = `Look at this custom charm design and write exactly 1-2 simple, heartfelt sentences about what this charm represents and why it would be meaningful to wear.
 
-Focus on what you can see in the charm - the specific shape, symbols, design elements, and overall form. Describe what this charm depicts and the emotional significance it would have. Use warm, simple language that tells the story of what this specific charm is and why someone would treasure it.
+IMPORTANT CONTEXT FROM USER'S SURVEY:${surveyContext}
 
-Be specific about the actual design elements you see rather than generic statements.`;
+Focus on what you can see in the charm design and connect it to the user's personal story and intentions from their survey responses above. Describe what this specific charm depicts and how it relates to their inspiration, meaningful elements, or personal story. Use warm, simple language that tells the story of what this charm represents based on both the visual design AND the user's personal context.
+
+Be specific about the actual design elements you see and how they connect to the user's intentions rather than generic statements.`;
 
                 // Build messages array with the generated charm image
                 const messageContent = [
