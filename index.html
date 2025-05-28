@@ -1321,23 +1321,20 @@
 
         .buy-button {
             width: 100%;
-            padding: 12px 40px;
+            padding: 20px;
             background: #000000;
             color: #ffffff;
             border: 1px solid #000000;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-radius: 25px;
+            text-transform: none;
+            letter-spacing: normal;
+            border-radius: 8px;
             margin-bottom: 15px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
         }
 
         .buy-button:hover {
@@ -3000,9 +2997,13 @@ Be specific about the actual design elements you see rather than generic stateme
                     })
                 });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
 
-                if (data.choices && data.choices[0] && data.choices[0].message) {
+                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
                     const story = data.choices[0].message.content.trim();
                     
                     // Update the story section in the sidebar
@@ -3016,7 +3017,7 @@ Be specific about the actual design elements you see rather than generic stateme
                     
                     console.log('Story generated from charm image:', story);
                 } else {
-                    console.error('Invalid response from charm image story generation API');
+                    console.error('Invalid response from charm image story generation API:', data);
                     // Fall back to the original story generation method
                     generateDesignStory(responses, 'charm-based');
                 }
@@ -4351,6 +4352,10 @@ Focus on what the charm actually depicts and symbolizes, describing the specific
                 
                 // Show loading state
                 const button = feedbackTextarea.nextElementSibling;
+                if (!button) {
+                    alert('Could not find the update button. Please try again.');
+                    return;
+                }
                 const originalText = button.textContent;
                 button.innerHTML = `
                     <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -4435,9 +4440,13 @@ Based on the feedback above, create an improved ${designType} design that addres
                 if (data.data && data.data[0] && data.data[0].url) {
                     const newImageUrl = data.data[0].url;
                     
-                                         // Add the new image to the carousel
-                     const designContainer = button.closest('.feedback-section').parentElement;
-                     const track = designContainer.querySelector(`#track-${designNumber}`);
+                    // Add the new image to the carousel
+                    const designContainer = document.querySelector(`#image-card-${designNumber}`);
+                    if (!designContainer) {
+                        alert('Could not find the design container. Please try again.');
+                        return;
+                    }
+                    const track = designContainer.querySelector(`#track-${designNumber}`);
                      const images = track.querySelectorAll('img');
                      const newVersion = images.length + 1;
                      
@@ -4484,10 +4493,13 @@ Based on the feedback above, create an improved ${designType} design that addres
                 alert('Sorry, there was an error regenerating the design. Please try again.');
             } finally {
                 // Reset button state
-                const button = document.querySelector(`#feedback-${designNumber}`).nextElementSibling;
-                button.textContent = `Refine Design ${designNumber}`;
-                button.disabled = false;
-                button.style.background = '#f8f8f8';
+                const feedbackTextarea = document.querySelector(`#feedback-${designNumber}`);
+                if (feedbackTextarea && feedbackTextarea.nextElementSibling) {
+                    const button = feedbackTextarea.nextElementSibling;
+                    button.textContent = `Update`;
+                    button.disabled = false;
+                    button.style.background = '#f8f8f8';
+                }
             }
         }
 
