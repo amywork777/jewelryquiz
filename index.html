@@ -4380,35 +4380,25 @@ Focus on what the charm actually depicts and symbolizes, describing the specific
                 let regenerationPrompt;
                 const designType = designNumber === 1 ? 'Classic Elegant' : 'Modern Sculptural';
                 
-                if (hasUploadedImages) {
-                    if (responses.uploaded_images.Q2_images.length > 0) {
-                        // Path C: Exact picture
-                        regenerationPrompt = `Transform this image into a single ${promptData.material} charm with a jump ring. Create a ${designType} design.
-
-ORIGINAL DESIGN TYPE: ${designType === 'Classic Elegant' ? 'Classic Elegant - refined relief design with elegant, sophisticated details, clean lines, and timeless traditional jewelry aesthetic' : 'Modern Sculptural - bold, contemporary 3D sculptural charm with dramatic dimensional presence and artistic forms'}
-
-USER FEEDBACK TO INCORPORATE: ${feedback}
-
-Create ONE charm design only. Do not show multiple variations or designs in the same image.
-
-${promptData.manufacturing_rules}
-
-Based on the feedback above, modify the ${designType} approach while maintaining the core design principles. Address the user's specific requests while keeping the appropriate style (classic refined aesthetic vs bold modern sculptural). The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
-                    } else {
-                        // Path A/B: Image + text combination
-                        let detailedPreferences = `
+                // For DALL-E 3, we need to create a comprehensive text prompt that incorporates all information
+                let detailedPreferences = `
 USER SURVEY RESPONSES TO INCORPORATE:
 - Material: ${promptData.material}
 - Style: ${promptData.style}
 - Subject/Theme: ${promptData.subject}`;
 
-                        if (responses.inspiration) detailedPreferences += `\n- Story/Inspiration: ${responses.inspiration}`;
-                        if (responses.symbols) detailedPreferences += `\n- Requested Symbols/Elements: ${responses.symbols}`;
-                        if (responses.style_vibes && responses.style_vibes.length > 0) detailedPreferences += `\n- Style Vibes: ${responses.style_vibes.join(', ')}`;
-                        if (responses.size_presence) detailedPreferences += `\n- Size Preference: ${responses.size_presence}`;
-                        if (responses.special_details) detailedPreferences += `\n- Special Details: ${responses.special_details}`;
+                if (responses.inspiration) detailedPreferences += `\n- Story/Inspiration: ${responses.inspiration}`;
+                if (responses.symbols) detailedPreferences += `\n- Requested Symbols/Elements: ${responses.symbols}`;
+                if (responses.style_vibes && responses.style_vibes.length > 0) detailedPreferences += `\n- Style Vibes: ${responses.style_vibes.join(', ')}`;
+                if (responses.size_presence) detailedPreferences += `\n- Size Preference: ${responses.size_presence}`;
+                if (responses.special_details) detailedPreferences += `\n- Special Details: ${responses.special_details}`;
 
-                        regenerationPrompt = `Create a single ${promptData.subject} charm with a jump ring, incorporating the user's survey responses with inspiration from the reference image(s). Create a ${designType} design:
+                // Add image description if user uploaded images
+                if (hasUploadedImages) {
+                    detailedPreferences += `\n- Reference Images: User provided reference images for inspiration (incorporate the style and elements from their uploaded references)`;
+                }
+
+                regenerationPrompt = `Create a single ${promptData.subject} charm with a jump ring. Create a ${designType} design:
 
 ${detailedPreferences}
 
@@ -4420,88 +4410,30 @@ Create ONE charm design only. Do not show multiple variations or designs in the 
 
 ${promptData.manufacturing_rules}
 
-Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests while incorporating ALL survey responses and drawing inspiration from the reference images. Maintain the appropriate style (classic refined aesthetic vs bold modern sculptural). The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
-                    }
-                } else {
-                    // Text-only path
-                    regenerationPrompt = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.
-
-ORIGINAL DESIGN TYPE: ${designType}
-
-USER FEEDBACK TO INCORPORATE: ${feedback}
-
-Create ONE charm design only. Do not show multiple variations or designs in the same image.
-
-${promptData.manufacturing_rules}
-
-Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests. The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
-                }
+Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests while incorporating ALL survey responses. Maintain the appropriate style (classic refined aesthetic vs bold modern sculptural). The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                 
-                // Prepare input content
-                let inputContent = [];
-                if (hasUploadedImages) {
-                    inputContent.push({
-                        "type": "input_text",
-                        "text": regenerationPrompt
-                    });
-                    
-                    // Add images
-                    if (responses.uploaded_images.Q2_images.length > 0) {
-                        responses.uploaded_images.Q2_images.forEach(imageBase64 => {
-                            inputContent.push({
-                                "type": "input_image",
-                                "image_url": imageBase64
-                            });
-                        });
-                    } else {
-                        const allImages = [...responses.uploaded_images.Q7_images, ...responses.uploaded_images.Q9_images];
-                        allImages.forEach(imageBase64 => {
-                            inputContent.push({
-                                "type": "input_image",
-                                "image_url": imageBase64
-                            });
-                        });
-                    }
-                }
+
                 
-                // Make API call
-                const response = await fetch('https://api.openai.com/v1/responses', {
+                // Make API call using DALL-E 3
+                const response = await fetch('https://api.openai.com/v1/images/generations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + apiKey
                     },
                     body: JSON.stringify({
-                        model: "gpt-4.1-mini",
-                        input: hasUploadedImages ? [{
-                            "role": "user",
-                            "content": inputContent
-                        }] : regenerationPrompt,
-                        tools: [{
-                            type: "image_generation",
-                            quality: "high",
-                            size: "1024x1024",
-                            background: "opaque"
-                        }]
+                        model: "dall-e-3",
+                        prompt: regenerationPrompt,
+                        n: 1,
+                        size: "1024x1024",
+                        quality: "standard"
                     })
                 });
                 
                 const data = await response.json();
                 
-                // Extract the new image
-                const imageGenerationCalls = data.output?.filter(output => output.type === "image_generation_call") || [];
-                
-                if (imageGenerationCalls.length > 0 && imageGenerationCalls[0].result) {
-                    // Convert base64 to blob URL
-                    const base64Data = imageGenerationCalls[0].result;
-                    const byteCharacters = atob(base64Data);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], { type: 'image/png' });
-                    const newImageUrl = URL.createObjectURL(blob);
+                if (data.data && data.data[0] && data.data[0].url) {
+                    const newImageUrl = data.data[0].url;
                     
                                          // Add the new image to the carousel
                      const designContainer = button.closest('.feedback-section').parentElement;
