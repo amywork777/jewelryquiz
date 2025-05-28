@@ -1202,6 +1202,7 @@
             justify-content: center;
             overflow: hidden;
             border: none;
+            gap: 15px;
         }
 
         .product-image {
@@ -1280,20 +1281,26 @@
         .select-image-text {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 12px 0;
+            padding: 12px 20px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 15px;
             color: #333333;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            margin-top: 10px;
         }
 
         .select-image-text:hover {
             color: #000000;
+            background: #e9ecef;
+            border-color: #000000;
         }
 
         .select-checkbox {
@@ -2627,7 +2634,7 @@
             border-radius: 16px;
             backdrop-filter: blur(8px);
             border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: none;
         }
 
         .carousel-btn {
@@ -2666,6 +2673,13 @@
             font-weight: 500;
             min-width: 60px;
             text-align: center;
+        }
+
+        .select-image-text.selected {
+            color: #ffffff;
+            background: #000000;
+            border-color: #000000;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -4935,11 +4949,6 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                                 <div class="image-container">
                                     <div class="image-badge">Design ${index + 1}</div>
                                     <img src="${imageUrl}" alt="Generated charm design ${index + 1}" class="product-image" data-version="1">
-                                </div>
-                                
-                                <div class="image-info">
-                                    <h3 class="image-title">${designType}</h3>
-                                    <p class="image-subtitle">Custom charm design</p>
                                     
                                     <div class="select-image-text" onclick="selectDesign(${index + 1})" id="select-btn-${index + 1}">
                                         <div class="select-checkbox" id="checkbox-${index + 1}">
@@ -4947,6 +4956,11 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                                         </div>
                                         <span>Select This Design</span>
                                     </div>
+                                </div>
+                                
+                                <div class="image-info">
+                                    <h3 class="image-title">${designType}</h3>
+                                    <p class="image-subtitle">Custom charm design</p>
                                     
                                     <div class="refine-section">
                                         <button class="refine-toggle" onclick="toggleRefineSection(${index + 1})">
