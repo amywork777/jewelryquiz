@@ -1474,6 +1474,18 @@
             vertical-align: middle;
         }
 
+        /* Desktop-specific buy button styling for better appearance */
+        @media (min-width: 769px) {
+            .buy-button {
+                padding: 22px 60px;
+                font-size: 16px;
+                letter-spacing: 2px;
+                min-width: 280px;
+                max-width: 400px;
+                margin: 20px auto;
+            }
+        }
+
         .buy-button::before {
             content: '';
             position: absolute;
@@ -3070,16 +3082,19 @@
                 continueBtn.disabled = false;
             }
             
-            // Auto-advance after a short delay
-            setTimeout(() => {
-                if (questionId === 'Q1') {
+            // Only auto-advance for specific questions where it makes sense
+            if (questionId === 'Q1') {
+                // Auto-advance after Q1 to build the flow
+                setTimeout(() => {
                     handleQ1Branch();
-                } else if (questionId === 'community') {
+                }, 300);
+            } else if (questionId === 'community') {
+                // Auto-advance for final submission
+                setTimeout(() => {
                     submitForm();
-                } else {
-                    nextQuestion();
-                }
-            }, 300);
+                }, 300);
+            }
+            // Removed auto-advance for all other questions - let users manually continue
         }
 
         function toggleMultiSelect(element, value) {
@@ -3102,13 +3117,8 @@
                 continueBtn.disabled = formData[questionId].length === 0;
             }
             
-            // Auto-advance after selecting at least one option and a delay
-            if (formData[questionId].length > 0) {
-                clearTimeout(window.multiSelectTimer);
-                window.multiSelectTimer = setTimeout(() => {
-                    nextQuestion();
-                }, 1000); // Slightly longer delay for multi-select
-            }
+            // Removed auto-advance for multi-select questions - let users manually continue
+            // This allows users to make multiple selections and review their choices
         }
 
         function handleQ1Branch() {
@@ -5624,7 +5634,7 @@ Based on the feedback above, create an improved ${designType} design that addres
             }
         }
 
-        // Enable continue button and auto-advance for text inputs
+        // Enable continue button for text inputs (auto-advance removed to prevent skipping)
         document.querySelectorAll('textarea, input[type="email"], input[type="tel"]').forEach(input => {
             input.addEventListener('input', function() {
                 const continueBtn = this.closest('.question-container').querySelector('.btn-primary');
@@ -5642,14 +5652,9 @@ Based on the feedback above, create an improved ${designType} design that addres
                 // Clear any existing timer
                 clearTimeout(window.textInputTimer);
                 
-                // Auto-advance for required fields after user stops typing
-                // Note: Removed auto-advance for contact-email to give users time to fill in phone number
-                if (this.closest('[data-question="Q8"]') && this.value.trim() !== '') {
-                    // Auto-advance for Q8 (required text field)
-                    window.textInputTimer = setTimeout(() => {
-                        nextQuestion();
-                    }, 2000);
-                }
+                // Removed auto-advance for text inputs - let users manually continue
+                // This prevents questions from being skipped while users are still typing
+                // Previously: Q8 had auto-advance after 2 seconds, but this caused issues
             });
             
             // Handle Enter key for immediate advancement
