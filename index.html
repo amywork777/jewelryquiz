@@ -2959,10 +2959,17 @@
     </div>
 
     <script>
-        let currentQuestionIndex = 0;
-        const formData = {};
-        let questionFlow = ['Q1'];
-        const questionHistory = [];
+        // Global variables
+        let currentQuestion = 'Q1';
+        let formData = {};
+        let backgroundImagePromise = null;
+        
+        // Store the actual image generation prompts for accurate story generation
+        let imageGenerationPrompts = {
+            design1: '',
+            design2: '',
+            regenerated: {}
+        };
 
         function updateProgress() {
             const totalQuestions = questionFlow.length;
@@ -3547,9 +3554,6 @@
             }, 1000);
         });
 
-        let backgroundImagePromise = null;
-
-        // Function to ensure config is loaded
         async function ensureConfigLoaded() {
             // Check if config is already loaded
             if (window.CONFIG?.OPENAI_API_KEY || window.OPENAI_API_KEY) {
@@ -3981,7 +3985,15 @@ The design should be a single, standalone charm with bold sculptural details. ${
                     return;
                 }
 
-                // Create a comprehensive prompt that combines the charm image with survey context
+                // Get the actual image generation prompt that was used
+                let actualPrompt = '';
+                if (imageGenerationPrompts.design1) {
+                    actualPrompt = imageGenerationPrompts.design1; // Use the first design's prompt as default
+                } else if (imageGenerationPrompts.basePrompt) {
+                    actualPrompt = imageGenerationPrompts.basePrompt;
+                }
+
+                // Create a comprehensive prompt that combines the charm image with survey context AND the actual generation prompt
                 let surveyContext = '';
                 if (responses.inspiration) {
                     surveyContext += `\nUser's inspiration: "${responses.inspiration}"`;
@@ -4006,9 +4018,12 @@ The design should be a single, standalone charm with bold sculptural details. ${
 
 IMPORTANT CONTEXT FROM USER'S SURVEY:${surveyContext}
 
-Focus on what you can see in the charm design and connect it to the user's personal story and intentions from their survey responses above. Describe what this specific charm depicts and how it relates to their inspiration, meaningful elements, or personal story. Use warm, simple language that tells the story of what this charm represents based on both the visual design AND the user's personal context.
+ACTUAL IMAGE GENERATION PROMPT USED:
+"${actualPrompt}"
 
-Be specific about the actual design elements you see and how they connect to the user's intentions rather than generic statements.`;
+Focus on what you can see in the charm design and connect it to both the user's personal story from their survey responses AND the specific design elements that were requested in the generation prompt above. Describe what this specific charm depicts and how it relates to their inspiration, meaningful elements, or personal story. Use warm, simple language that tells the story of what this charm represents based on the visual design, the user's personal context, AND what was actually requested to be generated.
+
+Be specific about the actual design elements you see and how they connect to both the user's intentions and the generation prompt rather than generic statements.`;
 
                 // Build messages array with the generated charm image
                 const messageContent = [
@@ -4304,6 +4319,9 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                 console.log('All captured responses:', responses);
                 console.log('Text responses captured:', responses.all_text_responses);
                 
+                // Store the base prompt for story generation
+                imageGenerationPrompts.basePrompt = promptText;
+                
                 // Add loading indicator
                 const resultsDiv = document.querySelector('.results');
                 const loadingDiv = document.createElement('div');
@@ -4424,6 +4442,11 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                     const design2Prompt = hasUploadedImages ?
                         promptText.replace('Generate 2 distinct style variations', 'Create Design 2 - Modern Sculptural only: bold, contemporary 3D sculptural charm with dramatic dimensional presence, playful cartoony artistic forms, and angular geometric shapes with a fun stylized cartoon aesthetic. Make it statement-making with strong 3D sculptural qualities. IMPORTANT: NO floating or disconnected elements.') :
                         promptText.replace('Generate 2 different design variations', 'Create a modern, sculptural design: bold, contemporary 3D sculptural charm with dramatic dimensional presence, playful cartoony artistic forms, and angular geometric shapes with a fun stylized cartoon aesthetic. Make it statement-making with strong 3D sculptural qualities. IMPORTANT: NO floating or disconnected elements.');
+                    
+                    // Store the specific design prompts for story generation
+                    imageGenerationPrompts.design1 = design1Prompt;
+                    imageGenerationPrompts.design2 = design2Prompt;
+                    console.log('Stored design prompts for story generation:', imageGenerationPrompts);
                     
                     const promises = [];
                     
@@ -5292,6 +5315,15 @@ The person is ${emotionalStory}.${personalElementsText}${emotionalVibes} ${senti
 
 Focus on what the charm actually depicts and symbolizes, describing the specific elements and their emotional significance. Use warm, simple language that tells what this charm is and why it matters. Be specific about the charm's design rather than generic.`;
                     
+                    // Add actual prompt context if available
+                    if (imageGenerationPrompts.design1 || imageGenerationPrompts.basePrompt) {
+                        const actualPrompt = imageGenerationPrompts.design1 || imageGenerationPrompts.basePrompt;
+                        storyPrompt = storyPrompt.replace(
+                            'Focus on what the charm actually depicts',
+                            `ACTUAL DESIGN PROMPT USED: "${actualPrompt}"\n\nFocus on what the charm actually depicts`
+                        );
+                    }
+                    
                     messages = [{
                         "role": "user",
                         "content": storyPrompt
@@ -5483,7 +5515,9 @@ ${promptData.manufacturing_rules}
 
 Based on the feedback above, create an improved ${designType} design that addresses the user's specific requests while incorporating ALL survey responses. Maintain the appropriate style (classic refined aesthetic vs bold modern sculptural). The design should be a single, standalone charm. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                 
-
+                // Store the regeneration prompt for story generation
+                imageGenerationPrompts.regenerated[designNumber] = regenerationPrompt;
+                console.log(`Stored regeneration prompt for design ${designNumber}:`, regenerationPrompt);
                 
                 // Make API call using DALL-E 3
                 const response = await fetch('https://api.openai.com/v1/images/generations', {
@@ -5559,6 +5593,12 @@ Based on the feedback above, create an improved ${designType} design that addres
                              successMsg.parentElement.removeChild(successMsg);
                          }
                      }, 3000);
+                     
+                     // Regenerate story with the new prompt for design 1 only (since that's what shows in sidebar)
+                     if (designNumber === 1) {
+                         const responses = captureAllResponses();
+                         setTimeout(() => generateStoryFromCharmImage(imageUrl, responses), 500);
+                     }
                     
                 } else {
                     throw new Error('No image generated');
