@@ -1911,14 +1911,20 @@
                 grid-template-columns: 1fr;
                 gap: 15px;
                 max-width: 100%;
+                display: flex;
+                flex-direction: column;
             }
             
-            /* Move purchase sidebar to top on mobile for better UX */
+            .product-images-section {
+                order: 1;
+            }
+            
+            /* Move purchase sidebar below design cards on mobile for better UX */
             .purchase-sidebar {
                 position: static;
-                order: -1;
+                order: 2;
                 padding: 20px;
-                margin-bottom: 15px;
+                margin-top: 15px;
                 border-radius: 8px;
             }
             
