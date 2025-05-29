@@ -3132,6 +3132,150 @@
             localStorage.setItem('jewelryQuizProgress', JSON.stringify(quizState));
         }
 
+        // Save background image generation state
+        function saveBackgroundGenerationState() {
+            if (backgroundImagePromise) {
+                const generationState = {
+                    isGenerating: true,
+                    startTime: new Date().toISOString(),
+                    formData: { ...formData },
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('jewelryBackgroundGeneration', JSON.stringify(generationState));
+                console.log('Background generation state saved to localStorage');
+            }
+        }
+
+        // Restore background image generation state
+        async function restoreBackgroundGenerationState() {
+            try {
+                const savedState = localStorage.getItem('jewelryBackgroundGeneration');
+                if (savedState) {
+                    const generationState = JSON.parse(savedState);
+                    
+                    // Check if the saved state is recent (within 1 hour)
+                    const saveTime = new Date(generationState.timestamp);
+                    const now = new Date();
+                    const minutesDiff = (now - saveTime) / (1000 * 60);
+                    
+                    if (minutesDiff < 60 && generationState.isGenerating) {
+                        console.log('Restoring background generation state...');
+                        
+                        // Restore form data if needed
+                        if (generationState.formData && Object.keys(generationState.formData).length > 0) {
+                            Object.assign(formData, generationState.formData);
+                        }
+                        
+                        // Restart background generation
+                        await startBackgroundImageGeneration();
+                        
+                        // Show indicator that generation was restored
+                        showGenerationRestoredIndicator();
+                        
+                        return true;
+                    } else {
+                        // Clear old state
+                        localStorage.removeItem('jewelryBackgroundGeneration');
+                    }
+                }
+            } catch (error) {
+                console.error('Error restoring background generation state:', error);
+                localStorage.removeItem('jewelryBackgroundGeneration');
+            }
+            return false;
+        }
+
+        // Clear background generation state
+        function clearBackgroundGenerationState() {
+            localStorage.removeItem('jewelryBackgroundGeneration');
+        }
+
+        // Show indicator that generation was restored
+        function showGenerationRestoredIndicator() {
+            const indicator = document.createElement('div');
+            indicator.id = 'generation-restored-indicator';
+            indicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #e8f5e8;
+                color: #2d5a2d;
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                border: 1px solid #a8d8a8;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                animation: slideIn 0.5s ease-out;
+            `;
+            indicator.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">🔄</span>
+                    <span>AI generation resumed! Your design is being created...</span>
+                </div>
+            `;
+            
+            document.body.appendChild(indicator);
+            
+            // Remove after 4 seconds
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.style.animation = 'slideIn 0.5s ease-out reverse';
+                    setTimeout(() => {
+                        if (indicator.parentNode) {
+                            indicator.parentNode.removeChild(indicator);
+                        }
+                    }, 500);
+                }
+            }, 4000);
+        }
+
+        // Add event handlers for page navigation to save state
+        function setupNavigationHandlers() {
+            // Save state when page is about to unload
+            window.addEventListener('beforeunload', function(e) {
+                if (backgroundImagePromise) {
+                    saveBackgroundGenerationState();
+                    console.log('Saved background generation state before page unload');
+                }
+                saveQuizProgress();
+            });
+
+            // Save state when page becomes hidden (mobile navigation)
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    if (backgroundImagePromise) {
+                        saveBackgroundGenerationState();
+                        console.log('Saved background generation state on visibility change');
+                    }
+                    saveQuizProgress();
+                }
+            });
+
+            // Save state on page hide (iOS Safari)
+            window.addEventListener('pagehide', function(e) {
+                if (backgroundImagePromise) {
+                    saveBackgroundGenerationState();
+                    console.log('Saved background generation state on page hide');
+                }
+                saveQuizProgress();
+            });
+
+            // Restore state when page becomes visible again
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && !backgroundImagePromise) {
+                    restoreBackgroundGenerationState();
+                }
+            });
+
+            // Restore state on page show (back button navigation)
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted && !backgroundImagePromise) {
+                    restoreBackgroundGenerationState();
+                }
+            });
+        }
+
         function loadQuizProgress() {
             try {
                 const savedState = localStorage.getItem('jewelryQuizProgress');
@@ -3939,10 +4083,14 @@
             try {
                 console.log('Starting background image generation...');
                 
+                // Save state immediately when generation starts
+                saveBackgroundGenerationState();
+                
                 // Ensure config is loaded
                 const configLoaded = await ensureConfigLoaded();
                 if (!configLoaded) {
                     console.log('Could not load config, skipping background generation');
+                    clearBackgroundGenerationState();
                     return;
                 }
                 
@@ -3957,6 +4105,7 @@
                 
                 if (!apiKey) {
                     console.log('No API key available, skipping background generation');
+                    clearBackgroundGenerationState();
                     return;
                 }
                 
@@ -3972,25 +4121,12 @@
                 let inputContent = [];
                 
                 if (hasUploadedImages) {
-                    // Create prompt that incorporates the uploaded images
+                    inputContent.push({
+                        "type": "input_text",
+                        "text": promptText
+                    });
+                    
                     if (responses.uploaded_images.Q2_images.length > 0) {
-                        // Path C: Exact design - make this image into a charm
-                        promptText = `Transform this image into a single ${promptData.material} charm with an attachment loop. 
-
-IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form.
-
-Create ONE charm design only. Do not show multiple variations or designs in the same image.
-
-${promptData.manufacturing_rules}
-
-The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
-                        
-                        // Add the uploaded image(s) to input
-                        inputContent.push({
-                            "type": "input_text",
-                            "text": promptText
-                        });
-                        
                         responses.uploaded_images.Q2_images.forEach(imageBase64 => {
                             inputContent.push({
                                 "type": "input_image",
@@ -3998,55 +4134,6 @@ The design should be a single, standalone charm with elegant details and proper 
                             });
                         });
                     } else {
-                        // Path A or B: Combine text preferences with image inspiration
-                        // Build detailed user preferences from ALL survey responses
-                        let detailedPreferences = `
-USER SURVEY RESPONSES TO INCORPORATE:
-- Material: ${promptData.material}
-- Style: ${promptData.style}
-- Subject/Theme: ${promptData.subject}`;
-
-                        // Add all text responses
-                        if (responses.inspiration) {
-                            detailedPreferences += `\n- Story/Inspiration: ${responses.inspiration}`;
-                        }
-                        if (responses.all_text_responses.Q6_symbols) {
-                            detailedPreferences += `\n- Meaningful Symbols/Elements: ${responses.all_text_responses.Q6_symbols}`;
-                        }
-                        if (responses.all_text_responses.Q8_idea_description) {
-                            detailedPreferences += `\n- User's Idea Description: ${responses.all_text_responses.Q8_idea_description}`;
-                        }
-                        if (responses.style_vibes && responses.style_vibes.length > 0) {
-                            detailedPreferences += `\n- Style Vibes: ${responses.style_vibes.join(', ')}`;
-                        }
-                        if (responses.size_presence) {
-                            detailedPreferences += `\n- Size Preference: ${responses.size_presence}`;
-                        }
-                        if (responses.all_text_responses.Q13_special_details) {
-                            detailedPreferences += `\n- Special Details/Requests: ${responses.all_text_responses.Q13_special_details}`;
-                        }
-                        if (responses.recipient) {
-                            detailedPreferences += `\n- Recipient: ${responses.recipient}`;
-                        }
-
-                        promptText = `Create a single ${promptData.subject} charm with an attachment loop, incorporating the user's survey responses with inspiration from the reference image(s).
-
-${detailedPreferences}
-
-IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form.
-
-Create ONE charm design only. Do not show multiple variations or designs in the same image.
-
-${promptData.manufacturing_rules}
-
-The design should incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
-                        
-                        inputContent.push({
-                            "type": "input_text", 
-                            "text": promptText
-                        });
-                        
-                        // Add inspiration/reference images
                         const allImages = [...responses.uploaded_images.Q7_images, ...responses.uploaded_images.Q9_images];
                         allImages.forEach(imageBase64 => {
                             inputContent.push({
@@ -4055,19 +4142,66 @@ The design should incorporate ALL the user's stated survey responses while drawi
                             });
                         });
                     }
-                } else {
-                    // No uploaded images - use text-only prompt
-                    promptText = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.
+                    
+                    promptText = `Create a single ${promptData.subject} charm with an attachment loop, incorporating the user's survey responses with inspiration from the reference image(s).
+
+USER SURVEY RESPONSES TO INCORPORATE:
+- Material: ${promptData.material}
+- Style: ${promptData.style}
+- Subject/Theme: ${promptData.subject}`;
+
+                    if (responses.inspiration) {
+                        promptText += `\n- Inspiration: ${responses.inspiration}`;
+                    }
+                    if (responses.symbols) {
+                        promptText += `\n- Elements: ${responses.symbols}`;
+                    }
+                    if (responses.style_vibes && responses.style_vibes.length > 0) {
+                        promptText += `\n- Style vibes: ${responses.style_vibes.join(', ')}`;
+                    }
+                    if (responses.size_presence) {
+                        promptText += `\n- Size preference: ${responses.size_presence}`;
+                    }
+                    if (responses.special_details) {
+                        promptText += `\n- Special details: ${responses.special_details}`;
+                    }
+
+                    promptText += `
 
 Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
 ${promptData.manufacturing_rules}
 
-The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
-                    inputContent.push({
-                        "type": "input_text",
-                        "text": promptText
-                    });
+The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+                } else {
+                    promptText = `Create a single ${promptData.subject} charm with an attachment loop.
+
+USER SURVEY RESPONSES TO INCORPORATE:
+- Material: ${promptData.material}
+- Style: ${promptData.style}
+- Subject/Theme: ${promptData.subject}`;
+
+                    if (responses.inspiration) {
+                        promptText += `\n- Inspiration: ${responses.inspiration}`;
+                    }
+                    if (responses.symbols) {
+                        promptText += `\n- Elements: ${responses.symbols}`;
+                    }
+                    if (responses.style_vibes && responses.style_vibes.length > 0) {
+                        promptText += `\n- Style vibes: ${responses.style_vibes.join(', ')}`;
+                    }
+                    if (responses.size_presence) {
+                        promptText += `\n- Size preference: ${responses.size_presence}`;
+                    }
+                    if (responses.special_details) {
+                        promptText += `\n- Special details: ${responses.special_details}`;
+                    }
+
+                    promptText += `
+
+${promptData.manufacturing_rules}
+
+${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}. Generate 2 different design variations.`;
                 }
                 
                 console.log('Background generation prompt:', promptText);
@@ -4093,33 +4227,54 @@ The design should be a single, standalone charm with elegant details and proper 
 
 ${detailedPreferences}
 
-Create a CLASSIC ELEGANT design: refined interpretation with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form with traditional jewelry craftsmanship.
+Create a CLASSIC ELEGANT design: refined relief design with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form with traditional jewelry craftsmanship.
 
 Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
 ${promptData.manufacturing_rules}
 
-The design should incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     }
                 } else {
-                    design1Prompt = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.
+                    design1Prompt = `Create a single ${promptData.subject} charm with an attachment loop.
 
-Create a CLASSIC ELEGANT design: refined, sophisticated design with elegant details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form with traditional jewelry craftsmanship.
+USER SURVEY RESPONSES TO INCORPORATE:
+- Material: ${promptData.material}
+- Style: ${promptData.style}
+- Subject/Theme: ${promptData.subject}`;
 
-Create ONE charm design only. Do not show multiple variations or designs in the same image.
+                    if (responses.inspiration) {
+                        design1Prompt += `\n- Inspiration: ${responses.inspiration}`;
+                    }
+                    if (responses.symbols) {
+                        design1Prompt += `\n- Elements: ${responses.symbols}`;
+                    }
+                    if (responses.style_vibes && responses.style_vibes.length > 0) {
+                        design1Prompt += `\n- Style vibes: ${responses.style_vibes.join(', ')}`;
+                    }
+                    if (responses.size_presence) {
+                        design1Prompt += `\n- Size preference: ${responses.size_presence}`;
+                    }
+                    if (responses.special_details) {
+                        design1Prompt += `\n- Special details: ${responses.special_details}`;
+                    }
+
+                    design1Prompt += `
+
+Create a CLASSIC ELEGANT design: refined relief design with elegant, sophisticated details. Use clean lines, smooth surfaces, and subtle dimensional variations. The design should have a timeless, traditional jewelry aesthetic with polished, refined forms. Focus on graceful proportions and classic beauty. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form with traditional jewelry craftsmanship.
 
 ${promptData.manufacturing_rules}
 
 The design should be a single, standalone charm with elegant details and proper proportions. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.detail}. ${promptData.camera}.`;
                 }
                 
-                // Design 2: Modern Sculptural  
-                let design2Prompt = promptText;
+                // Design 2: Modern Sculptural
+                let design2Prompt;
                 if (hasUploadedImages) {
                     if (responses.uploaded_images.Q2_images.length > 0) {
                         design2Prompt = `Transform this image into a single ${promptData.material} charm with an attachment loop. 
 
-Create a MODERN SCULPTURAL design: bold, contemporary 3D sculptural charm with dramatic dimensional presence and playful, cartoony artistic forms. Use chunky, angular geometric shapes, asymmetrical compositions, and strong architectural elements with a fun, stylized cartoon aesthetic. Make it statement-making and eye-catching with strong 3D sculptural qualities that feel like modern art with cartoon-inspired character. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive sculptural form.
+Create a MODERN SCULPTURAL design: bold 3D forms with contemporary geometric shapes and artistic dimensionality. Use strong angular or curved elements, dramatic depth variations, and modern aesthetic principles. The design should have a contemporary, artistic jewelry feel with sculptural, dimensional forms. Focus on bold proportions and modern beauty. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form with modern jewelry craftsmanship.
 
 Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
@@ -4131,20 +4286,41 @@ The design should be a single, standalone charm with bold sculptural details. ${
 
 ${detailedPreferences}
 
-Create a MODERN SCULPTURAL design: bold, contemporary 3D sculptural charm with dramatic dimensional presence and playful, cartoony artistic forms. Use chunky, angular geometric shapes, asymmetrical compositions, and strong architectural elements with a fun, stylized cartoon aesthetic. Make it statement-making and eye-catching with strong 3D sculptural qualities that feel like modern art with cartoon-inspired character. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive sculptural form.
+Create a MODERN SCULPTURAL design: bold 3D forms with contemporary geometric shapes and artistic dimensionality. Use strong angular or curved elements, dramatic depth variations, and modern aesthetic principles. The design should have a contemporary, artistic jewelry feel with sculptural, dimensional forms. Focus on bold proportions and modern beauty. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form with modern jewelry craftsmanship.
 
 Create ONE charm design only. Do not show multiple variations or designs in the same image.
 
 ${promptData.manufacturing_rules}
 
-The design should incorporate ALL the user's stated survey responses while drawing visual inspiration from the reference images. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
+The design should be a single, standalone charm with bold sculptural details. ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${promptData.camera}.`;
                     }
                 } else {
-                    design2Prompt = `Create a single ${promptData.subject} with ${promptData.style} styling. Material: ${promptData.material}.
+                    design2Prompt = `Create a single ${promptData.subject} charm with an attachment loop.
 
-Create a MODERN SCULPTURAL design: bold, contemporary 3D sculptural design with dramatic dimensional presence and playful, cartoony artistic forms. Use chunky, angular geometric shapes, asymmetrical compositions, and strong architectural elements with a fun, stylized cartoon aesthetic. Make it statement-making and eye-catching with strong 3D sculptural qualities that feel like modern art with cartoon-inspired character. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive sculptural form.
+USER SURVEY RESPONSES TO INCORPORATE:
+- Material: ${promptData.material}
+- Style: ${promptData.style}
+- Subject/Theme: ${promptData.subject}`;
 
-Create ONE charm design only. Do not show multiple variations or designs in the same image.
+                    if (responses.inspiration) {
+                        design2Prompt += `\n- Inspiration: ${responses.inspiration}`;
+                    }
+                    if (responses.symbols) {
+                        design2Prompt += `\n- Elements: ${responses.symbols}`;
+                    }
+                    if (responses.style_vibes && responses.style_vibes.length > 0) {
+                        design2Prompt += `\n- Style vibes: ${responses.style_vibes.join(', ')}`;
+                    }
+                    if (responses.size_presence) {
+                        design2Prompt += `\n- Size preference: ${responses.size_presence}`;
+                    }
+                    if (responses.special_details) {
+                        design2Prompt += `\n- Special details: ${responses.special_details}`;
+                    }
+
+                    design2Prompt += `
+
+Create a MODERN SCULPTURAL design: bold 3D forms with contemporary geometric shapes and artistic dimensionality. Use strong angular or curved elements, dramatic depth variations, and modern aesthetic principles. The design should have a contemporary, artistic jewelry feel with sculptural, dimensional forms. Focus on bold proportions and modern beauty. IMPORTANT: The design must be a single, unified piece with all elements connected and grounded - NO floating or disconnected elements. All parts must flow together as one cohesive charm form with modern jewelry craftsmanship.
 
 ${promptData.manufacturing_rules}
 
@@ -4204,17 +4380,26 @@ The design should be a single, standalone charm with bold sculptural details. ${
                     });
                     
                     console.log('Combined background data:', combinedData);
+                    
+                    // Clear the generation state when complete
+                    clearBackgroundGenerationState();
+                    
                     return combinedData;
                 }).catch(error => {
                     console.error('Background generation failed:', error);
+                    clearBackgroundGenerationState();
                     return null;
                 });
+                
+                // Start periodic saving while generation is in progress
+                startPeriodicSaving();
                 
                 console.log('Background image generation started');
                 
             } catch (error) {
                 console.error('Error starting background image generation:', error);
                 backgroundImagePromise = null;
+                clearBackgroundGenerationState();
             }
         }
 
@@ -4273,6 +4458,9 @@ The design should be a single, standalone charm with bold sculptural details. ${
             
             // Clear saved progress since quiz is complete
             clearQuizProgress();
+            
+            // Clear background generation state since quiz is complete
+            clearBackgroundGenerationState();
             
             nextQuestion();
         }
@@ -6091,6 +6279,9 @@ Create an improved ${designType} charm design that incorporates the user feedbac
         // Initialize
         detectIframe();
         
+        // Set up navigation handlers for background generation persistence
+        setupNavigationHandlers();
+        
         // Always start fresh from Q1 - no save states
         clearQuizProgress();
         showQuestion('Q1');
@@ -6111,6 +6302,11 @@ Create an improved ${designType} charm design that incorporates the user feedbac
         // Setup drag and drop after DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(initializeDragDrop, 200);
+            
+            // Try to restore background generation state on page load
+            setTimeout(async () => {
+                await restoreBackgroundGenerationState();
+            }, 500);
         });
 
         // Add event listener for material dropdown when the page loads
@@ -6459,6 +6655,68 @@ Create an improved ${designType} charm design that incorporates the user feedbac
         function selectDesign(designNumber) {
             // Legacy function - redirect to first image of the design
             selectImage(`${designNumber}-1`);
+        }
+
+        // Add periodic saving of background generation state
+        function startPeriodicSaving() {
+            // Save state every 10 seconds while background generation is active
+            const saveInterval = setInterval(() => {
+                if (backgroundImagePromise) {
+                    saveBackgroundGenerationState();
+                    console.log('Periodic save of background generation state');
+                } else {
+                    clearInterval(saveInterval);
+                    console.log('Stopped periodic saving - no active background generation');
+                }
+            }, 10000); // Save every 10 seconds
+            
+            return saveInterval;
+        }
+
+        // Add event handlers for page navigation to save state
+        function setupNavigationHandlers() {
+            // Save state when page is about to unload
+            window.addEventListener('beforeunload', function(e) {
+                if (backgroundImagePromise) {
+                    saveBackgroundGenerationState();
+                    console.log('Saved background generation state before page unload');
+                }
+                saveQuizProgress();
+            });
+
+            // Save state when page becomes hidden (mobile navigation)
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    if (backgroundImagePromise) {
+                        saveBackgroundGenerationState();
+                        console.log('Saved background generation state on visibility change');
+                    }
+                    saveQuizProgress();
+                }
+            });
+
+            // Save state on page hide (iOS Safari)
+            window.addEventListener('pagehide', function(e) {
+                if (backgroundImagePromise) {
+                    saveBackgroundGenerationState();
+                    console.log('Saved background generation state on page hide');
+                }
+                saveQuizProgress();
+            });
+
+            // Restore state when page becomes visible again
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && !backgroundImagePromise) {
+                    restoreBackgroundGenerationState();
+                }
+            });
+
+            // Restore state on page show (back button navigation)
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted && !backgroundImagePromise) {
+                    restoreBackgroundGenerationState();
+                }
+            });
         }
     </script>
 </body>
