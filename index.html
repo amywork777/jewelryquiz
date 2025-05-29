@@ -1780,17 +1780,6 @@
             .product-image {
                 max-height: 180px;
             }
-
-            .design-summary-section {
-                margin-top: 20px;
-                padding: 15px;
-            }
-
-            .summary-details {
-                grid-template-columns: 1fr;
-                padding: 15px;
-                gap: 15px;
-            }
         }
 
         @media (max-width: 600px) {
@@ -5081,44 +5070,6 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                     ecommerceContainer.appendChild(purchaseSidebar);
                     
                     resultsDiv.appendChild(ecommerceContainer);
-                    
-                    // Design summary section at the bottom
-                    const summarySection = document.createElement('div');
-                    summarySection.className = 'design-summary-section';
-                    
-                    // Get user responses for summary
-                    const displayData = {
-                        'Journey Type': responses.journey_type === 'A' ? 'Exploratory Design' : responses.journey_type === 'B' ? 'Idea Refinement' : 'Direct Creation',
-                        'Email': responses.email || 'Not provided',
-                        'Phone': responses.phone || 'Not provided',
-                        'Material': getOptionText(responses.material),
-                        'Style': getOptionText(responses.size_presence),
-                        'Community Share': responses.community_share || 'Not specified'
-                    };
-                    
-                    // Add vibe if selected
-                    if (responses.style_vibes && responses.style_vibes.length > 0) {
-                        displayData['Style Vibes'] = responses.style_vibes.map(v => getVibeText(v)).join(', ');
-                    }
-                    
-                    let summaryItemsHTML = '';
-                    for (const [key, value] of Object.entries(displayData)) {
-                        summaryItemsHTML += `
-                            <div class="summary-item">
-                                <span class="summary-label">${key}:</span>
-                                <span class="summary-value">${value}</span>
-                            </div>
-                        `;
-                    }
-                    
-                    summarySection.innerHTML = `
-                        <h3>Your Design Summary</h3>
-                        <div class="summary-details">
-                            ${summaryItemsHTML}
-                        </div>
-                    `;
-                    
-                    resultsDiv.appendChild(summarySection);
                     
                     // Set default material selection
                     setTimeout(() => {
