@@ -2605,7 +2605,7 @@
             display: flex;
             transition: transform 0.3s ease;
             width: 100%;
-            background: transparent;
+            height: auto;
         }
 
         .carousel-track img {
@@ -2614,13 +2614,26 @@
             height: auto;
             display: block;
             object-fit: contain;
-            flex-shrink: 0;
             border: none;
             outline: none;
             background: transparent;
             margin: 0;
             padding: 0;
             border-radius: 12px;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-slide .select-image-text {
+            margin-top: 15px;
         }
 
         .carousel-controls {
@@ -4948,13 +4961,15 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                             imageCard.innerHTML = `
                                 <div class="image-container">
                                     <div class="image-badge">Design ${index + 1}</div>
-                                    <img src="${imageUrl}" alt="Generated charm design ${index + 1}" class="product-image" data-version="1">
-                                    
-                                    <div class="select-image-text" onclick="selectDesign(${index + 1})" id="select-btn-${index + 1}">
-                                        <div class="select-checkbox" id="checkbox-${index + 1}">
-                                            <span class="checkbox-check" style="display: none;">✓</span>
+                                    <div class="image-wrapper" id="image-wrapper-${index + 1}">
+                                        <img src="${imageUrl}" alt="Generated charm design ${index + 1}" class="product-image" data-version="1" data-image-id="${index + 1}-1">
+                                        
+                                        <div class="select-image-text" onclick="selectImage('${index + 1}-1')" id="select-btn-${index + 1}-1">
+                                            <div class="select-checkbox" id="checkbox-${index + 1}-1">
+                                                <span class="checkbox-check" style="display: none;">✓</span>
+                                            </div>
+                                            <span>Select This Design</span>
                                         </div>
-                                        <span>Select This Design</span>
                                     </div>
                                 </div>
                                 
@@ -5273,7 +5288,7 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
             }
         }
 
-        let selectedDesignNumber = null;
+        let selectedImageId = null;
         let selectedMaterial = 'sterling-silver'; // Default material
 
         function selectMaterial(material) {
@@ -5339,9 +5354,11 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
             const materialText = document.getElementById('selected-material-text');
             
             if (designText) {
-                if (selectedDesignNumber) {
-                    const designType = selectedDesignNumber === 1 ? 'Classic Elegant' : 'Modern Sculptural';
-                    designText.textContent = `Design ${selectedDesignNumber} (${designType})`;
+                if (selectedImageId) {
+                    const designNumber = selectedImageId.split('-')[0];
+                    const imageVersion = selectedImageId.split('-')[1];
+                    const designType = designNumber === '1' ? 'Classic Elegant' : 'Modern Sculptural';
+                    designText.textContent = `Design ${designNumber} - Version ${imageVersion} (${designType})`;
                 } else {
                     designText.textContent = 'Not selected';
                 }
@@ -5357,7 +5374,7 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
             }
             
             if (statusDiv) {
-                if (selectedDesignNumber && selectedMaterial) {
+                if (selectedImageId && selectedMaterial) {
                     statusDiv.classList.add('has-selection');
                 } else {
                     statusDiv.classList.remove('has-selection');
@@ -5369,7 +5386,7 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
             const buyButton = document.getElementById('main-buy-button');
             const disabledText = document.getElementById('checkout-disabled-text');
             
-            if (selectedDesignNumber && selectedMaterial) {
+            if (selectedImageId && selectedMaterial) {
                 buyButton.style.display = 'block';
                 buyButton.textContent = 'Buy';
                 buyButton.removeAttribute('disabled');
@@ -5402,7 +5419,7 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
         }
 
         function purchaseSelectedDesign() {
-            if (!selectedDesignNumber) {
+            if (!selectedImageId) {
                 alert('Please select a design first.');
                 return;
             }
@@ -5412,7 +5429,8 @@ ${promptData.lighting}. ${promptData.background}. ${promptData.presentation}. ${
                 return;
             }
             
-            purchaseSpecificDesign(selectedDesignNumber, selectedMaterial);
+            const designNumber = selectedImageId.split('-')[0];
+            purchaseSpecificDesign(designNumber, selectedMaterial);
         }
 
         function toggleRefineSection(designNumber) {
@@ -6159,23 +6177,21 @@ Create an improved ${designType} charm design that incorporates the user feedbac
             const track = document.getElementById(`track-${designNumber}`);
             if (!track) return;
             
-            const images = track.querySelectorAll('img');
-            const totalImages = images.length;
-            if (totalImages <= 1) return;
-            
+            const slides = track.querySelectorAll('.carousel-slide');
+            const totalSlides = slides.length;
             let currentIndex = parseInt(track.dataset.currentIndex) || 0;
             
-            if (direction === 'prev') {
-                currentIndex = currentIndex > 0 ? currentIndex - 1 : totalImages - 1;
-            } else {
-                currentIndex = currentIndex < totalImages - 1 ? currentIndex + 1 : 0;
+            if (direction === 'prev' && currentIndex > 0) {
+                currentIndex--;
+            } else if (direction === 'next' && currentIndex < totalSlides - 1) {
+                currentIndex++;
             }
             
             track.dataset.currentIndex = currentIndex;
             track.style.transform = `translateX(-${currentIndex * 100}%)`;
             
-            updateCarouselIndicator(designNumber, currentIndex + 1, totalImages);
-            updateCarouselButtons(designNumber, currentIndex, totalImages);
+            updateCarouselIndicator(designNumber, currentIndex + 1, totalSlides);
+            updateCarouselButtons(designNumber, currentIndex, totalSlides);
         }
 
         function updateCarouselIndicator(designNumber, current, total) {
@@ -6205,7 +6221,15 @@ Create an improved ${designType} charm design that incorporates the user feedbac
             carouselContainer.className = 'carousel-container';
             carouselContainer.innerHTML = `
                 <div class="carousel-track" id="track-${designNumber}" data-current-index="0">
-                    <img src="${existingImageSrc}" alt="Generated charm design ${designNumber} - Version 1" class="product-image" data-version="1" style="min-width: 100%; width: 100%; height: auto; display: block; object-fit: contain; border: none; outline: none; background: transparent; margin: 0; padding: 0; border-radius: 12px;">
+                    <div class="carousel-slide" data-image-id="${designNumber}-1">
+                        <img src="${existingImageSrc}" alt="Generated charm design ${designNumber} - Version 1" class="product-image" data-version="1" data-image-id="${designNumber}-1" style="min-width: 100%; width: 100%; height: auto; display: block; object-fit: contain; border: none; outline: none; background: transparent; margin: 0; padding: 0; border-radius: 12px;">
+                        <div class="select-image-text" onclick="selectImage('${designNumber}-1')" id="select-btn-${designNumber}-1">
+                            <div class="select-checkbox" id="checkbox-${designNumber}-1">
+                                <span class="checkbox-check" style="display: none;">✓</span>
+                            </div>
+                            <span>Select This Design</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="carousel-controls">
                     <button class="carousel-btn" id="prev-${designNumber}" onclick="navigateCarousel(${designNumber}, 'prev')" disabled>‹</button>
@@ -6215,9 +6239,9 @@ Create an improved ${designType} charm design that incorporates the user feedbac
             `;
             
             // Replace the simple image with carousel
-            const existingImage = imageContainer.querySelector('.product-image');
-            if (existingImage) {
-                existingImage.parentNode.replaceChild(carouselContainer, existingImage);
+            const existingImageWrapper = imageContainer.querySelector('.image-wrapper');
+            if (existingImageWrapper) {
+                existingImageWrapper.parentNode.replaceChild(carouselContainer, existingImageWrapper);
             }
             
             return carouselContainer.querySelector('.carousel-track');
@@ -6236,20 +6260,27 @@ Create an improved ${designType} charm design that incorporates the user feedbac
             
             if (!track) return false;
             
-            // Get current number of images
-            const currentImages = track.querySelectorAll('img');
-            const newVersion = currentImages.length + 1;
+            // Get current number of slides
+            const currentSlides = track.querySelectorAll('.carousel-slide');
+            const newVersion = currentSlides.length + 1;
+            const imageId = `${designNumber}-${newVersion}`;
             
-            // Create new image element
-            const newImage = document.createElement('img');
-            newImage.src = newImageSrc;
-            newImage.alt = `Generated charm design ${designNumber} - Version ${newVersion}`;
-            newImage.className = 'product-image';
-            newImage.dataset.version = newVersion;
-            newImage.style.cssText = 'min-width: 100%; width: 100%; height: auto; display: block; object-fit: contain; border: none; outline: none; background: transparent; margin: 0; padding: 0; border-radius: 12px;';
+            // Create new slide with image and selection checkbox
+            const newSlide = document.createElement('div');
+            newSlide.className = 'carousel-slide';
+            newSlide.dataset.imageId = imageId;
+            newSlide.innerHTML = `
+                <img src="${newImageSrc}" alt="Generated charm design ${designNumber} - Version ${newVersion}" class="product-image" data-version="${newVersion}" data-image-id="${imageId}" style="min-width: 100%; width: 100%; height: auto; display: block; object-fit: contain; border: none; outline: none; background: transparent; margin: 0; padding: 0; border-radius: 12px;">
+                <div class="select-image-text" onclick="selectImage('${imageId}')" id="select-btn-${imageId}">
+                    <div class="select-checkbox" id="checkbox-${imageId}">
+                        <span class="checkbox-check" style="display: none;">✓</span>
+                    </div>
+                    <span>Select This Design</span>
+                </div>
+            `;
             
             // Add to track
-            track.appendChild(newImage);
+            track.appendChild(newSlide);
             
             // Navigate to the new image
             const newIndex = newVersion - 1;
@@ -6431,6 +6462,51 @@ Create an improved ${designType} charm design that incorporates the user feedbac
                     button.style.background = '#f8f8f8';
                 }
             }
+        }
+
+        function selectImage(imageId) {
+            selectedImageId = imageId;
+            
+            // Clear all previous selections
+            document.querySelectorAll('.select-image-text').forEach(textEl => {
+                textEl.classList.remove('selected');
+                const checkbox = textEl.querySelector('.checkbox-check');
+                if (checkbox) {
+                    checkbox.style.display = 'none';
+                }
+            });
+            
+            document.querySelectorAll('.product-image-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Select the clicked image
+            const selectedBtn = document.getElementById(`select-btn-${imageId}`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('selected');
+                const checkbox = selectedBtn.querySelector('.checkbox-check');
+                if (checkbox) {
+                    checkbox.style.display = 'block';
+                }
+            }
+            
+            // Highlight the parent card
+            const designNumber = imageId.split('-')[0];
+            const selectedCard = document.getElementById(`image-card-${designNumber}`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // Update selection status
+            updateSelectionStatus();
+            
+            // Check if we can enable the buy button
+            updateBuyButton();
+        }
+
+        function selectDesign(designNumber) {
+            // Legacy function - redirect to first image of the design
+            selectImage(`${designNumber}-1`);
         }
     </script>
 </body>
