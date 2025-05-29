@@ -3149,6 +3149,12 @@
         // Restore background image generation state
         async function restoreBackgroundGenerationState() {
             try {
+                // First try to restore completed images
+                if (restoreCompletedBackgroundImages()) {
+                    return true;
+                }
+                
+                // If no completed images, try to restore generation state
                 const savedState = localStorage.getItem('jewelryBackgroundGeneration');
                 if (savedState) {
                     const generationState = JSON.parse(savedState);
@@ -3181,6 +3187,7 @@
             } catch (error) {
                 console.error('Error restoring background generation state:', error);
                 localStorage.removeItem('jewelryBackgroundGeneration');
+                localStorage.removeItem('jewelryCompletedImages');
             }
             return false;
         }
@@ -3232,34 +3239,42 @@
 
         // Add event handlers for page navigation to save state
         function setupNavigationHandlers() {
-            // Save state when page is about to unload
-            window.addEventListener('beforeunload', function(e) {
+            function saveCurrentState() {
                 if (backgroundImagePromise) {
-                    saveBackgroundGenerationState();
-                    console.log('Saved background generation state before page unload');
+                    // For completed promises, try to save the data immediately
+                    if (backgroundImagePromise.constructor === Promise) {
+                        backgroundImagePromise.then(data => {
+                            if (data && data.output && data.output.length > 0) {
+                                saveCompletedBackgroundImages(data);
+                                console.log('Saved completed images on navigation');
+                            } else {
+                                saveBackgroundGenerationState();
+                                console.log('Saved generation state on navigation');
+                            }
+                        }).catch(() => {
+                            saveBackgroundGenerationState();
+                            console.log('Saved generation state on navigation (promise failed)');
+                        });
+                    } else {
+                        saveBackgroundGenerationState();
+                        console.log('Saved generation state on navigation');
+                    }
                 }
                 saveQuizProgress();
-            });
+            }
+
+            // Save state when page is about to unload
+            window.addEventListener('beforeunload', saveCurrentState);
 
             // Save state when page becomes hidden (mobile navigation)
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden) {
-                    if (backgroundImagePromise) {
-                        saveBackgroundGenerationState();
-                        console.log('Saved background generation state on visibility change');
-                    }
-                    saveQuizProgress();
+                    saveCurrentState();
                 }
             });
 
             // Save state on page hide (iOS Safari)
-            window.addEventListener('pagehide', function(e) {
-                if (backgroundImagePromise) {
-                    saveBackgroundGenerationState();
-                    console.log('Saved background generation state on page hide');
-                }
-                saveQuizProgress();
-            });
+            window.addEventListener('pagehide', saveCurrentState);
 
             // Restore state when page becomes visible again
             document.addEventListener('visibilitychange', function() {
@@ -4381,8 +4396,13 @@ The design should be a single, standalone charm with bold sculptural details. ${
                     
                     console.log('Combined background data:', combinedData);
                     
-                    // Clear the generation state when complete
-                    clearBackgroundGenerationState();
+                    // Save completed images to localStorage for navigation persistence
+                    if (combinedData.output && combinedData.output.length > 0) {
+                        saveCompletedBackgroundImages(combinedData);
+                    } else {
+                        // Clear the generation state since generation failed
+                        clearBackgroundGenerationState();
+                    }
                     
                     return combinedData;
                 }).catch(error => {
@@ -4461,6 +4481,9 @@ The design should be a single, standalone charm with bold sculptural details. ${
             
             // Clear background generation state since quiz is complete
             clearBackgroundGenerationState();
+            
+            // Clear completed images since quiz is complete
+            clearCompletedImages();
             
             nextQuestion();
         }
@@ -6673,50 +6696,108 @@ Create an improved ${designType} charm design that incorporates the user feedbac
             return saveInterval;
         }
 
-        // Add event handlers for page navigation to save state
-        function setupNavigationHandlers() {
-            // Save state when page is about to unload
-            window.addEventListener('beforeunload', function(e) {
-                if (backgroundImagePromise) {
-                    saveBackgroundGenerationState();
-                    console.log('Saved background generation state before page unload');
-                }
-                saveQuizProgress();
-            });
+        // Clear background generation state
+        function clearBackgroundGenerationState() {
+            localStorage.removeItem('jewelryBackgroundGeneration');
+        }
 
-            // Save state when page becomes hidden (mobile navigation)
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) {
-                    if (backgroundImagePromise) {
-                        saveBackgroundGenerationState();
-                        console.log('Saved background generation state on visibility change');
+        // Save completed background image data
+        function saveCompletedBackgroundImages(imageData) {
+            try {
+                const completedState = {
+                    isComplete: true,
+                    completedAt: new Date().toISOString(),
+                    imageData: imageData,
+                    formData: { ...formData },
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('jewelryCompletedImages', JSON.stringify(completedState));
+                console.log('Completed background images saved to localStorage');
+                
+                // Clear the generation state since it's now complete
+                clearBackgroundGenerationState();
+            } catch (error) {
+                console.error('Error saving completed images:', error);
+            }
+        }
+
+        // Restore completed background images
+        function restoreCompletedBackgroundImages() {
+            try {
+                const savedImages = localStorage.getItem('jewelryCompletedImages');
+                if (savedImages) {
+                    const completedState = JSON.parse(savedImages);
+                    
+                    // Check if the saved images are recent (within 24 hours)
+                    const saveTime = new Date(completedState.timestamp);
+                    const now = new Date();
+                    const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24 && completedState.isComplete && completedState.imageData) {
+                        console.log('Restoring completed background images...');
+                        
+                        // Create a resolved promise with the saved data
+                        backgroundImagePromise = Promise.resolve(completedState.imageData);
+                        
+                        // Show indicator that images were restored
+                        showImagesRestoredIndicator();
+                        
+                        return true;
+                    } else {
+                        // Clear old images
+                        localStorage.removeItem('jewelryCompletedImages');
                     }
-                    saveQuizProgress();
                 }
-            });
+            } catch (error) {
+                console.error('Error restoring completed images:', error);
+                localStorage.removeItem('jewelryCompletedImages');
+            }
+            return false;
+        }
 
-            // Save state on page hide (iOS Safari)
-            window.addEventListener('pagehide', function(e) {
-                if (backgroundImagePromise) {
-                    saveBackgroundGenerationState();
-                    console.log('Saved background generation state on page hide');
+        // Show indicator that images were restored
+        function showImagesRestoredIndicator() {
+            const indicator = document.createElement('div');
+            indicator.id = 'images-restored-indicator';
+            indicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #d1f2d1;
+                color: #2d5a2d;
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                border: 1px solid #95d395;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                animation: slideIn 0.5s ease-out;
+            `;
+            indicator.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">✨</span>
+                    <span>Your designs are ready! Images restored from cache.</span>
+                </div>
+            `;
+            
+            document.body.appendChild(indicator);
+            
+            // Remove after 4 seconds
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.style.animation = 'slideIn 0.5s ease-out reverse';
+                    setTimeout(() => {
+                        if (indicator.parentNode) {
+                            indicator.parentNode.removeChild(indicator);
+                        }
+                    }, 500);
                 }
-                saveQuizProgress();
-            });
+            }, 4000);
+        }
 
-            // Restore state when page becomes visible again
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden && !backgroundImagePromise) {
-                    restoreBackgroundGenerationState();
-                }
-            });
-
-            // Restore state on page show (back button navigation)
-            window.addEventListener('pageshow', function(e) {
-                if (e.persisted && !backgroundImagePromise) {
-                    restoreBackgroundGenerationState();
-                }
-            });
+        // Clear completed images
+        function clearCompletedImages() {
+            localStorage.removeItem('jewelryCompletedImages');
         }
     </script>
 </body>

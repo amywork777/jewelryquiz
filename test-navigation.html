@@ -45,6 +45,7 @@
         <p>This test simulates the background image generation persistence functionality.</p>
         
         <button onclick="simulateStartGeneration()">Start Background Generation</button>
+        <button onclick="simulateCompleteGeneration()">Complete Generation (with Images)</button>
         <button onclick="simulateNavigateAway()">Simulate Navigate Away</button>
         <button onclick="simulateReturn()">Simulate Return to Page</button>
         <button onclick="clearTestState()">Clear Test State</button>
@@ -62,10 +63,13 @@
         <h2>Test Instructions</h2>
         <ol>
             <li>Click "Start Background Generation" to simulate starting AI generation</li>
-            <li>Click "Simulate Navigate Away" to test saving state</li>
-            <li>Click "Simulate Return to Page" to test restoring state</li>
+            <li>Click "Complete Generation (with Images)" to simulate completed generation with saved images</li>
+            <li>Click "Simulate Navigate Away" to test saving state (will save completed images if available, or generation state if in progress)</li>
+            <li>Click "Simulate Return to Page" to test restoring state (prioritizes completed images over generation state)</li>
             <li>Check localStorage contents to verify persistence</li>
             <li>Test on mobile by actually navigating away from the page and returning</li>
+            <li><strong>Key Test:</strong> Complete generation → Navigate away → Return = Should show "✨ Completed images restored"</li>
+            <li><strong>Fallback Test:</strong> Start generation (don't complete) → Navigate away → Return = Should show "🔄 Generation resumed"</li>
         </ol>
     </div>
 
@@ -104,17 +108,72 @@
             refreshLocalStorage();
         }
 
+        function simulateCompleteGeneration() {
+            // Simulate completed generation with images
+            const completedImages = {
+                output: [
+                    { type: "image_generation_call", result: "mock_completed_image_data_1" },
+                    { type: "image_generation_call", result: "mock_completed_image_data_2" }
+                ]
+            };
+
+            // Save completed images to localStorage (simulating the real function)
+            const completedState = {
+                isComplete: true,
+                completedAt: new Date().toISOString(),
+                imageData: completedImages,
+                formData: { ...mockFormData },
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('jewelryCompletedImages', JSON.stringify(completedState));
+            
+            // Clear generation state since images are complete
+            localStorage.removeItem('jewelryBackgroundGeneration');
+            
+            // Create resolved promise
+            mockBackgroundPromise = Promise.resolve(completedImages);
+            
+            updateStatus('Background generation completed! Images saved to localStorage.', 'success');
+            refreshLocalStorage();
+        }
+
         function simulateNavigateAway() {
             // Simulate page navigation events
             if (mockBackgroundPromise) {
-                const generationState = {
-                    isGenerating: true,
-                    startTime: new Date().toISOString(),
-                    formData: { ...mockFormData },
-                    timestamp: new Date().toISOString()
-                };
-                localStorage.setItem('jewelryBackgroundGeneration', JSON.stringify(generationState));
-                updateStatus('Navigation away detected - state saved to localStorage', 'info');
+                // Check if promise is resolved (completed images exist)
+                mockBackgroundPromise.then(data => {
+                    if (data && data.output && data.output.length > 0) {
+                        const completedState = {
+                            isComplete: true,
+                            completedAt: new Date().toISOString(),
+                            imageData: data,
+                            formData: { ...mockFormData },
+                            timestamp: new Date().toISOString()
+                        };
+                        localStorage.setItem('jewelryCompletedImages', JSON.stringify(completedState));
+                        updateStatus('Navigation away detected - completed images saved to localStorage', 'success');
+                    } else {
+                        // Save generation state if still in progress
+                        const generationState = {
+                            isGenerating: true,
+                            startTime: new Date().toISOString(),
+                            formData: { ...mockFormData },
+                            timestamp: new Date().toISOString()
+                        };
+                        localStorage.setItem('jewelryBackgroundGeneration', JSON.stringify(generationState));
+                        updateStatus('Navigation away detected - generation state saved to localStorage', 'info');
+                    }
+                }).catch(() => {
+                    // Save generation state if promise failed
+                    const generationState = {
+                        isGenerating: true,
+                        startTime: new Date().toISOString(),
+                        formData: { ...mockFormData },
+                        timestamp: new Date().toISOString()
+                    };
+                    localStorage.setItem('jewelryBackgroundGeneration', JSON.stringify(generationState));
+                    updateStatus('Navigation away detected - generation state saved to localStorage', 'info');
+                });
             } else {
                 updateStatus('No active generation to save', 'error');
             }
@@ -124,6 +183,31 @@
         function simulateReturn() {
             // Simulate returning to the page and restoring state
             try {
+                // First try to restore completed images
+                const savedImages = localStorage.getItem('jewelryCompletedImages');
+                if (savedImages) {
+                    const completedState = JSON.parse(savedImages);
+                    
+                    // Check if the saved images are recent (within 24 hours)
+                    const saveTime = new Date(completedState.timestamp);
+                    const now = new Date();
+                    const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24 && completedState.isComplete && completedState.imageData) {
+                        // Restore completed images
+                        Object.assign(mockFormData, completedState.formData);
+                        mockBackgroundPromise = Promise.resolve(completedState.imageData);
+                        
+                        updateStatus('✨ Completed images restored successfully! Your designs are ready.', 'success');
+                        refreshLocalStorage();
+                        return;
+                    } else {
+                        localStorage.removeItem('jewelryCompletedImages');
+                        updateStatus('Saved images were too old - cleared', 'error');
+                    }
+                }
+                
+                // If no completed images, try to restore generation state
                 const savedState = localStorage.getItem('jewelryBackgroundGeneration');
                 if (savedState) {
                     const generationState = JSON.parse(savedState);
@@ -144,7 +228,7 @@
                             }, 3000);
                         });
                         
-                        updateStatus('Background generation state restored successfully! Generation resumed.', 'success');
+                        updateStatus('🔄 Background generation state restored successfully! Generation resumed.', 'success');
                     } else {
                         localStorage.removeItem('jewelryBackgroundGeneration');
                         updateStatus('Saved state was too old or invalid - cleared', 'error');
@@ -155,12 +239,14 @@
             } catch (error) {
                 updateStatus(`Error restoring state: ${error.message}`, 'error');
                 localStorage.removeItem('jewelryBackgroundGeneration');
+                localStorage.removeItem('jewelryCompletedImages');
             }
             refreshLocalStorage();
         }
 
         function clearTestState() {
             localStorage.removeItem('jewelryBackgroundGeneration');
+            localStorage.removeItem('jewelryCompletedImages');
             localStorage.removeItem('jewelryQuizProgress');
             mockBackgroundPromise = null;
             updateStatus('Test state cleared', 'info');
