@@ -1063,7 +1063,7 @@
                 <!-- Loading indicator for image generation -->
                 <div class="loading-indicator" id="loadingIndicator">
                     <div style="text-align: center; padding: 20px; color: #666;">
-                        Creating your custom dog charm design...
+                        Creating your custom charm design...
                         <div class="swimming-logo-container" style="margin-top: 15px;">
                             <svg class="swimming-logo" version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet">
                                 <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#DAE0FF" stroke="none">
@@ -1489,11 +1489,11 @@
                 // Create detailed charm design prompt based ONLY on the photo
                 let prompt = "";
                 
-                // If we have a dog photo, reference it directly for design
+                // If we have a photo, reference it directly for design
                 if (formData.dogPhotoData) {
-                    prompt += "Create a custom dog charm that exactly replicates the dog shown in the reference photo. ";
+                    prompt += "Create a custom charm that exactly replicates the subject shown in the reference photo. ";
                 } else {
-                    prompt += "Create a custom dog charm design. ";
+                    prompt += "Create a custom charm design. ";
                 }
                 
                 // Add material-specific details
@@ -1518,7 +1518,7 @@
                 
                 // Structured prompt format
                 prompt += `
-                Subject: a ${charmMetal} charm that exactly matches the dog from the reference photo
+                Subject: a ${charmMetal} charm that exactly matches the subject from the reference photo
                 Style: high-gloss 3D sculptural metal
                 Material: ${materialType}
                 Lighting: studio lighting with soft reflections and minimal shadows
@@ -1526,7 +1526,7 @@
                 Presentation: floating product shot, charm angled to show volume and shine
                 Detail: smooth, rounded surfaces with subtle contours, single integrated hook at top
                 Camera: close-up, eye-level with a slight tilt
-                Requirements: ENTIRE dog must be fully encapsulated within charm boundaries, complete dog silhouette from head to tail, single hook (no jump rings), consistent metal finish throughout, EXACT replication of the dog's appearance, breed, size, and distinctive features
+                Requirements: ENTIRE subject must be fully encapsulated within charm boundaries, complete silhouette capturing all key features, single hook (no jump rings), consistent metal finish throughout, EXACT replication of the subject's appearance, distinctive features, and proportions
                 `;
                 
                 console.log('Generating ultra-shiny charm design with prompt:', prompt);
@@ -1541,8 +1541,8 @@
                     // Show generated image first (without story)
                     imageResults.innerHTML = `
                         <div class="image-container">
-                            <h3 style="font-weight: 300;">Your Custom Dog Charm Design</h3>
-                            <img src="${imageUrl}" alt="Custom dog charm design" class="generated-image">
+                            <h3 style="font-weight: 300;">Your Custom Charm Design</h3>
+                            <img src="${imageUrl}" alt="Custom charm design" class="generated-image">
                             <div id="storyContainer" style="opacity: 0.5;">
                                 <div style="text-align: center; padding: 10px; color: #666;">
                                     <div class="loading-spinner" style="display: inline-block; margin-right: 10px;">
@@ -1565,7 +1565,7 @@
                                             </g>
                                         </svg>
                                     </div>
-                                    Crafting your dog's story...
+                                    Crafting your story...
                                 </div>
                             </div>
                             <div class="button-group" style="margin-top: 20px; justify-content: center;">
@@ -1612,14 +1612,14 @@
         imageResults.innerHTML = `
             <div class="image-container">
                 <h3>Design Preview Coming Soon</h3>
-                <p>We're preparing your custom ultra-shiny dog charm design and will send it to your email within 24-48 hours!</p>
-                <p style="font-size: 14px; color: #666; margin-top: 10px;">Our designers will create a brilliant, mirror-polished charm that captures your dog's exact appearance.</p>
+                <p>We're preparing your custom ultra-shiny charm design and will send it to your email within 24-48 hours!</p>
+                <p style="font-size: 14px; color: #666; margin-top: 10px;">Our designers will create a brilliant, mirror-polished charm that captures your subject's exact appearance.</p>
             </div>
         `;
     }
 }
 
-// Generate story content based on dog's name and description
+// Generate story content based on subject's name and description
 async function generateStoryContent() {
     if (!formData.dogName && !formData.dogDescription) {
         return '';
@@ -1641,16 +1641,16 @@ async function generateStoryContent() {
         }
         
         // Create a prompt for generating a poetic story
-        let storyPrompt = `Write a beautiful, poetic, and heartwarming story about a custom dog charm made from ${materialDescription}. `;
+        let storyPrompt = `Write a beautiful, poetic, and heartwarming story about a custom charm made from ${materialDescription}. `;
         
-        const dogName = formData.dogName ? capitalizeFirstLetter(formData.dogName) : "your beloved dog";
+        const subjectName = formData.dogName ? capitalizeFirstLetter(formData.dogName) : "your beloved subject";
         
         if (formData.dogName && formData.dogDescription) {
-            storyPrompt += `The dog's name is ${dogName} and they ${formData.dogDescription}. `;
+            storyPrompt += `The subject's name is ${subjectName} and they ${formData.dogDescription}. `;
         } else if (formData.dogName) {
-            storyPrompt += `The dog's name is ${dogName}. `;
+            storyPrompt += `The subject's name is ${subjectName}. `;
         } else if (formData.dogDescription) {
-            storyPrompt += `This special dog ${formData.dogDescription}. `;
+            storyPrompt += `This special subject ${formData.dogDescription}. `;
         }
         
         storyPrompt += `Write 1-2 elegant sentences about how this custom ${materialDescription} charm captures their essence and will be a meaningful keepsake. Keep it simple, warm, and heartfelt.`;
@@ -1661,21 +1661,21 @@ async function generateStoryContent() {
         if (aiStory) {
             return `
                 <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border-left: 4px solid #6c757d;">
-                    <h4 style="margin-bottom: 15px; color: #000; font-family: 'Avenir Next', sans-serif; font-weight: 500;">Your Dog's Story</h4>
+                    <h4 style="margin-bottom: 15px; color: #000; font-family: 'Avenir Next', sans-serif; font-weight: 500;">Your Story</h4>
                     <p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">${aiStory}</p>
                 </div>
             `;
         } else {
             // Fallback to original story if AI fails
-            return generateFallbackStory(dogName, materialDescription);
+            return generateFallbackStory(subjectName, materialDescription);
         }
         
     } catch (error) {
         console.error('Error generating AI story:', error);
         // Fallback to original story
-        const dogName = formData.dogName ? capitalizeFirstLetter(formData.dogName) : "your beloved dog";
+        const subjectName = formData.dogName ? capitalizeFirstLetter(formData.dogName) : "your beloved subject";
         const materialDescription = formData.materials === '14k-gold' || formData.materials === 'gold-plated' ? 'gold' : 'sterling silver';
-        return generateFallbackStory(dogName, materialDescription);
+        return generateFallbackStory(subjectName, materialDescription);
     }
 }
 
@@ -1722,16 +1722,16 @@ async function generateStoryWithAI(prompt) {
 }
 
 // Fallback story generation
-function generateFallbackStory(dogName, materialDescription = "precious metal") {
+function generateFallbackStory(subjectName, materialDescription = "precious metal") {
     let story = '<div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border-left: 4px solid #6c757d;">';
-    story += '<h4 style="margin-bottom: 15px; color: #000; font-family: \'Avenir Next\', sans-serif; font-weight: 500;">Your Dog\'s Story</h4>';
+    story += '<h4 style="margin-bottom: 15px; color: #000; font-family: \'Avenir Next\', sans-serif; font-weight: 500;">Your Story</h4>';
     
     if (formData.dogName && formData.dogDescription) {
-        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates ${dogName}, who ${formData.dogDescription}. Every time you wear this charm, you'll carry a piece of ${dogName}'s unique spirit with you.</p>`;
+        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates ${subjectName}, who ${formData.dogDescription}. Every time you wear this charm, you'll carry a piece of ${subjectName}'s unique spirit with you.</p>`;
     } else if (formData.dogName) {
-        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates ${dogName}. Every time you wear this charm, you'll carry a piece of ${dogName}'s unique spirit with you.</p>`;
+        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates ${subjectName}. Every time you wear this charm, you'll carry a piece of ${subjectName}'s unique spirit with you.</p>`;
     } else if (formData.dogDescription) {
-        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates your beloved dog, who ${formData.dogDescription}. Every time you wear this charm, you'll carry a piece of their unique spirit with you.</p>`;
+        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates your beloved subject, who ${formData.dogDescription}. Every time you wear this charm, you'll carry a piece of their unique spirit with you.</p>`;
     }
     
     story += '</div>';
@@ -1744,7 +1744,7 @@ function capitalizeFirstLetter(string) {
 }
 
 // Generate image using OpenAI API with GPT Image model
-async function generateImage(prompt, dogPhotoData = null) {
+async function generateImage(prompt, photoData = null) {
     try {
         console.log('Starting image generation with GPT Image...');
         console.log('Prompt:', prompt);
@@ -1777,12 +1777,12 @@ async function generateImage(prompt, dogPhotoData = null) {
             text: prompt
         });
         
-        // Add the dog photo if available
-        if (dogPhotoData) {
-            console.log('Including dog photo as reference');
+        // Add the photo if available
+        if (photoData) {
+            console.log('Including photo as reference');
             inputContent.push({
                 type: "input_image",
-                image_url: dogPhotoData
+                image_url: photoData
             });
         }
         
