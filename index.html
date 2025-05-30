@@ -741,6 +741,33 @@
             box-shadow: 0 2px 4px rgba(218, 224, 255, 0.1);
         }
 
+        /* Remove photo button */
+        .btn-remove-photo {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 400;
+            font-family: 'Avenir Next', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+        }
+
+        .btn-remove-photo:hover {
+            background: linear-gradient(135deg, #d32f2f, #c62828);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-remove-photo:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+        }
+
         /* Responsive optimizations for file upload */
         @media (max-width: 600px) {
             .file-upload {
@@ -1181,6 +1208,7 @@
                     fileInfo.innerHTML = `
                         <strong>Uploaded:</strong> ${file.name}
                         <br><small>Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                        <br><button onclick="removePhoto('${inputId}')" class="btn-remove-photo">Remove Photo</button>
                     `;
                     fileInfo.classList.add('show');
                     
@@ -1194,7 +1222,7 @@
                         const preview = document.createElement('img');
                         preview.src = e.target.result;
                         preview.className = 'file-preview';
-                        preview.alt = 'Dog photo preview';
+                        preview.alt = 'Photo preview';
                         preview.style.maxWidth = '200px';
                         preview.style.maxHeight = '200px';
                         preview.style.marginTop = '10px';
@@ -1212,6 +1240,32 @@
                     console.log('Continue button enabled after photo upload');
                 }
             }
+        }
+
+        // Remove uploaded photo
+        function removePhoto(inputId) {
+            // Clear the file input
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = '';
+            }
+            
+            // Clear the file info display
+            const fileInfo = document.getElementById(inputId + '-info');
+            if (fileInfo) {
+                fileInfo.innerHTML = '';
+                fileInfo.classList.remove('show');
+            }
+            
+            // Clear stored photo data
+            if (formData.dogPhoto) {
+                delete formData.dogPhoto;
+            }
+            if (formData.dogPhotoData) {
+                delete formData.dogPhotoData;
+            }
+            
+            console.log('Photo removed successfully');
         }
 
         // Create elegant photo gallery
