@@ -1111,102 +1111,11 @@
             regenerated: {}
         };
 
-        // Auto-save and restore quiz progress
-        function saveQuizProgress() {
-            const quizState = {
-                currentQuestion,
-                currentQuestionIndex,
-                questionFlow,
-                questionHistory,
-                formData,
-                timestamp: new Date().toISOString()
-            };
-            localStorage.setItem('dogCharmQuizProgress', JSON.stringify(quizState));
-        }
-
-        // Restore quiz progress
-        function restoreQuizProgress() {
-            try {
-                const savedState = localStorage.getItem('dogCharmQuizProgress');
-                if (savedState) {
-                    const quizState = JSON.parse(savedState);
-                    
-                    // Check if the saved state is recent (within 24 hours)
-                    const saveTime = new Date(quizState.timestamp);
-                    const now = new Date();
-                    const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
-                    
-                    if (hoursDiff < 24) {
-                        currentQuestion = quizState.currentQuestion;
-                        currentQuestionIndex = quizState.currentQuestionIndex;
-                        questionFlow = quizState.questionFlow;
-                        questionHistory = quizState.questionHistory;
-                        formData = quizState.formData;
-                        
-                        // Restore form inputs
-                        restoreFormInputs();
-                        
-                        // Show the current question
-                        showQuestion(currentQuestion);
-                        updateProgress();
-                        
-                        console.log('Quiz progress restored from localStorage');
-                        return true;
-                    } else {
-                        // Clear old state
-                        localStorage.removeItem('dogCharmQuizProgress');
-                    }
-                }
-            } catch (error) {
-                console.error('Error restoring quiz progress:', error);
-                localStorage.removeItem('dogCharmQuizProgress');
-            }
-            return false;
-        }
-
-        // Restore form inputs from saved data
-        function restoreFormInputs() {
-            // Restore dog name
-            if (formData.dogName) {
-                const dogNameInput = document.getElementById('dog-name');
-                if (dogNameInput) dogNameInput.value = formData.dogName;
-            }
-            
-            // Restore dog description
-            if (formData.dogDescription) {
-                const dogDescInput = document.getElementById('dog-description');
-                if (dogDescInput) dogDescInput.value = formData.dogDescription;
-            }
-            
-            // Restore contact info
-            if (formData.email) {
-                const emailInput = document.getElementById('contact-email');
-                if (emailInput) emailInput.value = formData.email;
-            }
-            
-            if (formData.phone) {
-                const phoneInput = document.getElementById('contact-phone');
-                if (phoneInput) phoneInput.value = formData.phone;
-            }
-            
-            // Restore file upload info
-            if (formData.dogPhoto && formData.dogPhoto.name && formData.dogPhoto.size) {
-                const fileInfo = document.getElementById('dog-photo-info');
-                if (fileInfo) {
-                    fileInfo.innerHTML = `<strong>Uploaded:</strong> ${formData.dogPhoto.name}<br><small>Size: ${(formData.dogPhoto.size / 1024 / 1024).toFixed(2)} MB</small>`;
-                    fileInfo.classList.add('show');
-                }
-            }
-        }
-
         // Initialize the quiz
         function initializeQuiz() {
-            // Try to restore previous progress first
-            if (!restoreQuizProgress()) {
-                // If no saved progress, start fresh
-                showQuestion('Q1');
-                updateProgress();
-            }
+            // Always start fresh - no saved progress
+            showQuestion('Q1');
+            updateProgress();
 
             // Set up file upload handlers
             setupFileUploadHandlers();
@@ -1296,8 +1205,6 @@
                     reader.readAsDataURL(file);
                 }
                 
-                saveQuizProgress();
-                
                 // Ensure Continue button is enabled after photo upload
                 const continueBtn = document.querySelector('.question-container.active .btn-primary');
                 if (continueBtn) {
@@ -1333,7 +1240,6 @@
                 currentQuestionIndex = questionFlow.indexOf(questionId);
                 
                 updateProgress();
-                saveQuizProgress();
             }
         }
 
@@ -1349,7 +1255,7 @@
             console.log('nextQuestion called, current question:', currentQuestion);
             console.log('formData:', formData);
             
-            // Save current question data
+            // Save current question data to memory (not localStorage)
             saveCurrentQuestionData();
             
             // Add current question to history
@@ -1372,7 +1278,7 @@
             }
         }
 
-        // Save current question data
+        // Save current question data to memory only
         function saveCurrentQuestionData() {
             switch (currentQuestion) {
                 case 'Q2':
@@ -1392,8 +1298,6 @@
                     if (phone) formData.phone = phone.value;
                     break;
             }
-            
-            saveQuizProgress();
         }
 
         // Handle option selection
@@ -1414,8 +1318,6 @@
             if (continueBtn) {
                 continueBtn.disabled = false;
             }
-            
-            saveQuizProgress();
         }
 
         // Skip text input
@@ -1470,9 +1372,6 @@
             
             // Start image generation
             startImageGeneration();
-            
-            // Clear saved progress since we're done
-            localStorage.removeItem('dogCharmQuizProgress');
         }
 
         // Start image generation
@@ -1844,9 +1743,6 @@ async function generateImage(prompt, photoData = null) {
 function restartQuiz() {
     // Clear all form data
     formData = {};
-    
-    // Clear localStorage
-    localStorage.removeItem('dogCharmQuizProgress');
     
     // Reset quiz state
     currentQuestion = 'Q1';
