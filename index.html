@@ -493,6 +493,45 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
+        .file-previews {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .file-preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+            padding: 4px;
+        }
+
+        .file-preview-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .file-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            display: block;
+        }
+
+        .file-preview-single {
+            width: 200px;
+            height: 200px;
+        }
+
         /* Text input styles */
         textarea, input[type="text"], input[type="email"], input[type="tel"] {
             width: 100%;
@@ -669,6 +708,35 @@
         }
 
         .btn-regenerate:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(218, 224, 255, 0.1);
+        }
+
+        .btn-add-photos {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 1px solid #DAE0FF;
+            color: #333;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 400;
+            font-family: 'Avenir Next', sans-serif;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(218, 224, 255, 0.1);
+        }
+
+        .btn-add-photos:hover {
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(218, 224, 255, 0.2);
+            border-color: #C8D4FF;
+        }
+
+        .btn-add-photos:active {
             transform: translateY(0);
             box-shadow: 0 2px 4px rgba(218, 224, 255, 0.1);
         }
@@ -1122,10 +1190,10 @@
             }
             
             // Restore file upload info
-            if (formData.dogPhoto) {
+            if (formData.dogPhoto && formData.dogPhoto.name && formData.dogPhoto.size) {
                 const fileInfo = document.getElementById('dog-photo-info');
                 if (fileInfo) {
-                    fileInfo.innerHTML = `<strong>Uploaded:</strong> ${formData.dogPhoto.name}`;
+                    fileInfo.innerHTML = `<strong>Uploaded:</strong> ${formData.dogPhoto.name}<br><small>Size: ${(formData.dogPhoto.size / 1024 / 1024).toFixed(2)} MB</small>`;
                     fileInfo.classList.add('show');
                 }
             }
@@ -1137,8 +1205,8 @@
             if (!restoreQuizProgress()) {
                 // If no saved progress, start fresh
                 showQuestion('Q1');
-            updateProgress();
-        }
+                updateProgress();
+            }
 
             // Set up file upload handlers
             setupFileUploadHandlers();
@@ -1207,24 +1275,46 @@
                     `;
                     fileInfo.classList.add('show');
                     
-                    // Show preview if it's an image
+                    // Show preview
                     const reader = new FileReader();
                     reader.onload = function(e) {
+                        // Store the image data for later use
+                        formData.dogPhotoData = e.target.result;
+                        
+                        // Create preview
                         const preview = document.createElement('img');
                         preview.src = e.target.result;
                         preview.className = 'file-preview';
                         preview.alt = 'Dog photo preview';
+                        preview.style.maxWidth = '200px';
+                        preview.style.maxHeight = '200px';
+                        preview.style.marginTop = '10px';
+                        preview.style.borderRadius = '8px';
+                        preview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
                         fileInfo.appendChild(preview);
-                        
-                        // Store the image data for later use
-                        formData.dogPhotoData = e.target.result;
                     };
                     reader.readAsDataURL(file);
                 }
                 
                 saveQuizProgress();
+                
+                // Ensure Continue button is enabled after photo upload
+                const continueBtn = document.querySelector('.question-container.active .btn-primary');
+                if (continueBtn) {
+                    continueBtn.disabled = false;
+                    console.log('Continue button enabled after photo upload');
+                }
             }
         }
+
+        // Create elegant photo gallery
+        // No longer needed for single photo uploads
+
+        // Add more photos function
+        // No longer needed for single photo uploads
+
+        // Recreate gallery with all photos (for adding more photos)
+        // No longer needed for single photo uploads
 
         // Show specific question
         function showQuestion(questionId) {
@@ -1256,6 +1346,9 @@
 
         // Navigate to next question
         function nextQuestion() {
+            console.log('nextQuestion called, current question:', currentQuestion);
+            console.log('formData:', formData);
+            
             // Save current question data
             saveCurrentQuestionData();
             
@@ -1398,7 +1491,7 @@
                 
                 // If we have a dog photo, reference it directly for design
                 if (formData.dogPhotoData) {
-                    prompt += "Create a custom dog charm based on the reference photo. ";
+                    prompt += "Create a custom dog charm that exactly replicates the dog shown in the reference photo. ";
                 } else {
                     prompt += "Create a custom dog charm design. ";
                 }
@@ -1425,7 +1518,7 @@
                 
                 // Structured prompt format
                 prompt += `
-                Subject: a ${charmMetal} charm in the shape of the dog from the reference photo
+                Subject: a ${charmMetal} charm that exactly matches the dog from the reference photo
                 Style: high-gloss 3D sculptural metal
                 Material: ${materialType}
                 Lighting: studio lighting with soft reflections and minimal shadows
@@ -1433,7 +1526,7 @@
                 Presentation: floating product shot, charm angled to show volume and shine
                 Detail: smooth, rounded surfaces with subtle contours, single integrated hook at top
                 Camera: close-up, eye-level with a slight tilt
-                Requirements: ENTIRE dog must be fully encapsulated within charm boundaries, complete dog silhouette from head to tail, single hook (no jump rings), consistent metal finish throughout
+                Requirements: ENTIRE dog must be fully encapsulated within charm boundaries, complete dog silhouette from head to tail, single hook (no jump rings), consistent metal finish throughout, EXACT replication of the dog's appearance, breed, size, and distinctive features
                 `;
                 
                 console.log('Generating ultra-shiny charm design with prompt:', prompt);
@@ -1476,13 +1569,13 @@
                                 </div>
                             </div>
                             <div class="button-group" style="margin-top: 20px; justify-content: center;">
-                                <button class="btn-regenerate" onclick="regenerateImage()">
+                                <button class="btn-regenerate" onclick="restartQuiz()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
                                         <polyline points="23 4 23 10 17 10"></polyline>
                                         <polyline points="1 20 1 14 7 14"></polyline>
                                         <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                                     </svg>
-                                    Generate Another Design
+                                    Create Another Charm
                                 </button>
                             </div>
                         </div>
@@ -1533,8 +1626,22 @@ async function generateStoryContent() {
     }
     
     try {
+        // Determine the material for the story
+        let materialDescription = "precious metal";
+        if (formData.materials) {
+            if (formData.materials === 'sterling-silver') {
+                materialDescription = "sterling silver";
+            } else if (formData.materials === '14k-gold') {
+                materialDescription = "14K gold";
+            } else if (formData.materials === 'gold-plated') {
+                materialDescription = "gold";
+            } else if (formData.materials === 'help-decide') {
+                materialDescription = "sterling silver"; // Default for help-decide
+            }
+        }
+        
         // Create a prompt for generating a poetic story
-        let storyPrompt = "Write a beautiful, poetic, and heartwarming story about a custom dog charm. ";
+        let storyPrompt = `Write a beautiful, poetic, and heartwarming story about a custom dog charm made from ${materialDescription}. `;
         
         const dogName = formData.dogName ? capitalizeFirstLetter(formData.dogName) : "your beloved dog";
         
@@ -1546,7 +1653,7 @@ async function generateStoryContent() {
             storyPrompt += `This special dog ${formData.dogDescription}. `;
         }
         
-        storyPrompt += "Write 1-2 elegant sentences about how this custom charm captures their essence and will be a meaningful keepsake. Keep it simple, warm, and heartfelt.";
+        storyPrompt += `Write 1-2 elegant sentences about how this custom ${materialDescription} charm captures their essence and will be a meaningful keepsake. Keep it simple, warm, and heartfelt.`;
         
         // Generate story using AI
         const aiStory = await generateStoryWithAI(storyPrompt);
@@ -1560,14 +1667,15 @@ async function generateStoryContent() {
             `;
         } else {
             // Fallback to original story if AI fails
-            return generateFallbackStory(dogName);
+            return generateFallbackStory(dogName, materialDescription);
         }
         
     } catch (error) {
         console.error('Error generating AI story:', error);
         // Fallback to original story
         const dogName = formData.dogName ? capitalizeFirstLetter(formData.dogName) : "your beloved dog";
-        return generateFallbackStory(dogName);
+        const materialDescription = formData.materials === '14k-gold' || formData.materials === 'gold-plated' ? 'gold' : 'sterling silver';
+        return generateFallbackStory(dogName, materialDescription);
     }
 }
 
@@ -1614,16 +1722,16 @@ async function generateStoryWithAI(prompt) {
 }
 
 // Fallback story generation
-function generateFallbackStory(dogName) {
+function generateFallbackStory(dogName, materialDescription = "precious metal") {
     let story = '<div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border-left: 4px solid #6c757d;">';
     story += '<h4 style="margin-bottom: 15px; color: #000; font-family: \'Avenir Next\', sans-serif; font-weight: 500;">Your Dog\'s Story</h4>';
     
     if (formData.dogName && formData.dogDescription) {
-        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special charm celebrates ${dogName}, who ${formData.dogDescription}. Every time you wear this charm, you'll carry a piece of ${dogName}'s unique spirit with you.</p>`;
+        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates ${dogName}, who ${formData.dogDescription}. Every time you wear this charm, you'll carry a piece of ${dogName}'s unique spirit with you.</p>`;
     } else if (formData.dogName) {
-        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special charm celebrates ${dogName}. Every time you wear this charm, you'll carry a piece of ${dogName}'s unique spirit with you.</p>`;
+        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates ${dogName}. Every time you wear this charm, you'll carry a piece of ${dogName}'s unique spirit with you.</p>`;
     } else if (formData.dogDescription) {
-        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special charm celebrates your beloved dog, who ${formData.dogDescription}. Every time you wear this charm, you'll carry a piece of their unique spirit with you.</p>`;
+        story += `<p style="font-size: 15px; line-height: 1.6; color: #333; font-family: 'Avenir Next', sans-serif; font-style: italic; margin: 0;">This special ${materialDescription} charm celebrates your beloved dog, who ${formData.dogDescription}. Every time you wear this charm, you'll carry a piece of their unique spirit with you.</p>`;
     }
     
     story += '</div>';
@@ -1732,40 +1840,56 @@ async function generateImage(prompt, dogPhotoData = null) {
     }
 }
 
-// Regenerate image
-async function regenerateImage() {
-    const imageResults = document.getElementById('imageResults');
-    if (!imageResults) return;
+// Restart quiz from the beginning
+function restartQuiz() {
+    // Clear all form data
+    formData = {};
     
-    // Show loading state
-    imageResults.innerHTML = `
-        <div class="image-container">
-            <div class="loading-spinner">
-                <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet">
-                    <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#DAE0FF" stroke="none">
-                        <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29
-                        -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363
-                        204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125
-                        -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81
-                        144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61
-                        144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070
-                        -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298
-                        -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100
-                        -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156
-                        -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215
-                        -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500
-                        -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
-                        <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62
-                        44 259 -90 205z"/>
-                    </g>
-                </svg>
-            </div>
-            Generating a new design...
-        </div>
-    `;
+    // Clear localStorage
+    localStorage.removeItem('dogCharmQuizProgress');
     
-    // Generate new image
-    await startImageGeneration();
+    // Reset quiz state
+    currentQuestion = 'Q1';
+    currentQuestionIndex = 0;
+    questionHistory = [];
+    
+    // Clear all form inputs
+    const dogNameInput = document.getElementById('dog-name');
+    if (dogNameInput) dogNameInput.value = '';
+    
+    const dogDescInput = document.getElementById('dog-description');
+    if (dogDescInput) dogDescInput.value = '';
+    
+    const emailInput = document.getElementById('contact-email');
+    if (emailInput) emailInput.value = '';
+    
+    const phoneInput = document.getElementById('contact-phone');
+    if (phoneInput) phoneInput.value = '';
+    
+    // Clear file upload
+    const fileInput = document.getElementById('dog-photo');
+    if (fileInput) fileInput.value = '';
+    
+    const fileInfo = document.getElementById('dog-photo-info');
+    if (fileInfo) {
+        fileInfo.innerHTML = '';
+        fileInfo.classList.remove('show');
+    }
+    
+    // Clear all selected options
+    document.querySelectorAll('.option.selected').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Reset container to normal mode
+    const container = document.querySelector('.container');
+    if (container) {
+        container.classList.remove('results-mode');
+    }
+    
+    // Show first question
+    showQuestion('Q1');
+    updateProgress();
 }
 
 // Initialize when page loads
