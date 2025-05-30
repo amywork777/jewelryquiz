@@ -1803,6 +1803,8 @@ async function generateImage(prompt, photoData = null) {
 
 // Restart quiz from the beginning
 function restartQuiz() {
+    console.log('Restarting quiz...');
+    
     // Clear all form data
     formData = {};
     
@@ -1839,15 +1841,47 @@ function restartQuiz() {
         option.classList.remove('selected');
     });
     
+    // Reset all continue buttons to enabled state for Q1, disabled for others
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+        btn.disabled = false; // Enable all buttons initially
+    });
+    
+    // Specifically disable buttons that should start disabled
+    const materialsBtn = document.querySelector('[data-question="materials"] .btn-primary');
+    if (materialsBtn) materialsBtn.disabled = true;
+    
+    const contactBtn = document.querySelector('[data-question="contact"] .btn-primary');
+    if (contactBtn) contactBtn.disabled = true;
+    
+    const communityBtn = document.querySelector('[data-question="community"] .btn-primary');
+    if (communityBtn) communityBtn.disabled = true;
+    
     // Reset container to normal mode
     const container = document.querySelector('.container');
     if (container) {
         container.classList.remove('results-mode');
     }
     
+    // Clear any loading indicators
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (loadingIndicator) {
+        loadingIndicator.classList.remove('show');
+    }
+    
+    // Clear image results
+    const imageResults = document.getElementById('imageResults');
+    if (imageResults) {
+        imageResults.innerHTML = '';
+    }
+    
+    console.log('Quiz reset complete. Showing Q1...');
+    
     // Show first question
     showQuestion('Q1');
     updateProgress();
+    
+    console.log('Current question after restart:', currentQuestion);
+    console.log('Current question index after restart:', currentQuestionIndex);
 }
 
 // Initialize when page loads
