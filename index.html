@@ -994,27 +994,29 @@
                 
                 <!-- Loading indicator for image generation -->
                 <div class="loading-indicator" id="loadingIndicator">
-                    <div class="loading-spinner">
-                        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet">
-                            <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#DAE0FF" stroke="none">
-                                <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29
-                                -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363
-                                204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125
-                                -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81
-                                144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61
-                                144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070
-                                -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298
-                                -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100
-                                -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156
-                                -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215
-                                -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500
-                                -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
-                                <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62
-                                44 259 -90 205z"/>
-                            </g>
-                        </svg>
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        Creating your custom dog charm design...
+                        <div class="swimming-logo-container" style="margin-top: 15px;">
+                            <svg class="swimming-logo" version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet">
+                                <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#DAE0FF" stroke="none">
+                                    <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29
+                                    -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363
+                                    204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125
+                                    -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81
+                                    144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61
+                                    144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070
+                                    -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298
+                                    -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100
+                                    -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156
+                                    -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215
+                                    -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500
+                                    -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
+                                    <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62
+                                    44 259 -90 205z"/>
+                                </g>
+                            </svg>
+                        </div>
                     </div>
-                    Creating your custom dog charm design...
                 </div>
                 
                 <!-- Image results container -->
@@ -1446,65 +1448,45 @@
                     // Show generated image first (without story)
                     imageResults.innerHTML = `
                         <div class="image-container">
-                            <h3>Your Custom Dog Charm Design</h3>
-                            <div class="swimming-logo-container">
-                                <svg class="swimming-logo" version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet">
-                                    <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#DAE0FF" stroke="none">
-                                        <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29
-                                        -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363
-                                        204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125
-                                        -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81
-                                        144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61
-                                144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070
-                                -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298
-                                -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100
-                                -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156
-                                -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215
-                                -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500
-                                -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
-                                <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62
-                                44 259 -90 205z"/>
-                            </g>
-                        </svg>
-                    </div>
-                    <img src="${imageUrl}" alt="Custom dog charm design" class="generated-image">
-                    <div id="storyContainer" style="opacity: 0.5;">
-                        <div style="text-align: center; padding: 10px; color: #666;">
-                            <div class="loading-spinner" style="display: inline-block; margin-right: 10px;">
-                                <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet" style="width: 20px; height: 20px;">
-                                    <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#DAE0FF" stroke="none">
-                                        <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29
-                                        -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363
-                                        204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125
-                                        -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81
-                                        144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61
-                                        144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070
-                                        -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298
-                                        -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100
-                                        -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156
-                                        -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215
-                                        -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500
-                                        -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
-                                        <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62
-                                        44 259 -90 205z"/>
-                                    </g>
-                                </svg>
+                            <h3 style="font-weight: 300;">Your Custom Dog Charm Design</h3>
+                            <img src="${imageUrl}" alt="Custom dog charm design" class="generated-image">
+                            <div id="storyContainer" style="opacity: 0.5;">
+                                <div style="text-align: center; padding: 10px; color: #666;">
+                                    <div class="loading-spinner" style="display: inline-block; margin-right: 10px;">
+                                        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.000000 166.000000" preserveAspectRatio="xMidYMid meet" style="width: 20px; height: 20px;">
+                                            <g transform="translate(0.000000,166.000000) scale(0.100000,-0.100000)" fill="#DAE0FF" stroke="none">
+                                                <path d="M186 1478 c16 -222 84 -401 209 -547 25 -29 45 -56 43 -60 -2 -3 -29
+                                                -50 -61 -104 -96 -161 -171 -366 -202 -554 l-7 -42 94 40 c126 55 255 127 363
+                                                204 95 68 295 249 295 267 0 6 -17 25 -37 43 l-38 33 -90 -87 c-50 -47 -125
+                                                -112 -168 -144 -87 -66 -246 -162 -254 -154 -10 11 40 143 95 250 30 60 81
+                                                144 113 187 l58 79 -37 31 c-94 77 -189 226 -231 364 -31 102 -31 103 47 61
+                                                144 -79 302 -225 501 -463 112 -134 297 -316 401 -393 367 -273 719 -319 1070
+                                                -138 162 83 355 258 469 423 62 90 64 70 -28 200 -65 92 -200 232 -287 298
+                                                -183 140 -353 200 -559 200 -285 -1 -579 -132 -823 -367 -106 -101 -105 -100
+                                                -40 -146 l29 -21 92 89 c215 204 461 319 707 330 150 6 234 -11 365 -76 156
+                                                -77 299 -201 416 -360 l47 -65 -31 -45 c-17 -25 -67 -84 -112 -130 -206 -215
+                                                -424 -321 -660 -322 -333 -2 -639 196 -1026 661 -217 260 -428 424 -644 500
+                                                -27 10 -58 21 -67 25 -15 6 -16 0 -12 -67z"/>
+                                                <path d="M2194 1090 c-35 -14 -64 -59 -64 -99 0 -86 80 -141 154 -106 130 62
+                                                44 259 -90 205z"/>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                    Crafting your dog's story...
+                                </div>
                             </div>
-                            Crafting your dog's story...
+                            <div class="button-group" style="margin-top: 20px; justify-content: center;">
+                                <button class="btn-regenerate" onclick="regenerateImage()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
+                                        <polyline points="23 4 23 10 17 10"></polyline>
+                                        <polyline points="1 20 1 14 7 14"></polyline>
+                                        <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                    </svg>
+                                    Generate Another Design
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="button-group" style="margin-top: 20px; justify-content: center;">
-                        <button class="btn-regenerate" onclick="regenerateImage()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <polyline points="1 20 1 14 7 14"></polyline>
-                                <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                            </svg>
-                            Generate Another Design
-                        </button>
-                    </div>
-                </div>
-            `;
+                    `;
             
             // Now generate story content asynchronously
             generateStoryContent().then(storyContent => {
