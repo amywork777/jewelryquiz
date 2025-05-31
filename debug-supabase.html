@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Debug</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Debug</h1>
+    <button onclick="runDebug()">Run Debug</button>
+    <div id="results"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://shesgtnhozprxtztouih.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoZXNndG5ob3pwcnh0enRvdWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2NTk3NjMsImV4cCI6MjA2NDIzNTc2M30.Mf5UU8Cut5lOxULfL';
+
+        async function runDebug() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Debug Results:</h2>';
+            
+            try {
+                // Initialize Supabase
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                results.innerHTML += '<p>✅ Supabase client created</p>';
+
+                // Check if tables exist
+                const { data: tables, error: tablesError } = await supabase
+                    .from('quiz_sessions')
+                    .select('*')
+                    .limit(0);
+
+                if (tablesError) {
+                    results.innerHTML += `<p>❌ Tables check error: ${JSON.stringify(tablesError, null, 2)}</p>`;
+                    results.innerHTML += `<p><strong>Error Code:</strong> ${tablesError.code}</p>`;
+                    results.innerHTML += `<p><strong>Error Message:</strong> ${tablesError.message}</p>`;
+                    results.innerHTML += `<p><strong>Error Details:</strong> ${tablesError.details}</p>`;
+                    results.innerHTML += `<p><strong>Error Hint:</strong> ${tablesError.hint}</p>`;
+                } else {
+                    results.innerHTML += '<p>✅ Tables exist and accessible</p>';
+                }
+
+                // Try to insert a simple record
+                const sessionId = 'debug_' + Date.now();
+                const { data, error } = await supabase
+                    .from('quiz_sessions')
+                    .insert([{
+                        session_id: sessionId,
+                        current_question: 'Q1'
+                    }]);
+
+                if (error) {
+                    results.innerHTML += `<p>❌ Insert error: ${JSON.stringify(error, null, 2)}</p>`;
+                    results.innerHTML += `<p><strong>Insert Error Code:</strong> ${error.code}</p>`;
+                    results.innerHTML += `<p><strong>Insert Error Message:</strong> ${error.message}</p>`;
+                    results.innerHTML += `<p><strong>Insert Error Details:</strong> ${error.details}</p>`;
+                    results.innerHTML += `<p><strong>Insert Error Hint:</strong> ${error.hint}</p>`;
+                } else {
+                    results.innerHTML += '<p>✅ Insert successful</p>';
+                    results.innerHTML += `<p>Inserted data: ${JSON.stringify(data, null, 2)}</p>`;
+                }
+
+                // Check RLS policies
+                const { data: authData } = await supabase.auth.getUser();
+                results.innerHTML += `<p><strong>Auth Status:</strong> ${authData.user ? 'Authenticated' : 'Anonymous'}</p>`;
+
+            } catch (error) {
+                results.innerHTML += `<p>❌ Exception: ${error.message}</p>`;
+                results.innerHTML += `<p><strong>Stack:</strong> ${error.stack}</p>`;
+            }
+        }
+    </script>
+</body>
+</html> 

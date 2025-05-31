@@ -321,37 +321,42 @@
 
         // Hook into text input changes
         function setupTextInputHooks() {
-            // Dog name input
-            const dogNameInput = document.getElementById('dog-name');
-            if (dogNameInput) {
-                dogNameInput.addEventListener('input', debounce(function() {
-                    saveQuestionResponse('Q2', this.value, 'text');
-                }, 1000));
+            // Use a more robust approach to find elements
+            function addInputListener(elementId, questionId, responseType = 'text') {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.addEventListener('input', debounce(function() {
+                        if (this && this.value !== undefined) {
+                            saveQuestionResponse(questionId, this.value, responseType);
+                        }
+                    }, 1000));
+                    console.log(`✅ Added listener for ${elementId}`);
+                } else {
+                    console.log(`⚠️ Element ${elementId} not found, will retry later`);
+                }
             }
 
-            // Dog description input
-            const dogDescInput = document.getElementById('dog-description');
-            if (dogDescInput) {
-                dogDescInput.addEventListener('input', debounce(function() {
-                    saveQuestionResponse('Q3', this.value, 'text');
-                }, 1000));
-            }
+            // Try to add listeners for all form elements
+            addInputListener('dog-name', 'Q2', 'text');
+            addInputListener('dog-description', 'Q3', 'text');
+            addInputListener('contact-email', 'contact_email', 'email');
+            addInputListener('contact-phone', 'contact_phone', 'phone');
 
-            // Email input
-            const emailInput = document.getElementById('contact-email');
-            if (emailInput) {
-                emailInput.addEventListener('input', debounce(function() {
-                    saveQuestionResponse('contact_email', this.value, 'email');
-                }, 1000));
-            }
-
-            // Phone input
-            const phoneInput = document.getElementById('contact-phone');
-            if (phoneInput) {
-                phoneInput.addEventListener('input', debounce(function() {
-                    saveQuestionResponse('contact_phone', this.value, 'phone');
-                }, 1000));
-            }
+            // Also try to find elements by other selectors
+            const allInputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea');
+            allInputs.forEach(input => {
+                if (input.id && !input.dataset.supabaseListenerAdded) {
+                    input.addEventListener('input', debounce(function() {
+                        if (this && this.value !== undefined) {
+                            const questionContainer = this.closest('.question-container');
+                            const questionId = questionContainer ? questionContainer.dataset.question : this.id;
+                            saveQuestionResponse(questionId, this.value, 'text');
+                        }
+                    }, 1000));
+                    input.dataset.supabaseListenerAdded = 'true';
+                    console.log(`✅ Added generic listener for ${input.id}`);
+                }
+            });
         }
 
         // Hook into file upload
@@ -407,6 +412,34 @@
         } else {
             setupTextInputHooks();
         }
+
+        // Also retry setting up hooks after a delay in case elements are added dynamically
+        setTimeout(() => {
+            console.log('🔄 Retrying text input hooks setup...');
+            setupTextInputHooks();
+        }, 2000);
+
+        // Set up a mutation observer to catch dynamically added elements
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1) { // Element node
+                            const inputs = node.querySelectorAll ? node.querySelectorAll('input, textarea') : [];
+                            if (inputs.length > 0) {
+                                console.log('🔄 New form elements detected, setting up hooks...');
+                                setupTextInputHooks();
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
     }
 
     // Debounce function for text inputs
