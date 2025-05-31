@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Taiyaki Flow</title>
+    <style>
+        body {
+            font-family: 'Avenir Next', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .file-input {
+            border: 2px dashed #667eea;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .file-input:hover {
+            background-color: #f8f9ff;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .preview-image {
+            max-width: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 Test Taiyaki Flow</h1>
+        <p>Upload a dog photo to test the complete flow: Upload → AI Render → Shopify → Email</p>
+        
+        <form id="testForm">
+            <div class="form-group">
+                <label for="dogPhoto">Dog Photo</label>
+                <div class="file-input" onclick="document.getElementById('dogPhoto').click()">
+                    <input type="file" id="dogPhoto" accept="image/*" style="display: none;" required>
+                    <span id="fileText">Click to select a dog photo</span>
+                    <img id="preview" class="preview-image" style="display: none;">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="dogName">Dog's Name</label>
+                <input type="text" id="dogName" placeholder="Buddy" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="material">Material Preference (Optional)</label>
+                <select id="material">
+                    <option value="">Select material...</option>
+                    <option value="sterling_silver">Sterling Silver</option>
+                    <option value="gold_filled">Gold-Filled</option>
+                    <option value="solid_gold">Solid Gold</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="inspiration">Inspiration (Optional)</label>
+                <textarea id="inspiration" placeholder="What inspires this design?"></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submitBtn">
+                🚀 Test Complete Taiyaki Flow
+            </button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your design through the complete Taiyaki flow...</p>
+            <p><small>This may take 30-60 seconds</small></p>
+        </div>
+        
+        <div class="result" id="result">
+            <h3 id="resultTitle"></h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // File upload preview
+        document.getElementById('dogPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('preview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    document.getElementById('fileText').textContent = file.name;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            // Get form data
+            const photoFile = document.getElementById('dogPhoto').files[0];
+            const email = document.getElementById('email').value;
+            const dogName = document.getElementById('dogName').value;
+            const material = document.getElementById('material').value;
+            const inspiration = document.getElementById('inspiration').value;
+            
+            if (!photoFile) {
+                alert('Please select a dog photo');
+                return;
+            }
+            
+            // Convert photo to base64
+            const photoBase64 = await fileToBase64(photoFile);
+            
+            // Show loading
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            try {
+                // Call the complete flow API
+                const response = await fetch('/api/process-complete-flow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        photo: photoBase64,
+                        email: email,
+                        dog_name: dogName,
+                        designData: {
+                            responses: {
+                                material: material || null,
+                                inspiration: inspiration || null
+                            }
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    // Show success
+                    showResult('success', '✅ Taiyaki Flow Complete!', `
+                        <p><strong>Design ID:</strong> ${data.design_id}</p>
+                        <p><strong>Render URL:</strong> <a href="${data.render_url}" target="_blank">View AI Design</a></p>
+                        <p><strong>Product URL:</strong> <a href="${data.product_url}" target="_blank">View Product</a></p>
+                        <p><strong>Checkout URL:</strong> <a href="${data.checkout_url}" target="_blank">Buy Now</a></p>
+                        <p><strong>Email Sent:</strong> ${data.email_sent ? 'Yes' : 'No'}</p>
+                        <hr>
+                        <p>🎉 The complete flow worked! Check your email for the notification.</p>
+                    `);
+                } else {
+                    // Show error
+                    showResult('error', '❌ Flow Failed', `
+                        <p><strong>Error:</strong> ${data.error}</p>
+                        <p><strong>Details:</strong> ${data.details || 'No additional details'}</p>
+                        ${data.design_id ? `<p><strong>Design ID:</strong> ${data.design_id}</p>` : ''}
+                    `);
+                }
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                showResult('error', '❌ Network Error', `
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>Make sure the development server is running and try again.</p>
+                `);
+            }
+            
+            submitBtn.disabled = false;
+        });
+        
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        function showResult(type, title, content) {
+            const result = document.getElementById('result');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultContent = document.getElementById('resultContent');
+            
+            result.className = `result ${type}`;
+            resultTitle.textContent = title;
+            resultContent.innerHTML = content;
+            result.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 

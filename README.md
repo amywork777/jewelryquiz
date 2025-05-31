@@ -1,127 +1,168 @@
-# Custom Charm Design Questionnaire
+# 🐕 Taiyaki Dog Charm Quiz
 
-An interactive questionnaire that guides users through creating custom jewelry charms with AI-powered image generation.
+A complete AI-powered pipeline that transforms dog photos into custom jewelry designs and Shopify products.
 
-## 🚀 Quick Fix for Vercel Deployment
+## ✨ Features
 
-**If image generation is not working in Vercel, follow these steps:**
+- **Photo Upload**: Upload dog photos via web interface
+- **AI Design Generation**: Create custom charm designs using OpenAI DALL-E 3
+- **Shopify Integration**: Automatically create products with checkout links
+- **Email Notifications**: Send beautiful emails with charm previews and buy buttons
+- **Firebase Storage**: Secure photo and design storage
+- **Real-time Processing**: Complete pipeline from photo to purchasable product
 
-### 1. Set Environment Variable in Vercel
-1. Go to your Vercel dashboard
-2. Select your project
-3. Go to Settings → Environment Variables
-4. Add a new variable:
-   - **Name:** `OPENAI_API_KEY`
-   - **Value:** Your OpenAI API key (starts with `sk-`)
-   - **Environment:** Production (and Preview if needed)
-5. Click "Save"
-6. Redeploy your project
+## 🚀 The Taiyaki Flow
 
-### 2. Get an OpenAI API Key
-1. Go to [OpenAI Platform](https://platform.openai.com/)
-2. Sign up or log in
-3. Go to API Keys section
-4. Create a new API key
-5. Copy the key (starts with `sk-`)
+1. **Upload** → Photo uploaded to Firebase Storage, Firestore document created
+2. **Render** → AI generates custom charm design based on dog photo and preferences
+3. **Shopify** → Product created with design image and metadata
+4. **Email** → Customer receives notification with preview and purchase link
 
-### 3. Verify the Fix
-After setting the environment variable and redeploying:
-1. Complete the questionnaire
-2. Check browser console for "Config loaded successfully from server"
-3. Image generation should work at the end
+## 🛠 Tech Stack
 
-## 🛠 Local Development
+- **Frontend**: HTML, CSS, JavaScript
+- **Backend**: Vercel Serverless Functions (Node.js)
+- **AI**: OpenAI DALL-E 3 for design generation
+- **Database**: Firebase Firestore
+- **Storage**: Firebase Storage
+- **E-commerce**: Shopify Admin API
+- **Email**: Gmail SMTP via Nodemailer
 
-### Prerequisites
-- Modern web browser
-- OpenAI API key (for image generation)
+## 📋 Prerequisites
 
-### Setup
-1. Clone the repository
-2. Create a `config.js` file in the root directory:
-```javascript
-window.CONFIG = {
-    OPENAI_API_KEY: 'your-openai-api-key-here'
-};
-```
-3. Open `index.html` in your browser
+- Node.js 18+
+- Firebase project with Storage and Firestore enabled
+- OpenAI API key
+- Shopify store with Admin API access
+- Gmail account with app password
 
-**Note:** Never commit `config.js` with real API keys to version control.
+## ⚙️ Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/taiyaki-dog-charm-quiz.git
+   cd taiyaki-dog-charm-quiz
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+   Create `.env.local` with your credentials:
+   ```env
+   # Firebase Configuration
+   FIREBASE_API_KEY=your_firebase_api_key
+   FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   FIREBASE_PROJECT_ID=your_project_id
+   FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+   FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   FIREBASE_APP_ID=your_app_id
+
+   # OpenAI Configuration
+   OPENAI_API_KEY=sk-proj-your_openai_key
+
+   # Shopify Configuration
+   SHOPIFY_STORE_URL=your_store.myshopify.com
+   SHOPIFY_ACCESS_TOKEN=shpat_your_access_token
+
+   # Gmail Configuration
+   EMAIL_USER=your_email@gmail.com
+   EMAIL_PASSWORD=your_app_password
+   FROM_EMAIL=your_from_email@domain.com
+   ```
+
+4. **Start development server**
+   ```bash
+   npx vercel dev --listen 3000
+   ```
+
+5. **Test the flow**
+   Open `http://localhost:3000/test-taiyaki-flow.html`
 
 ## 📁 Project Structure
 
 ```
-├── index.html          # Main questionnaire application
 ├── api/
-│   └── config.js       # Serverless function for secure API key delivery
-├── vercel.json         # Vercel configuration for routing
-├── config.js           # Local development config (gitignored)
-├── config.template.js  # Template for local config
-└── DEPLOYMENT.md       # Detailed deployment guide
+│   ├── upload-design.js      # Step 1: Photo upload
+│   ├── render-design.js      # Step 2: AI design generation
+│   ├── create-shopify-product.js  # Step 3: Shopify product creation
+│   ├── send-email.js         # Step 4: Email notification
+│   └── process-complete-flow.js   # Complete pipeline orchestrator
+├── firebase-config.js        # Firebase initialization
+├── test-taiyaki-flow.html   # Testing interface
+├── package.json
+└── README.md
 ```
 
-## 🔧 How It Works
+## 🔧 API Endpoints
 
-### Architecture
-- **Frontend:** Single-page HTML application with vanilla JavaScript
-- **Backend:** Vercel serverless function for secure API key management
-- **AI Integration:** OpenAI API for custom charm image generation
+### Complete Flow
+- `POST /api/process-complete-flow` - Runs entire pipeline
 
-### Security
-- API keys are stored as environment variables in Vercel
-- No sensitive data exposed in client-side code
-- Secure serverless function delivers configuration
-
-### Features
-- **Adaptive Questionnaire:** Different paths based on user needs
-- **Image Upload:** Support for reference images and inspiration
-- **AI Image Generation:** Custom charm designs based on responses
-- **Responsive Design:** Works on desktop and mobile
-- **Graceful Fallbacks:** Manual design process when AI is unavailable
+### Individual Steps
+- `POST /api/upload-design` - Upload photo and create design document
+- `POST /api/render-design` - Generate AI charm design
+- `POST /api/create-shopify-product` - Create Shopify product
+- `POST /api/send-email` - Send notification email
 
 ## 🎨 Customization
 
-### Styling
-The application uses a clean, minimal design with:
-- Custom CSS variables for easy theming
-- Responsive layout with mobile-first approach
-- Smooth animations and transitions
+### AI Prompt Customization
+Modify the prompt generation in `api/render-design.js` to adjust design style:
 
-### Questionnaire Flow
-The questionnaire adapts based on user responses:
-- **Path A:** Exploratory (needs help with ideas)
-- **Path B:** Idea refinement (has rough concept)
-- **Path C:** Direct creation (knows exactly what they want)
+```javascript
+let prompt = `Create a beautiful, elegant dog charm design featuring ${dog_name}. `;
+// Add your custom styling instructions
+```
+
+### Email Templates
+Customize email design in `api/send-email.js`:
+
+```javascript
+function generateEmailTemplate(designData) {
+  // Modify HTML template
+}
+```
+
+### Shopify Product Configuration
+Adjust product settings in `api/create-shopify-product.js`:
+
+```javascript
+const productData = {
+  product: {
+    title: `Custom Dog Charm – ${dog_name}`,
+    // Customize product details
+  }
+};
+```
 
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+```bash
+npm run deploy
+```
+
+### Manual Deployment
 1. Connect your GitHub repository to Vercel
-2. Set the `OPENAI_API_KEY` environment variable
-3. Deploy automatically
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on push
 
-### Other Platforms
-The application can be deployed to any static hosting platform, but you'll need to:
-1. Implement your own API key management
-2. Modify the configuration loading logic
-3. Ensure CORS is properly configured
+## 🔒 Security
 
-## 🐛 Troubleshooting
+- Environment variables are never committed to git
+- Firebase Security Rules should be configured for production
+- Shopify webhook signatures should be verified in production
+- Rate limiting should be implemented for API endpoints
 
-### Image Generation Not Working
-1. **Check Environment Variable:** Ensure `OPENAI_API_KEY` is set in Vercel
-2. **Check API Key:** Verify the key is valid and has sufficient credits
-3. **Check Console:** Look for error messages in browser developer tools
-4. **Fallback Mode:** The app gracefully falls back to manual design creation
+## 📊 Monitoring
 
-### Common Issues
-- **404 on /config.js:** Environment variable not set in Vercel
-- **CORS errors:** API key configuration issue
-- **Blank images:** Invalid or expired API key
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- Check Vercel function logs for API errors
+- Monitor Firebase usage in Firebase Console
+- Track Shopify API rate limits
+- Monitor email delivery rates
 
 ## 🤝 Contributing
 
@@ -131,10 +172,16 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 4. Test thoroughly
 5. Submit a pull request
 
-## 📞 Support
+## 📄 License
 
-If you encounter issues:
-1. Check the troubleshooting section above
-2. Review the browser console for errors
-3. Ensure all environment variables are properly set
-4. Contact support with specific error messages 
+MIT License - see LICENSE file for details
+
+## 🆘 Support
+
+For issues and questions:
+- Check the [Issues](https://github.com/your-username/taiyaki-dog-charm-quiz/issues) page
+- Email: support@taiyaki.ai
+
+---
+
+Made with ❤️ by Taiyaki Custom Charms 
