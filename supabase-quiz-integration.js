@@ -161,6 +161,8 @@
         if (!supabase || !currentSessionId || !file) return null;
 
         try {
+            console.log('📸 Starting photo upload:', file.name, 'size:', file.size);
+            
             // Create unique filename
             const fileExt = file.name.split('.').pop();
             const fileName = `${currentSessionId}/${questionId}_${Date.now()}.${fileExt}`;
@@ -175,8 +177,20 @@
 
             if (error) {
                 console.error('❌ Error uploading photo:', error);
+                console.error('❌ Error details:', {
+                    message: error.message,
+                    statusCode: error.statusCode,
+                    error: error.error
+                });
+                
+                // If bucket doesn't exist, log that info
+                if (error.message && error.message.includes('bucket')) {
+                    console.error('❌ Storage bucket "quiz-photos" may not exist. Please create it in Supabase Dashboard → Storage');
+                }
                 return null;
             }
+
+            console.log('✅ Photo uploaded successfully:', data);
 
             // Get public URL
             const { data: urlData } = supabase.storage
@@ -184,6 +198,7 @@
                 .getPublicUrl(fileName);
 
             const photoUrl = urlData.publicUrl;
+            console.log('📸 Photo URL:', photoUrl);
 
             // Save photo record to database
             await savePhotoRecord(questionId, fileName, photoUrl, file);
@@ -192,7 +207,7 @@
             return photoUrl;
 
         } catch (error) {
-            console.error('❌ Error uploading photo:', error);
+            console.error('❌ Exception uploading photo:', error);
             return null;
         }
     }
@@ -562,7 +577,66 @@
         saveCompleteFormData,
         saveGeneratedImage,
         getCurrentSessionId: () => currentSessionId,
-        checkStatus: checkIntegrationStatus
+        checkStatus: checkIntegrationStatus,
+        // Manual test functions
+        testSaveResponse: (questionId, response) => {
+            console.log('🧪 Manual test - saving response:', questionId, response);
+            return saveQuestionResponse(questionId, response, 'test');
+        },
+        forceCapture: () => {
+            console.log('🔄 Force capturing all current form data...');
+            
+            // Capture all text inputs
+            const allInputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea');
+            allInputs.forEach(input => {
+                if (input.value && input.value.trim() !== '') {
+                    const questionContainer = input.closest('.question-container');
+                    const questionId = questionContainer ? questionContainer.dataset.question : input.id;
+                    console.log('💾 Force saving:', questionId, input.value);
+                    saveQuestionResponse(questionId, input.value, input.type === 'email' ? 'email' : input.type === 'tel' ? 'phone' : 'text');
+                }
+            });
+            
+            // Capture all selected options
+            const selectedOptions = document.querySelectorAll('.option.selected');
+            selectedOptions.forEach(option => {
+                const questionContainer = option.closest('.question-container');
+                const questionId = questionContainer ? questionContainer.dataset.question : 'unknown';
+                const value = option.textContent || option.dataset.value;
+                console.log('💾 Force saving option:', questionId, value);
+                saveQuestionResponse(questionId, value, 'option');
+            });
+            
+            // Capture all file uploads
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => {
+                if (input.files && input.files.length > 0) {
+                    const questionContainer = input.closest('.question-container');
+                    const questionId = questionContainer ? questionContainer.dataset.question : 'Q1';
+                    console.log('📸 Force uploading:', input.files[0].name);
+                    uploadPhoto(input.files[0], questionId);
+                }
+            });
+        },
+        debugHooks: () => {
+            console.log('🔍 Debugging hooks...');
+            console.log('window.selectOption exists:', typeof window.selectOption);
+            console.log('window.nextQuestion exists:', typeof window.nextQuestion);
+            console.log('window.handleFileUpload exists:', typeof window.handleFileUpload);
+            console.log('window.submitForm exists:', typeof window.submitForm);
+            console.log('window.generateImage exists:', typeof window.generateImage);
+            
+            // Check for form elements
+            const inputs = document.querySelectorAll('input, textarea');
+            console.log('Total form elements found:', inputs.length);
+            
+            const questionContainers = document.querySelectorAll('.question-container');
+            console.log('Question containers found:', questionContainers.length);
+            
+            questionContainers.forEach((container, index) => {
+                console.log(`Question ${index + 1}:`, container.dataset.question, container.classList.contains('active') ? '(active)' : '');
+            });
+        }
     };
 
     // Initialize when script loads
