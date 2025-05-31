@@ -6,7 +6,7 @@
 
     // Supabase configuration
     const SUPABASE_URL = 'https://shesgtnhozprxtztouih.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoZXNndG5ob3pwcnh0enRvdWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2NTk3NjMsImV4cCI6MjA2NDIzNTc2M30.Mf5UU8Cut5lOxULfL';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoZXNndG5ob3pwcnh0enRvdWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2NTk3NjMsImV4cCI6MjA2NDIzNTc2M30.Mf5UU8Cut5lOxULfLAc6C0fTnAt3nbLfCp6Tkk1WEbI';
 
     // Initialize Supabase client
     let supabase;
