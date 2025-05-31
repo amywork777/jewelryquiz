@@ -309,52 +309,89 @@
         // Hook into option selection
         const originalSelectOption = window.selectOption;
         window.selectOption = function(element, value) {
+            console.log('🎯 Option selected:', value);
+            
             // Call original function
             if (originalSelectOption) {
                 originalSelectOption(element, value);
             }
 
             // Save to Supabase
-            const questionId = element.closest('.question-container').dataset.question;
+            const questionContainer = element.closest('.question-container');
+            const questionId = questionContainer ? questionContainer.dataset.question : 'unknown';
+            console.log('💾 Saving option response:', questionId, value);
             saveQuestionResponse(questionId, value, 'option');
         };
 
-        // Hook into text input changes
-        function setupTextInputHooks() {
-            // Use a more robust approach to find elements
-            function addInputListener(elementId, questionId, responseType = 'text') {
-                const element = document.getElementById(elementId);
-                if (element) {
-                    element.addEventListener('input', debounce(function() {
-                        if (this && this.value !== undefined) {
-                            saveQuestionResponse(questionId, this.value, responseType);
-                        }
-                    }, 1000));
-                    console.log(`✅ Added listener for ${elementId}`);
-                } else {
-                    console.log(`⚠️ Element ${elementId} not found, will retry later`);
-                }
+        // Hook into nextQuestion function to capture when questions change
+        const originalNextQuestion = window.nextQuestion;
+        window.nextQuestion = function() {
+            console.log('🔄 Next question called');
+            
+            // Call original function first
+            if (originalNextQuestion) {
+                originalNextQuestion();
             }
 
-            // Try to add listeners for all form elements
-            addInputListener('dog-name', 'Q2', 'text');
-            addInputListener('dog-description', 'Q3', 'text');
-            addInputListener('contact-email', 'contact_email', 'email');
-            addInputListener('contact-phone', 'contact_phone', 'phone');
+            // Capture any form data that might have been entered
+            setTimeout(() => {
+                captureCurrentQuestionData();
+            }, 100);
+        };
 
-            // Also try to find elements by other selectors
+        // Function to capture current question data
+        function captureCurrentQuestionData() {
+            const activeQuestion = document.querySelector('.question-container.active');
+            if (!activeQuestion) return;
+
+            const questionId = activeQuestion.dataset.question;
+            console.log('📝 Capturing data for question:', questionId);
+
+            // Check for text inputs in current question
+            const textInputs = activeQuestion.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea');
+            textInputs.forEach(input => {
+                if (input.value && input.value.trim() !== '') {
+                    console.log('💾 Saving text input:', input.id, input.value);
+                    saveQuestionResponse(questionId, input.value, input.type === 'email' ? 'email' : input.type === 'tel' ? 'phone' : 'text');
+                }
+            });
+
+            // Check for selected options
+            const selectedOptions = activeQuestion.querySelectorAll('.option.selected');
+            selectedOptions.forEach(option => {
+                const value = option.textContent || option.dataset.value;
+                if (value) {
+                    console.log('💾 Saving selected option:', questionId, value);
+                    saveQuestionResponse(questionId, value, 'option');
+                }
+            });
+
+            // Check for file uploads
+            const fileInputs = activeQuestion.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => {
+                if (input.files && input.files.length > 0) {
+                    console.log('📸 Found uploaded file:', input.files[0].name);
+                    uploadPhoto(input.files[0], questionId);
+                }
+            });
+        }
+
+        // Hook into text input changes with a simpler approach
+        function setupTextInputHooks() {
+            // Add listeners to all text inputs
             const allInputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea');
             allInputs.forEach(input => {
-                if (input.id && !input.dataset.supabaseListenerAdded) {
+                if (!input.dataset.supabaseListenerAdded) {
                     input.addEventListener('input', debounce(function() {
-                        if (this && this.value !== undefined) {
+                        if (this && this.value !== undefined && this.value.trim() !== '') {
                             const questionContainer = this.closest('.question-container');
                             const questionId = questionContainer ? questionContainer.dataset.question : this.id;
-                            saveQuestionResponse(questionId, this.value, 'text');
+                            console.log('💾 Saving text input (live):', questionId, this.value);
+                            saveQuestionResponse(questionId, this.value, this.type === 'email' ? 'email' : this.type === 'tel' ? 'phone' : 'text');
                         }
                     }, 1000));
                     input.dataset.supabaseListenerAdded = 'true';
-                    console.log(`✅ Added generic listener for ${input.id}`);
+                    console.log(`✅ Added listener for ${input.id || input.type}`);
                 }
             });
         }
@@ -362,6 +399,8 @@
         // Hook into file upload
         const originalHandleFileUpload = window.handleFileUpload;
         window.handleFileUpload = async function(inputId) {
+            console.log('📸 File upload triggered for:', inputId);
+            
             // Call original function
             if (originalHandleFileUpload) {
                 originalHandleFileUpload(inputId);
@@ -369,9 +408,11 @@
 
             // Upload to Supabase
             const input = document.getElementById(inputId);
-            const file = input.files[0];
+            const file = input && input.files ? input.files[0] : null;
             if (file) {
-                const questionId = input.closest('.question-container').dataset.question;
+                const questionContainer = input.closest('.question-container');
+                const questionId = questionContainer ? questionContainer.dataset.question : 'Q1';
+                console.log('📸 Uploading photo to Supabase:', file.name, 'for question:', questionId);
                 await uploadPhoto(file, questionId);
             }
         };
@@ -420,26 +461,52 @@
         }, 2000);
 
         // Set up a mutation observer to catch dynamically added elements
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach((node) => {
-                        if (node.nodeType === 1) { // Element node
-                            const inputs = node.querySelectorAll ? node.querySelectorAll('input, textarea') : [];
-                            if (inputs.length > 0) {
-                                console.log('🔄 New form elements detected, setting up hooks...');
-                                setupTextInputHooks();
+        if (document.body) {
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === 1) { // Element node
+                                const inputs = node.querySelectorAll ? node.querySelectorAll('input, textarea') : [];
+                                if (inputs.length > 0) {
+                                    console.log('🔄 New form elements detected, setting up hooks...');
+                                    setupTextInputHooks();
+                                }
                             }
+                        });
+                    }
+                });
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        } else {
+            // If document.body doesn't exist yet, wait for it
+            document.addEventListener('DOMContentLoaded', () => {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'childList') {
+                            mutation.addedNodes.forEach((node) => {
+                                if (node.nodeType === 1) { // Element node
+                                    const inputs = node.querySelectorAll ? node.querySelectorAll('input, textarea') : [];
+                                    if (inputs.length > 0) {
+                                        console.log('🔄 New form elements detected, setting up hooks...');
+                                        setupTextInputHooks();
+                                    }
+                                }
+                            });
                         }
                     });
-                }
-            });
-        });
+                });
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            });
+        }
     }
 
     // Debounce function for text inputs
