@@ -924,9 +924,6 @@
                 </label>
                 <div class="file-info" id="dog-photo-info"></div>
             </div>
-            <div class="skip-link">
-                <a href="#" onclick="skipUpload(); return false;">I'll describe my dog instead</a>
-            </div>
             <div class="button-group">
                 <button class="btn-primary" onclick="nextQuestion()">
                     Continue
@@ -1059,28 +1056,6 @@
                     Back
                 </button>
                 <button class="btn-primary" onclick="validateContact()" disabled>
-                    Continue
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <div class="question-container" data-question="community">
-            <h2>Can we feature your dog charm design in our gallery?</h2>
-            <p>We love showcasing beautiful custom dog charms to inspire other pet parents</p>
-            <div class="options">
-                <div class="option" onclick="selectOption(this, 'yes')">
-                    Yes, that sounds great!
-                </div>
-                <div class="option" onclick="selectOption(this, 'no')">
-                    No, keep it private
-                </div>
-            </div>
-            <div class="button-group">
-                <button class="btn-secondary" onclick="previousQuestion()">Back</button>
-                <button class="btn-primary" onclick="submitForm()" disabled>
                     Submit
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
@@ -1094,6 +1069,12 @@
             <div class="completion-message">
                 <h1>You're all set!</h1>
                 <p style="font-size: 16px; margin-top: 20px;">Keep an eye on your inbox - you're going to love what we create for your furry friend!</p>
+                
+                <div style="margin: 25px 0; padding: 15px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; border-left: 4px solid #6c757d;">
+                    <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.5;">
+                        <strong>Community Design Share:</strong> Taiyaki is a community where we showcase beautiful custom designs to inspire other pet parents. You can opt out of design sharing anytime in your account settings if you prefer to keep your design private.
+                    </p>
+                </div>
                 
                 <!-- Loading indicator for image generation -->
                 <div class="loading-indicator" id="loadingIndicator">
@@ -1134,7 +1115,7 @@
         // Global variables
         let currentQuestion = 'Q1';
         let currentQuestionIndex = 0;
-        let questionFlow = ['Q1', 'Q2', 'Q3', 'materials', 'contact', 'community', 'complete'];
+        let questionFlow = ['Q1', 'Q2', 'Q3', 'materials', 'contact', 'complete'];
         let questionHistory = [];
         let formData = {};
         let backgroundImagePromise = null;
@@ -1419,7 +1400,7 @@
             
             if (email && email.value.trim() !== '' && email.checkValidity()) {
                 saveCurrentQuestionData();
-                nextQuestion();
+                submitForm();
             } else {
                 alert('Please enter a valid email address.');
             }
@@ -1852,9 +1833,6 @@ function restartQuiz() {
     
     const contactBtn = document.querySelector('[data-question="contact"] .btn-primary');
     if (contactBtn) contactBtn.disabled = true;
-    
-    const communityBtn = document.querySelector('[data-question="community"] .btn-primary');
-    if (communityBtn) communityBtn.disabled = true;
     
     // Reset container to normal mode
     const container = document.querySelector('.container');
