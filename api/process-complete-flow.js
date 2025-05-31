@@ -222,17 +222,22 @@ async function generateAndUploadRender(designData, { openai, storage, ref, uploa
   // Create detailed prompt
   let prompt = `Create a beautiful, elegant dog charm design featuring ${dog_name}. `;
   
+  // Determine metal type - default to sterling silver if not specified
+  let metalType = 'sterling silver';
+  
+  if (quizData && quizData.responses && quizData.responses.material) {
+    const materialMap = {
+      'sterling_silver': 'sterling silver',
+      'gold_filled': 'gold',
+      'solid_gold': 'gold'
+    };
+    metalType = materialMap[quizData.responses.material] || 'sterling silver';
+  }
+  
+  prompt += `Made in ${metalType} metal only. `;
+  
   if (quizData && quizData.responses) {
     const responses = quizData.responses;
-    
-    if (responses.material) {
-      const materialMap = {
-        'sterling_silver': 'sterling silver',
-        'gold_filled': 'gold-filled',
-        'solid_gold': 'solid gold'
-      };
-      prompt += `Made in ${materialMap[responses.material] || 'premium metal'}. `;
-    }
     
     if (responses.size_presence) {
       const styleMap = {
@@ -257,9 +262,11 @@ async function generateAndUploadRender(designData, { openai, storage, ref, uploa
   }
   
   prompt += `The charm should be jewelry-quality, suitable for a necklace or bracelet. 
+  IMPORTANT: Use ONLY ${metalType} metal finish - no colors, no enamel, no painted details. 
+  The design should be monochromatic in ${metalType} tones only.
   Style: clean, professional product photography on white background. 
   The design should capture the essence and personality of the dog while being wearable and elegant. 
-  High-quality, detailed, photorealistic rendering.`;
+  High-quality, detailed, photorealistic rendering with metallic ${metalType} finish only.`;
 
   // Generate image with OpenAI
   const response = await openai.images.generate({

@@ -24,7 +24,7 @@ const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 const FROM_EMAIL = process.env.FROM_EMAIL || 'taiyaki@taiyaki.ai';
 
 // Create Gmail transporter
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: EMAIL_USER,
