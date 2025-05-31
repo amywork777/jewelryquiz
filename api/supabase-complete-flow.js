@@ -1,5 +1,6 @@
 // SUPABASE-INTEGRATED COMPLETE TAIYAKI FLOW
 // Tracks all parts of the quiz and design process in Supabase
+// Uses Supabase Storage for all file uploads
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -17,9 +18,6 @@ export default async function handler(req, res) {
 
   // Dynamic imports for Vercel compatibility
   const { createClient } = await import('@supabase/supabase-js');
-  const { initializeApp } = await import('firebase/app');
-  const { getFirestore, collection, addDoc, doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
-  const { getStorage, ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
   const { v4: uuidv4 } = await import('uuid');
   const OpenAI = (await import('openai')).default;
   const nodemailer = (await import('nodemailer')).default;
@@ -29,19 +27,6 @@ export default async function handler(req, res) {
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY
   );
-
-  // Firebase config (keeping for storage)
-  const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.FIREBASE_APP_ID
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const storage = getStorage(app);
 
   // Initialize services
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -79,7 +64,7 @@ export default async function handler(req, res) {
     session_id = uuidv4();
     design_id = uuidv4();
 
-    console.log('🚀 Starting Supabase-tracked Taiyaki flow:', { session_id, design_id, email: formData.email });
+    console.log('🚀 Starting Supabase-only Taiyaki flow:', { session_id, design_id, email: formData.email });
 
     // Get user info for tracking
     const userAgent = req.headers['user-agent'] || '';
@@ -132,21 +117,33 @@ export default async function handler(req, res) {
 
     console.log('✅ Step 1 complete: Session created in Supabase');
 
-    // STEP 2: Upload photo to Firebase Storage
-    console.log('📸 Step 2: Uploading photo...');
+    // STEP 2: Upload photo to Supabase Storage
+    console.log('📸 Step 2: Uploading photo to Supabase Storage...');
     let photo_url = null;
     
     if (formData.dogPhotoData) {
       const timestamp = Date.now();
       const photoBuffer = Buffer.from(formData.dogPhotoData.replace(/^data:image\/\w+;base64,/, ''), 'base64');
       const photoPath = `uploads/${formData.email}/${timestamp}.jpg`;
-      const photoRef = ref(storage, photoPath);
       
-      const photoSnapshot = await uploadBytes(photoRef, photoBuffer, {
-        contentType: 'image/jpeg'
-      });
+      // Upload to Supabase Storage
+      const { data: photoUpload, error: photoError } = await supabase.storage
+        .from('taiyaki-uploads')
+        .upload(photoPath, photoBuffer, {
+          contentType: 'image/jpeg',
+          upsert: false
+        });
+
+      if (photoError) {
+        throw new Error(`Failed to upload photo: ${photoError.message}`);
+      }
+
+      // Get public URL
+      const { data: photoUrlData } = supabase.storage
+        .from('taiyaki-uploads')
+        .getPublicUrl(photoPath);
       
-      photo_url = await getDownloadURL(photoSnapshot.ref);
+      photo_url = photoUrlData.publicUrl;
 
       // Update session with photo URL
       await supabase
@@ -159,7 +156,7 @@ export default async function handler(req, res) {
         .eq('session_id', session_id);
     }
 
-    console.log('✅ Step 2 complete: Photo uploaded');
+    console.log('✅ Step 2 complete: Photo uploaded to Supabase Storage');
 
     // STEP 3: Generate AI design
     console.log('🎨 Step 3: Generating AI design...');
@@ -168,7 +165,7 @@ export default async function handler(req, res) {
     // Create design prompt
     let prompt = imageGenerationPrompts?.designPrompt || createDesignPrompt(formData);
     
-    const renderResult = await generateAIDesign(prompt, formData.dogPhotoData, { openai, storage, ref, uploadBytes, getDownloadURL });
+    const renderResult = await generateAIDesign(prompt, formData.dogPhotoData, { supabase });
     const generationTime = Date.now() - startTime;
 
     // Update session with render details
@@ -193,7 +190,7 @@ export default async function handler(req, res) {
         generation_time_ms: generationTime
       });
 
-    console.log('✅ Step 3 complete: AI design generated');
+    console.log('✅ Step 3 complete: AI design generated and stored in Supabase');
 
     // STEP 4: Create Shopify product
     console.log('🛒 Step 4: Creating Shopify product...');
@@ -248,7 +245,7 @@ export default async function handler(req, res) {
       .eq('session_id', session_id);
 
     console.log('✅ Step 5 complete: Email sent');
-    console.log('🎉 Complete Supabase-tracked flow finished successfully!');
+    console.log('🎉 Complete Supabase-only flow finished successfully!');
 
     return res.status(200).json({
       success: true,
@@ -258,11 +255,11 @@ export default async function handler(req, res) {
       product_url,
       checkout_url,
       email_sent: true,
-      message: 'Design processed successfully'
+      message: 'Design processed successfully with Supabase-only storage'
     });
     
   } catch (error) {
-    console.error('❌ Error in Supabase flow:', error);
+    console.error('❌ Error in Supabase-only flow:', error);
     
     // Update session status to error if we have a session_id
     if (session_id) {
@@ -331,8 +328,8 @@ function createDesignPrompt(formData) {
   return prompt;
 }
 
-// Generate AI design using OpenAI
-async function generateAIDesign(prompt, photoData, { openai, storage, ref, uploadBytes, getDownloadURL }) {
+// Generate AI design using OpenAI and store in Supabase
+async function generateAIDesign(prompt, photoData, { supabase }) {
   try {
     // Prepare the input content
     let inputContent = [];
@@ -382,19 +379,29 @@ async function generateAIDesign(prompt, photoData, { openai, storage, ref, uploa
     
     if (imageGenerationCalls && imageGenerationCalls.length > 0 && imageGenerationCalls[0].result) {
       const imageBase64 = imageGenerationCalls[0].result;
-      const imageDataUrl = `data:image/png;base64,${imageBase64}`;
       
-      // Upload to Firebase Storage
+      // Upload to Supabase Storage
       const timestamp = Date.now();
       const imageBuffer = Buffer.from(imageBase64, 'base64');
       const imagePath = `renders/${timestamp}.png`;
-      const imageRef = ref(storage, imagePath);
       
-      const imageSnapshot = await uploadBytes(imageRef, imageBuffer, {
-        contentType: 'image/png'
-      });
+      const { data: imageUpload, error: imageError } = await supabase.storage
+        .from('taiyaki-uploads')
+        .upload(imagePath, imageBuffer, {
+          contentType: 'image/png',
+          upsert: false
+        });
+
+      if (imageError) {
+        throw new Error(`Failed to upload render: ${imageError.message}`);
+      }
+
+      // Get public URL
+      const { data: imageUrlData } = supabase.storage
+        .from('taiyaki-uploads')
+        .getPublicUrl(imagePath);
       
-      const render_url = await getDownloadURL(imageSnapshot.ref);
+      const render_url = imageUrlData.publicUrl;
       
       return { render_url, prompt };
     } else {

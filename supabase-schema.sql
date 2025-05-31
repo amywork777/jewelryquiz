@@ -1,8 +1,20 @@
 -- Supabase Database Schema for Taiyaki Dog Charm Quiz
 -- This schema tracks all parts of the quiz and design process
+-- Uses Supabase Storage for all file uploads
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create storage bucket for uploads
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('taiyaki-uploads', 'taiyaki-uploads', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for public access
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'taiyaki-uploads');
+CREATE POLICY "Authenticated users can upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'taiyaki-uploads');
+CREATE POLICY "Users can update own files" ON storage.objects FOR UPDATE USING (bucket_id = 'taiyaki-uploads');
+CREATE POLICY "Users can delete own files" ON storage.objects FOR DELETE USING (bucket_id = 'taiyaki-uploads');
 
 -- Main table for tracking each user's complete journey
 CREATE TABLE quiz_sessions (
