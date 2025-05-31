@@ -54,32 +54,45 @@
         return 'quiz_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
-    // Create initial session record in Supabase
+    // Create session record in Supabase
     async function createSessionRecord() {
-        if (!supabase || !currentSessionId) return;
+        if (!supabase || !currentSessionId) {
+            console.error('❌ Cannot create session: supabase or sessionId missing');
+            return;
+        }
 
         try {
+            console.log('🔄 Creating session record with ID:', currentSessionId);
+            
+            const sessionData = {
+                session_id: currentSessionId,
+                current_question: 'Q1',
+                user_agent: navigator.userAgent,
+                screen_resolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+            
+            console.log('📝 Session data to insert:', sessionData);
+
             const { data, error } = await supabase
                 .from('quiz_sessions')
-                .insert([
-                    {
-                        session_id: currentSessionId,
-                        started_at: sessionStartTime,
-                        current_question: 'Q1',
-                        status: 'in_progress',
-                        user_agent: navigator.userAgent,
-                        screen_resolution: `${screen.width}x${screen.height}`,
-                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-                    }
-                ]);
+                .insert([sessionData]);
 
             if (error) {
                 console.error('❌ Error creating session record:', error);
+                console.error('❌ Error details:', {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code
+                });
             } else {
                 console.log('✅ Session record created in Supabase');
+                console.log('✅ Session data:', data);
             }
         } catch (error) {
-            console.error('❌ Error creating session record:', error);
+            console.error('❌ Exception creating session record:', error);
+            console.error('❌ Exception details:', error.message, error.stack);
         }
     }
 
@@ -409,13 +422,47 @@
         };
     }
 
+    // Check integration status
+    async function checkIntegrationStatus() {
+        const status = {
+            supabaseConnected: !!supabase,
+            sessionId: currentSessionId,
+            sessionStartTime: sessionStartTime,
+            errors: []
+        };
+
+        if (supabase && currentSessionId) {
+            try {
+                // Test if we can read from the session
+                const { data, error } = await supabase
+                    .from('quiz_sessions')
+                    .select('*')
+                    .eq('session_id', currentSessionId)
+                    .single();
+
+                if (error) {
+                    status.errors.push(`Session read error: ${error.message}`);
+                    status.sessionExists = false;
+                } else {
+                    status.sessionExists = true;
+                    status.sessionData = data;
+                }
+            } catch (error) {
+                status.errors.push(`Exception checking session: ${error.message}`);
+            }
+        }
+
+        return status;
+    }
+
     // Public API
     window.SupabaseQuizIntegration = {
         saveQuestionResponse,
         uploadPhoto,
         saveCompleteFormData,
         saveGeneratedImage,
-        getCurrentSessionId: () => currentSessionId
+        getCurrentSessionId: () => currentSessionId,
+        checkStatus: checkIntegrationStatus
     };
 
     // Initialize when script loads

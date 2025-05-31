@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://shesgtnhozprxtztouih.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoZXNndG5ob3pwcnh0enRvdWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2NTk3NjMsImV4cCI6MjA2NDIzNTc2M30.Mf5UU8Cut5lOxULfL';
+
+        async function testSupabase() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Initialize Supabase
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                results.innerHTML += '<p>✅ Supabase client created</p>';
+
+                // Test session creation
+                const sessionId = 'test_' + Date.now();
+                const { data, error } = await supabase
+                    .from('quiz_sessions')
+                    .insert([{
+                        session_id: sessionId,
+                        current_question: 'Q1',
+                        user_agent: navigator.userAgent,
+                        screen_resolution: `${screen.width}x${screen.height}`,
+                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    }]);
+
+                if (error) {
+                    results.innerHTML += `<p>❌ Session creation error: ${JSON.stringify(error)}</p>`;
+                } else {
+                    results.innerHTML += '<p>✅ Session created successfully</p>';
+                }
+
+                // Test response creation
+                const { data: responseData, error: responseError } = await supabase
+                    .from('quiz_responses')
+                    .insert([{
+                        session_id: sessionId,
+                        question_id: 'test_question',
+                        response: 'test response',
+                        response_type: 'text'
+                    }]);
+
+                if (responseError) {
+                    results.innerHTML += `<p>❌ Response creation error: ${JSON.stringify(responseError)}</p>`;
+                } else {
+                    results.innerHTML += '<p>✅ Response created successfully</p>';
+                }
+
+                // Test table access
+                const { data: sessions, error: selectError } = await supabase
+                    .from('quiz_sessions')
+                    .select('*')
+                    .limit(1);
+
+                if (selectError) {
+                    results.innerHTML += `<p>❌ Table select error: ${JSON.stringify(selectError)}</p>`;
+                } else {
+                    results.innerHTML += '<p>✅ Table select successful</p>';
+                    results.innerHTML += `<p>Sessions found: ${sessions.length}</p>`;
+                }
+
+            } catch (error) {
+                results.innerHTML += `<p>❌ General error: ${error.message}</p>`;
+            }
+        }
+
+        // Run test when page loads
+        window.addEventListener('load', testSupabase);
+    </script>
+</body>
+</html> 
